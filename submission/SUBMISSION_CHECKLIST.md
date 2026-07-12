@@ -15,7 +15,7 @@
 - [x] Two explicit algorithms and five propositions are included.
 - [x] Related-work comparison, baselines, ablations, sensitivity, complexity,
       certificate overhead, calibration, and drift failure cases are included.
-- [x] Twenty-five references: 21 DOI records verified against Crossref/DataCite;
+- [x] Twenty-eight references: 24 DOI records verified against Crossref/DataCite;
       four records explicitly document that no DOI is assigned.
 - [x] DOI links are clickable and rendered in blue.
 - [x] No missing citations, unresolved cross-references, overfull boxes, TODOs,

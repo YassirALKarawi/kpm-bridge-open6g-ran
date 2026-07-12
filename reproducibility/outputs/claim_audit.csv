@@ -69,10 +69,10 @@ temporal ridge model KiB,12.1,12.1,PASS
 certificate rate Mbit/s,0.384,0.384,PASS
 canonical-vector rate Mbit/s,0.256,0.256,PASS
 combined payload rate Mbit/s,0.64,0.64,PASS
-reference records,25,25,PASS
-verified DOI records,21,21,PASS
+reference records,28,28,PASS
+verified DOI records,24,24,PASS
 declared no-DOI records,4,4,PASS
-DOI links paired with DOI fields,21,21,PASS
+DOI links paired with DOI fields,24,24,PASS
 all citation keys resolve,[],[],PASS
 all bibliography records cited,[],[],PASS
 abstract word limit,194,"""75--200""",PASS

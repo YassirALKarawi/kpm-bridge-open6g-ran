@@ -211,8 +211,8 @@ def main() -> None:
 
     # Reference, structure, and submission-format checks.
     reference_audit = pd.read_csv(OUTPUTS / "reference_audit.csv")
-    audit.equal("reference records", len(reference_audit), 25)
-    audit.equal("verified DOI records", int((reference_audit.status == "VERIFIED").sum()), 21)
+    audit.equal("reference records", len(reference_audit), 28)
+    audit.equal("verified DOI records", int((reference_audit.status == "VERIFIED").sum()), 24)
     audit.equal("declared no-DOI records", int((reference_audit.status == "NO_DOI_DECLARED").sum()), 4)
     bibliography = (ROOT / "manuscript" / "references.bib").read_text(encoding="utf-8")
     bibliography_entries = entries(bibliography)
@@ -222,7 +222,7 @@ def main() -> None:
         url = field(entry, "url")
         if doi and url and url.lower() == f"https://doi.org/{doi}".lower():
             doi_url_pairs += 1
-    audit.equal("DOI links paired with DOI fields", doi_url_pairs, 21)
+    audit.equal("DOI links paired with DOI fields", doi_url_pairs, 24)
     cited = set()
     for group in re.findall(r"\\cite\{([^}]+)\}", tex):
         cited.update(key.strip() for key in group.split(","))
