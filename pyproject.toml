@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kpm-bridge"
+version = "0.1.0"
+description = "Uncertainty-aware cross-vendor KPM semantic alignment for portable Open RAN xApps"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26,<3"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,108 @@
+\documentclass[10pt,journal,twoside]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools,bm}
+\usepackage{booktabs,array,graphicx,cite,url,float}
+\usepackage{stfloats,microtype,xcolor}
+\definecolor{IEEElinkblue}{HTML}{00629B}
+\usepackage[colorlinks=true,linkcolor=IEEElinkblue,citecolor=IEEElinkblue,urlcolor=IEEElinkblue,breaklinks=true]{hyperref}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\newcommand{\cV}{\mathcal{V}}
+\newcommand{\cZ}{\mathcal{Z}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\lVert #1\rVert}
+
+\title{KPM-Bridge: An Uncertainty-Aware Cross-Vendor Telemetry Fabric for Portable AI xApps in Open 6G RAN}
+
+\author{Yassir~AL-Karawi and Hamed~Al-Raweshidy%
+\thanks{Y. AL-Karawi is with the College of Engineering, University of Diyala, Baqubah, Iraq (e-mail: yassirameen22@gmail.com).}%
+\thanks{H. Al-Raweshidy is with the Wireless Networks and Communications Centre, College of Engineering, Design and Physical Sciences, Brunel University of London, Uxbridge UB8 3PH, U.K. (corresponding author; e-mail: hamed.al-raweshidy@brunel.ac.uk).}%
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+An Open Radio Access Network (O-RAN) may carry syntactically valid Key Performance Measurement (KPM) reports from heterogeneous E2 nodes while exposing different operational meanings to an artificial-intelligence control application (xApp). Metric identifiers alone do not encode all differences in unit, entity scope, aggregation window, clock, counter reset, missingness, or vendor-side preprocessing. This paper introduces KPM-Bridge, a cross-vendor telemetry fabric that separates protocol interoperability from semantic and statistical portability. It compiles raw reports into typed canonical KPM contracts, aligns asynchronous observations, estimates a canonical telemetry state, and attaches a finite-sample uncertainty certificate containing support, age, schema, and drift information. A portable xApp admits robust inference only when an explicit quality budget is satisfied; otherwise it abstains or requests refinement. The framework is designed to complement E2 service-model abstractions rather than replace them. The analysis will establish type soundness, translation-error decomposition, conformal coverage under stated calibration assumptions, downstream decision stability, and streaming complexity. Evaluation will combine public Colosseum traces, controlled ns-O-RAN-flexRIC experiments, deterministic cross-implementation stress profiles, baselines, ablations, and sensitivity analysis. Numerical claims are intentionally withheld until the complete reproducible benchmark is executed and audited.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Open RAN, E2SM-KPM, xApp portability, semantic interoperability, uncertainty calibration, telemetry drift.
+\end{IEEEkeywords}
+
+\section{Introduction}
+\IEEEPARstart{O}{pen} Radio Access Networks (O-RANs) disaggregate the radio access network, expose open interfaces, and host independently developed xApps in the near-real-time RAN Intelligent Controller (Near-RT RIC) \cite{polese2023understanding}. This architecture enables one control application to interact with several E2 nodes, but interface compatibility does not guarantee that an artificial-intelligence (AI) model receives the same statistical object from each implementation. Two nodes may report a KPM under compatible E2 procedures while differing in scale, entity scope, observation window, timestamp basis, cumulative-counter reset, missing-value convention, or hidden filtering.
+
+This distinction matters because an AI xApp is sensitive to more than message syntax. A model trained on per-UE throughput averaged over 100~ms cannot safely treat a cell-level cumulative byte counter sampled every second as an equivalent feature, even if an adapter assigns both streams a common label. The resulting error is silent: the message decodes, the model runs, and a control action may be issued outside its training semantics.
+
+Recent frameworks reduce the difficulty of handling E2 service models and demonstrate portable xApp logic across heterogeneous stacks \cite{feraudo2024xdevsm,feraudo2026xdevsm}. KPM-Bridge addresses the complementary problem that begins after decoding: whether the received measurement is semantically and statistically fit for a particular AI input. It therefore sits between E2 termination and the xApp feature interface, without replacing E2AP, E2SM-KPM, or RAN Control procedures.
+
+The intended contributions are:
+\begin{itemize}
+\item a typed KPM contract that makes physical dimension, unit, entity scope, aggregation, window, clock, counter semantics, provenance, and schema version machine-checkable;
+\item a constrained cross-vendor transport model that combines type-safe matching, asynchronous temporal alignment, anchor consistency, monotonicity, and learned residual correction;
+\item a finite-sample uncertainty certificate and drift-aware quality gate for selective portable xApp inference;
+\item formal type-soundness, error, coverage, decision-stability, and complexity guarantees under explicit assumptions; and
+\item a reproducible benchmark combining public Colosseum evidence \cite{polese2023coloran}, controlled KPM-v3 simulation, documented implementation profiles, baselines, ablations, and sensitivity sweeps.
+\end{itemize}
+
+\section{Related Work}
+O-RAN architecture and AI control have been surveyed extensively \cite{polese2023understanding}. ColO-RAN demonstrated data-driven closed-loop xApps on a programmable experimental platform and released a substantial trace corpus \cite{polese2023coloran}. xDevSM hides low-level service-model procedures behind developer-facing APIs and, in its 2026 extension, supports observability and control across heterogeneous RAN stacks \cite{feraudo2024xdevsm,feraudo2026xdevsm}. These contributions establish protocol and framework portability. They do not, however, provide a typed model of measurement meaning, a finite-sample certificate for translation error, or a fail-closed admission rule for an AI model under cross-implementation telemetry shift.
+
+Domain alignment and optimal transport provide tools for matching heterogeneous feature distributions \cite{peyre2019optimal}; conformal prediction provides finite-sample predictive sets under stated calibration conditions \cite{angelopoulos2023conformal}. Applying either component without O-RAN measurement contracts is insufficient: an unconstrained statistical map can align dimensionally incompatible quantities, while a calibrated interval around a semantically wrong feature remains wrong. KPM-Bridge couples physical typing, temporal semantics, statistical alignment, and downstream admission.
+
+\section{System and Contract Model}
+Let \(\cV\) be the set of RAN implementations connected to a Near-RT RIC. For implementation \(v\in\cV\), raw KPM \(i\) has contract
+\begin{equation}
+c_{v,i}=(q_{v,i},u_{v,i},e_{v,i},a_{v,i},w_{v,i},\tau_{v,i},\rho_{v,i},\nu_{v,i}),
+\label{eq:contract}
+\end{equation}
+where \(q\) is the physical quantity, \(u\) its unit, \(e\) the entity scope, \(a\) the aggregation, \(w\) the observation window, \(\tau\) the clock basis, \(\rho\) the counter/reset semantics, and \(\nu\) the provenance and schema version.
+
+\begin{definition}[Type-compatible mapping]
+A raw contract \(c_{v,i}\) may map to canonical contract \(c_k^\star\) only if their physical dimensions, quantities, and entity scopes are compatible. Unit conversion is explicit; aggregation, window, clock, and counter differences create required transforms and uncertainty rather than implicit equivalence.
+\end{definition}
+
+Let \(z_t\in\cZ\subseteq\R^d\) denote the canonical KPM state and let \(m_{v,t}\) be the observation mask. The asynchronous vendor observation model is
+\begin{equation}
+y_{v,t}=m_{v,t}\odot h_v\!\left(z_{\tau_v(t)}\right)+\epsilon_{v,t},
+\label{eq:observation}
+\end{equation}
+where \(h_v\) contains only transforms admitted by compiled contracts plus an identified residual component. KPM-Bridge returns
+\begin{equation}
+B_v(y_{v,\leq t})=(\hat z_t,\cU_t,\gamma_t),
+\end{equation}
+where \(\cU_t\) is an uncertainty set and \(\gamma_t\) binds support, age, schema hash, mapping version, calibration epoch, and drift state.
+
+\section{KPM-Bridge Design}
+The design contains four stages. First, a contract compiler rejects dimensionally or scope-incompatible candidates and solves a minimum-cost matching problem over the remaining mappings. Second, a temporal aligner converts clocks, windows, gauges, deltas, and counters into a common event-time representation. Third, a constrained estimator combines anchor consistency, temporal regularity, monotonicity, and a low-complexity residual model. Fourth, a calibration service constructs \(\cU_t\) and a quality gate admits the downstream xApp only when all support, freshness, drift, and radius requirements hold.
+
+For an xApp utility \(J(a,z)\), robust inference is
+\begin{equation}
+a_t^\star\in\arg\max_{a\in\mathcal A}\min_{z\in\cU_t}J(a,z),
+\label{eq:robust}
+\end{equation}
+provided \(\gamma_t\) satisfies the declared quality budget. Failure produces abstention or a refinement request, not an unqualified canonical vector.
+
+\section{Guarantees and Complexity}
+The complete version will prove five results. Type soundness will show that the compiler cannot silently cross physical dimensions or entity scopes. An error decomposition will separate contract, temporal, approximation, stochastic, and drift terms. A split- or weighted-conformal result will state finite-sample coverage under explicit calibration assumptions. A downstream stability result will translate an uncertainty radius into a utility or action-margin bound for Lipschitz xApp objectives. Finally, compilation and streaming costs will be stated in terms of raw metrics, canonical dimension, anchor count, window length, and vendor count.
+
+\section{Experimental Methodology}
+The benchmark will combine public Colosseum ColO-RAN traces, controlled ns-O-RAN-flexRIC KPM-v3 generation, and deterministic KPM-ShiftBench profiles. The profiles will alter unit, aggregation, window, lag, jitter, missingness, quantisation, counter reset, entity scope, and post-deployment drift without attributing undocumented behaviour to commercial vendors.
+
+Baselines will include no adaptation, static rename/unit conversion, z-score alignment, correlation alignment, optimal transport, domain-adversarial alignment, protocol/API abstraction without uncertainty, vendor-specific retraining, and an oracle canonical mapper. Evaluation will report KPM error, temporal error, conformal coverage and width, calibration error, xApp decision agreement and regret, SLA and unsafe-action outcomes, abstention, adaptation samples, latency, memory, and overhead. Required ablations remove contracts, temporal alignment, residual correction, uncertainty gating, and drift adaptation in turn.
+
+\section{Results}
+No result is reported in v0.1. Tables, figures, and numerical statements will be inserted only from deterministic full-run outputs after independent claim checks. This rule prevents smoke-test values or synthetic debugging traces from becoming manuscript evidence.
+
+\section{Discussion and Limitations}
+Semantic translation cannot recover information absent from every source, and uncertainty guarantees depend on their calibration assumptions. A cell aggregate cannot generally identify per-UE state without anchors or a structural model. KPM-Bridge must therefore expose partial support and abstain instead of manufacturing precision. Real multi-vendor hardware claims will require captures from the corresponding implementations; controlled profiles alone establish stress robustness, not vendor behaviour.
+
+\section{Conclusion}
+KPM-Bridge separates E2 message interoperability from the semantic and statistical portability required by AI xApps. Its central design principle is that every canonical KPM vector must carry machine-checkable meaning and calibrated evidence about when it is fit for downstream control.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{document}

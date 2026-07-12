@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.aux
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+reproducibility/outputs/*.json
+!reproducibility/outputs/.gitkeep
+/manuscript/main.pdf
+/output/
