@@ -154,20 +154,19 @@ Y.~Al-Karawi, H.~S. Mogheer, K.~K. Hasan, and A.~H. Dawwd, ``Digital twin and
   \url{https://doi.org/10.1109/SmartIndustryCon68821.2026.11493034}
 \BIBentrySTDinterwordspacing
 
-\bibitem{alkarawi2025offgrid}
+\bibitem{alkarawi2026cqdt}
 \BIBentryALTinterwordspacing
-Y.~Al-Karawi, R.~S. Alhumaima, and H.~Al-Raweshidy, ``Energy-aware optimisation
-  for off-grid oran with ris and edge computing,'' \emph{IET Netw.}, vol.~14,
-  no.~1, p. e70012, 2025. [Online]. Available:
-  \url{https://doi.org/10.1049/ntw2.70012}
+Y.~Al-Karawi, R.~S. Alhumaima, and H.~Al-Raweshidy, ``Cybersecurity driven
+  quantum digital twin for proactive threat reversal in open ran,'' \emph{IET
+  Quantum Commun.}, vol.~7, no.~1, p. e70027, Feb. 2026. [Online]. Available:
+  \url{https://doi.org/10.1049/qtc2.70027}
 \BIBentrySTDinterwordspacing
 
-\bibitem{alkarawi2024power}
+\bibitem{alkarawi2025offgrid}
 \BIBentryALTinterwordspacing
-Y.~Al-Karawi, H.~Al-Raweshidy, and R.~Nilavalan, ``Power consumption evaluation
-  of next generation open radio access network,'' in \emph{Proc. IEEE Int.
-  Conf. Consumer Electron. (ICCE)}, Jan. 2024, pp. 1--6. [Online]. Available:
-  \url{https://doi.org/10.1109/ICCE59016.2024.10444418}
+------, ``Energy-aware optimisation for off-grid oran with ris and edge
+  computing,'' \emph{IET Netw.}, vol.~14, no.~1, p. e70012, 2025. [Online].
+  Available: \url{https://doi.org/10.1049/ntw2.70012}
 \BIBentrySTDinterwordspacing
 
 \bibitem{sun2016deepcoral}
