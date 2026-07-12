@@ -1,0 +1,18 @@
+
+\begin{table*}[t]
+\caption{Controlled implementation profiles applied to the public traces.}
+\label{tab:profiles}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.2pt}
+\begin{tabular}{llllllll}
+\toprule
+Profile & Declared representation & Window & Lag & Entry loss & Noise & Quantization & Additional condition \\
+\midrule
+P1 & scaled units / gauges & 2 samples & 1 sample & 3\% & 2\% & 1\% & mild hidden filter \\
+P2 & rates as resetting counters & 3 samples & 1 sample & 8\% & 3\% & 1.5\% & resets every 257 samples \\
+P3 & scaled units / gauges & 4 samples & 2 samples & 18\% & 5\% & 3\% & sparse filtered reports \\
+P4 & scaled units / gauges & 2 samples & 1 sample & 5\% & 2.5\% & 1.2\% & shift at 55\% of each test trace \\
+\bottomrule
+\end{tabular}
+\end{table*}

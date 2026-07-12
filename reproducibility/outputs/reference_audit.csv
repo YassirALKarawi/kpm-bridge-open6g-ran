@@ -1,0 +1,26 @@
+key,bib_title,doi,status,registry,registry_title,title_similarity
+polese2023understanding,"Understanding O-RAN: Architecture, Interfaces, Algorithms, Security, and Research Challenges",10.1109/COMST.2023.3239220,VERIFIED,Crossref,"Understanding O-RAN: Architecture, Interfaces, Algorithms, Security, and Research Challenges",1.0
+alam2026survey,"A Comprehensive Tutorial and Survey of O-RAN: Exploring Slicing-Aware Architecture, Deployment Options, Use Cases, and Challenges",10.1109/COMST.2025.3598406,VERIFIED,Crossref,"A Comprehensive Tutorial and Survey of O-RAN: Exploring Slicing-Aware Architecture, Deployment Options, Use Cases, and Challenges",1.0
+wang2026oran6g,The O-RAN Evolution Path Toward 6G AI-Native RAN,10.1109/MCOMSTD.2026.3671966,VERIFIED,Crossref,The O-RAN Evolution Path Toward 6G AI-Native RAN,1.0
+oran2023kpm,O-RAN Near-Real-Time RAN Intelligent Controller E2 Service Model (E2SM) KPM 3.0,,NO_DOI_DECLARED,,,
+polese2023coloran,ColO-RAN: Developing Machine Learning-Based xApps for Open RAN Closed-Loop Control on Programmable Experimental Platforms,10.1109/TMC.2022.3188013,VERIFIED,Crossref,ColO-RAN: Developing Machine Learning-Based xApps for Open RAN Closed-Loop Control on Programmable Experimental Platforms,1.0
+bonati2022openrangym,OpenRAN Gym: An Open Toolbox for Data Collection and Experimentation with AI in O-RAN,10.1109/WCNC51071.2022.9771908,VERIFIED,Crossref,OpenRAN Gym: An Open Toolbox for Data Collection and Experimentation with AI in O-RAN,1.0
+bonati2023openrangym,"OpenRAN Gym: AI/ML Development, Data Collection, and Testing for O-RAN on PAWR Platforms",10.1016/j.comnet.2022.109502,VERIFIED,Crossref,"OpenRAN Gym: AI/ML development, data collection, and testing for O-RAN on PAWR platforms",1.0
+lacava2023nsoran,ns-O-RAN: Simulating O-RAN 5G Systems in ns-3,10.1145/3592149.3592161,VERIFIED,Crossref,ns-O-RAN: Simulating O-RAN 5G Systems in ns-3,1.0
+upadhyaya2023oaic,Open AI Cellular (OAIC): An Open Source 5G O-RAN Testbed for Design and Testing of AI-Based RAN Management Algorithms,10.1109/MNET.2023.3320933,VERIFIED,Crossref,Open AI Cellular (OAIC): An Open Source 5G O-RAN Testbed for Design and Testing of AI-Based RAN Management Algorithms,1.0
+feraudo2024xdevsm,xDevSM: Streamlining xApp Development With a Flexible Framework for O-RAN E2 Service Models,10.1145/3636534.3697325,VERIFIED,Crossref,xDevSM: Streamlining xApp Development With a Flexible Framework for O-RAN E2 Service Models,1.0
+feraudo2026xdevsm,"xDevSM: An Open-Source Framework for Portable, AI-Ready xApps Across Heterogeneous O-RAN Deployments",10.48550/arXiv.2602.03821,VERIFIED,DataCite,"xDevSM: An Open-Source Framework for Portable, AI-Ready xApps Across Heterogeneous O-RAN Deployments",1.0
+huseynov2026granularity,AI-Enabled KPM Granularity Control xApp for O-RAN Digital Twins,10.1109/MCOMSTD.2026.3677760,VERIFIED,Crossref,AI-Enabled KPM Granularity Control xApp for O-RAN Digital Twins,1.0
+groen2025security,"Implementing and Evaluating Security in O-RAN: Interfaces, Intelligence, and Platforms",10.1109/MNET.2024.3434419,VERIFIED,Crossref,"Implementing and Evaluating Security in O-RAN: Interfaces, Intelligence, and Platforms",1.0
+song2022telemetry,Network Telemetry Framework,10.17487/RFC9232,VERIFIED,Crossref,Network Telemetry Framework,1.0
+bjorklund2018nmda,Network Management Datastore Architecture (NMDA),10.17487/RFC8342,VERIFIED,Crossref,Network Management Datastore Architecture (NMDA),1.0
+peyre2019optimal,Computational Optimal Transport with Applications to Data Sciences,10.1561/2200000073,VERIFIED,Crossref,Computational Optimal Transport with Applications to Data Sciences,1.0
+sun2016deepcoral,Deep CORAL: Correlation Alignment for Deep Domain Adaptation,10.1007/978-3-319-49409-8_35,VERIFIED,Crossref,Deep CORAL: Correlation Alignment for Deep Domain Adaptation,1.0
+ganin2016domain,Domain-Adversarial Training of Neural Networks,,NO_DOI_DECLARED,,,
+angelopoulos2023conformal,Conformal Prediction: A Gentle Introduction,10.1561/2200000101,VERIFIED,Crossref,Conformal Prediction: A Gentle Introduction,1.0
+tibshirani2019covariate,Conformal Prediction Under Covariate Shift,,NO_DOI_DECLARED,,,
+gama2014drift,A Survey on Concept Drift Adaptation,10.1145/2523813,VERIFIED,Crossref,A survey on concept drift adaptation,1.0
+page1954inspection,Continuous Inspection Schemes,10.1093/biomet/41.1-2.100,VERIFIED,Crossref,CONTINUOUS INSPECTION SCHEMES,1.0
+friedman2001gradient,Greedy Function Approximation: A Gradient Boosting Machine,10.1214/aos/1013203451,VERIFIED,Crossref,Greedy function approximation: A gradient boosting machine.,1.0
+elYaniv2010selective,On the Foundations of Noise-Free Selective Classification,,NO_DOI_DECLARED,,,
+bertsimas2004robustness,The Price of Robustness,10.1287/opre.1030.0065,VERIFIED,Crossref,The Price of Robustness,1.0

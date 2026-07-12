@@ -1,0 +1,64 @@
+{
+  "status": "FULL_DETERMINISTIC_BENCHMARK",
+  "seed": 20260712,
+  "input_traces": 106,
+  "training_traces": 53,
+  "test_traces": 53,
+  "training_rows": 109539,
+  "test_rows": 92373,
+  "features": 8,
+  "risk_thresholds": {
+    "eMBB": {
+      "dl_brate_q35": 58648.0,
+      "dl_bler_q75": 8.0
+    },
+    "MTC": {
+      "dl_brate_q35": 56733.642236399486,
+      "dl_bler_q75": 3.75
+    },
+    "URLLC": {
+      "dl_brate_q35": 115613.95976549834,
+      "dl_bler_q75": 7.0
+    }
+  },
+  "feature_location": [
+    101344.0,
+    0.0,
+    9.5,
+    13.0,
+    -57.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "feature_scale": [
+    645345.5893372905,
+    5.3486300091097965,
+    3.4903217286133965,
+    2.2238695329873983,
+    2.965159377316531,
+    64705.65478243139,
+    24.284430313731907,
+    72.67337354809764
+  ],
+  "xapp": {
+    "training_samples": 109539,
+    "test_samples": 92373,
+    "test_risk_prevalence": 0.46878416853409544,
+    "canonical_auroc": 0.7433042849547599,
+    "canonical_brier": 0.2086972235527861,
+    "canonical_balanced_accuracy_at_0_5": 0.6814901972664118,
+    "canonical_f1_at_0_5": 0.6842339573042759,
+    "control_action_threshold": 0.2,
+    "control_action_rate": 0.9101902070951469,
+    "canonical_regret": 0.10020027497212389
+  },
+  "certificate_bytes": 48,
+  "environment": {
+    "python": "3.12.13",
+    "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scikit_learn": "1.8.0"
+  }
+}

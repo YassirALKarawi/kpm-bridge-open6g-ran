@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying KPM-Bridge manuscript."
+title: "KPM-Bridge: Uncertainty-Aware Cross-Vendor Telemetry for Portable Open RAN xApps"
+type: software
+version: 1.0.0
+date-released: 2026-07-12
+license: MIT
+authors:
+  - family-names: AL-Karawi
+    given-names: Yassir
+    email: yassirameen22@gmail.com
+  - family-names: Al-Raweshidy
+    given-names: Hamed
+    email: hamed.al-raweshidy@brunel.ac.uk

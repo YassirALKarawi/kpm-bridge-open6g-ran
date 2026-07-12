@@ -1,0 +1,52 @@
+\documentclass[11pt]{letter}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\definecolor{IEEEblue}{HTML}{00629B}
+\usepackage[colorlinks=true,urlcolor=IEEEblue]{hyperref}
+\signature{Yassir AL-Karawi\\Hamed Al-Raweshidy (Corresponding Author)}
+\address{College of Engineering, University of Diyala, Iraq\\
+Wireless Networks and Communications Centre, Brunel University of London, U.K.}
+\date{12 July 2026}
+
+\begin{document}
+\begin{letter}{Lead Guest Editor and Guest Editors\\
+IEEE Journal on Selected Areas in Communications\\
+Special Issue on ``Towards Open and Intelligent 6G RAN:\\
+Enabling Technologies and System Architectures''}
+
+\opening{Dear Lead Guest Editor and Guest Editors,}
+
+Please consider our manuscript, ``KPM-Bridge: An Uncertainty-Aware
+Cross-Vendor Telemetry Fabric for Portable AI xApps in Open 6G RAN,'' for
+publication in the above IEEE JSAC special issue.
+
+The manuscript addresses the special issue's unified intelligent wireless
+data framework and cross-vendor portability themes. It identifies a failure
+mode specific to open, disaggregated RANs: independently implemented
+E2SM-KPM reports can be protocol-valid while differing in quantity, scope,
+window, clock, counter, missing-value, or preprocessing semantics. KPM-Bridge
+places a typed, uncertainty-aware evidence layer between an E2 termination and
+portable Near-RT RIC xApps. The design combines a fail-closed semantic-contract
+compiler, event-time mapping, split-conformal vector and decision certificates,
+and drift-triggered calibration invalidation.
+
+The evaluation uses 201,912 samples from a hash-pinned public ColO-RAN subset,
+independent experiment-level splits, seven portable baselines, controlled
+implementation profiles, ablations, cluster-bootstrap intervals, and
+sensitivity analyses. The manuscript explicitly distinguishes these profiles
+from observations of commercial vendors and states the assumptions and limits
+of its finite-sample guarantees. Source code, claim-generating outputs, tests,
+and reference/claim audits are prepared as a reproducibility package.
+
+This work is specific to Open RAN: its contracts bind E2SM-KPM measurement
+semantics, its placement is at the E2/Near-RT RIC telemetry boundary, and its
+certificate lifecycle is designed for portable xApps. We believe this makes
+the paper a direct fit for the issue's focus on open multi-vendor architectures,
+AI-native data pipelines, and trustworthy service integration.
+
+Thank you for your consideration.
+
+\closing{Sincerely,}
+
+\end{letter}
+\end{document}

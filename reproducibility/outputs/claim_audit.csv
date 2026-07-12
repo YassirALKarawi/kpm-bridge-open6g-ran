@@ -1,0 +1,86 @@
+claim,computed,expected,status
+benchmark status,"""FULL_DETERMINISTIC_BENCHMARK""","""FULL_DETERMINISTIC_BENCHMARK""",PASS
+global seed,20260712,20260712,PASS
+input traces,106,106,PASS
+train/test traces,"[53, 53]","[53, 53]",PASS
+train/test rows,"[109539, 92373]","[109539, 92373]",PASS
+total labeled rows,201912,201912,PASS
+canonical features,8,8,PASS
+certificate bytes,48,48,PASS
+manifest file count,108,108,PASS
+manifest bytes,19295185,19295185,PASS
+pinned upstream commit,"""bd86629d07d5fbfb778ebe3afd9d0b05e5191c6b""","""bd86629d07d5fbfb778ebe3afd9d0b05e5191c6b""",PASS
+hash-verified raw inputs,108,108,PASS
+canonical AUROC,0.743,0.743,PASS
+canonical Brier score,0.209,0.209,PASS
+test risk prevalence percent,46.9,46.9,PASS
+registered action threshold,0.2,0.2,PASS
+canonical action rate percent,91.0,91.0,PASS
+stationary KPM-Bridge NRMSE,0.685,0.685,PASS
+stationary KPM-Bridge agreement percent,91.33,91.33,PASS
+NRMSE gain versus strongest baseline percent,4.5,4.5,PASS
+agreement gain versus strongest baseline points,0.96,0.96,PASS
+KPM-Bridge mean regret,0.098,0.098,PASS
+CORAL mean regret,0.1013,0.1013,PASS
+temporal-ridge mean regret,0.1029,0.1029,PASS
+per-profile bridge NRMSE,"[0.665, 0.675, 0.715]","[0.665, 0.675, 0.715]",PASS
+per-profile NRMSE CI lower,"[0.596, 0.604, 0.634]","[0.596, 0.604, 0.634]",PASS
+per-profile NRMSE CI upper,"[0.742, 0.755, 0.813]","[0.742, 0.755, 0.813]",PASS
+decision agreement range,"[91.09913069836423, 91.61659792363568]","[91.1, 91.6]",PASS
+DL-rate NRMSE range,"[0.16, 0.24]","[0.16, 0.24]",PASS
+RSRP NRMSE below 0.08,0.0796028323970104,0.08,PASS
+UL-buffer NRMSE range,"[1.11, 1.16]","[1.11, 1.16]",PASS
+DL-rate improvement percent,49.4,49.4,PASS
+RSRP improvement percent,42.7,42.7,PASS
+DL-BLER change below 0.1 percent,0.018716006919028416,0.1,PASS
+stationary joint coverage percent,94.35,94.35,PASS
+stationary acceptance percent,53.53,53.53,PASS
+stationary selective error percent,0.233,0.233,PASS
+mean generic radius,3.289,3.289,PASS
+per-profile Wilson upper percent,"[0.242, 0.326, 0.27]","[0.242, 0.326, 0.27]",PASS
+no-uncertainty selective-error range percent,"[8.23, 8.76]","[8.23, 8.76]",PASS
+no-uncertainty acceptance range percent,"[79.4, 92.2]","[79.4, 92.2]",PASS
+P4 valid-regime coverage percent,94.47,94.47,PASS
+P4 detection percent,90.6,90.6,PASS
+P4 median detection seconds,8.96,8.96,PASS
+P4 false-alarm percent,9.4,9.4,PASS
+P4 post-shift acceptance percent,4.57,4.57,PASS
+P4 full selective error percent,5.39,5.39,PASS
+P4 no-drift selective error percent,51.2,51.2,PASS
+P4 no-uncertainty selective error percent,10.75,10.75,PASS
+P4 drift-gate error reduction percent,89.5,89.5,PASS
+alpha coverage endpoints percent,"[98.66, 79.48]","[98.66, 79.48]",PASS
+alpha acceptance endpoints percent,"[42.9, 57.5]","[42.9, 57.5]",PASS
+alpha selective-error endpoints percent,"[1.38, 1.9]","[1.38, 1.9]",PASS
+half-scale drift detection percent,11.3,11.3,PASS
+half-scale post-drift coverage percent,90.7,90.7,PASS
+one-scale drift detection percent,79.2,79.2,PASS
+ablation NRMSE sequence,"[3.21, 0.752, 0.717, 0.685]","[3.21, 0.752, 0.717, 0.685]",PASS
+untyped aggregate NRMSE,0.685,0.685,PASS
+anchor NRMSE at 1/5/20 percent,"[0.747, 0.714, 0.71]","[0.747, 0.714, 0.71]",PASS
+missingness agreement endpoints percent,"[91.57, 89.71]","[91.57, 89.71]",PASS
+zero-lag agreement percent,91.45,91.45,PASS
+six-sample age exceeds 1.5 s,1630.451824502559,1500,PASS
+bridge fit-time range seconds,"[1.43, 1.84]","[1.43, 1.84]",PASS
+bridge batch latency microseconds,22.1,22.1,PASS
+bridge model size MiB,1.44,1.44,PASS
+temporal ridge latency microseconds,1.2,1.2,PASS
+temporal ridge model KiB,12.1,12.1,PASS
+certificate rate Mbit/s,0.384,0.384,PASS
+canonical-vector rate Mbit/s,0.256,0.256,PASS
+combined payload rate Mbit/s,0.64,0.64,PASS
+reference records,25,25,PASS
+verified DOI records,21,21,PASS
+declared no-DOI records,4,4,PASS
+DOI links paired with DOI fields,21,21,PASS
+all citation keys resolve,[],[],PASS
+all bibliography records cited,[],[],PASS
+abstract word limit,194,"""75--200""",PASS
+keyword limit,5,"""at most 5""",PASS
+exact Related Work heading,true,true,PASS
+algorithm count,2,2,PASS
+proposition count,5,5,PASS
+no drafting disclosure or placeholders,[],[],PASS
+no unverified project repository URL in manuscript,[],[],PASS
+submission PDF pages,13,13,PASS
+no overflow or unresolved cross-reference,[],[],PASS

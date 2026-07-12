@@ -2,7 +2,12 @@ import unittest
 
 import numpy as np
 
-from kpm_bridge.contracts import KPMContract, ContractError, convert_to_canonical
+from kpm_bridge.contracts import (
+    KPMContract,
+    ContractError,
+    compile_contract_mapping,
+    convert_to_canonical,
+)
 
 
 class ContractTests(unittest.TestCase):
@@ -37,6 +42,24 @@ class ContractTests(unittest.TestCase):
     def test_invalid_window_fails_closed(self):
         with self.assertRaises(ContractError):
             self._contract(window_ms=0)
+
+    def test_compiler_ignores_incompatible_decoy(self):
+        target = self._contract(unit="Mbit/s", provenance="canonical")
+        valid = self._contract(unit="kbit/s", provenance="profile")
+        decoy = self._contract(
+            name="RRU.PrbUsedDl",
+            quantity="prb_utilisation",
+            unit="%",
+            provenance="profile",
+        )
+        mapping = compile_contract_mapping([decoy, valid], [target])
+        self.assertEqual(mapping[0].source_index, 1)
+
+    def test_compiler_rejects_missing_quantity(self):
+        target = self._contract(unit="Mbit/s", provenance="canonical")
+        wrong = self._contract(quantity="uplink_throughput")
+        with self.assertRaises(ContractError):
+            compile_contract_mapping([wrong], [target])
 
 
 if __name__ == "__main__":

@@ -77,7 +77,7 @@ KPM-Bridge returns \((\hat z_t,\mathcal U_t,\gamma_t)\): a canonical estimate,
 an uncertainty set, and a quality certificate. A downstream action is admitted
 only if support, age, drift, and radius constraints in \(\gamma_t\) are met.
 
-## Planned guarantees
+## Implemented analytical guarantees
 
 1. type soundness for physical dimensions and entity scopes;
 2. translation-error decomposition into type, temporal, approximation, noise,
@@ -87,16 +87,14 @@ only if support, age, drift, and radius constraints in \(\gamma_t\) are met.
 5. complexity and memory bounds for compilation, streaming alignment, and
    calibration.
 
-## Benchmark plan
+## Locked benchmark protocol
 
 ### Evidence sources
 
 - Colosseum ColO-RAN traces as a public measured-data backbone;
-- ns-O-RAN-flexRIC/KPM-v3 for controlled ground-truth experiments;
-- explicitly labelled implementation profiles derived from documented OAI,
-  srsRAN, and simulator schemas;
-- a deterministic KPM-ShiftBench stress generator for unit, window, lag,
-  missingness, counter-reset, quantisation, and drift sweeps.
+- deterministic controlled profiles P1--P4 for unit, window, lag, missingness,
+  counter-reset, quantisation, nonlinear filtering, and drift stress;
+- no controlled profile is assigned to or described as a commercial vendor.
 
 ### Baselines
 
@@ -105,9 +103,9 @@ only if support, age, drift, and radius constraints in \(\gamma_t\) are met.
 3. z-score alignment;
 4. CORAL feature alignment;
 5. optimal-transport alignment;
-6. domain-adversarial alignment;
-7. protocol/API abstraction without uncertainty gating;
-8. vendor-specific retraining and an oracle canonical mapper as bounds.
+6. paired-anchor ridge;
+7. temporal paired-anchor ridge;
+8. deployment-specific retraining and an oracle canonical mapper as bounds.
 
 ### Metrics
 
@@ -116,8 +114,8 @@ only if support, age, drift, and radius constraints in \(\gamma_t\) are met.
 - xApp decision agreement, utility regret, SLA violations, and unsafe-action
   rate;
 - adaptation samples, latency, throughput, memory, and wire overhead;
-- robustness to missingness, delay, drift, anchor fraction, vendor count, and
-  KPM dimension.
+- robustness to missingness, delay, drift magnitude, anchor fraction, and
+  conformal miscoverage.
 
 ### Required ablations
 
@@ -127,11 +125,13 @@ only if support, age, drift, and radius constraints in \(\gamma_t\) are met.
 - uncertainty without drift adaptation;
 - full KPM-Bridge.
 
-## Target manuscript assets
+## Final manuscript assets
 
-- 4 algorithms;
-- 4--5 propositions/theorems;
-- 7 publication figures;
-- 4 tables, including related work and complexity;
+- 2 complete algorithms;
+- 5 propositions with explicit assumptions and proofs;
+- 9 publication figures;
+- 5 tables, including related work, profiles, selective inference, ablation,
+  and complexity;
 - sensitivity, ablation, scalability, calibration, and failure-case results;
-- deterministic seeds, raw outputs, claim audit, CI, and a versioned release.
+- deterministic seeds, generated outputs, a 25-reference DOI audit, an
+  85-check claim audit, and 11 deterministic tests.

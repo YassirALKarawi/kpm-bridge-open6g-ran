@@ -6,10 +6,18 @@ from dataclasses import dataclass
 from typing import Iterable
 
 import numpy as np
+from scipy.optimize import linear_sum_assignment
 
 
 class ContractError(ValueError):
     """Raised when a KPM contract is internally inconsistent."""
+
+
+@dataclass(frozen=True)
+class CompiledMapping:
+    source_index: int
+    target_index: int
+    semantic_cost: float
 
 
 # unit -> (physical dimension, canonical unit, multiplicative scale, offset)
@@ -94,3 +102,30 @@ def convert_to_canonical(values: Iterable[float] | np.ndarray, unit: str) -> np.
     _, _, scale, offset = _UNITS[unit]
     arr = np.asarray(values, dtype=float)
     return arr * scale + offset
+
+
+def compile_contract_mapping(
+    sources: list[KPMContract],
+    targets: list[KPMContract],
+    max_semantic_cost: float = 4.0,
+) -> list[CompiledMapping]:
+    """Compile a minimum-cost injective source-to-canonical mapping or fail closed."""
+    if len(sources) < len(targets):
+        raise ContractError("fewer source contracts than canonical targets")
+    cost = np.array(
+        [[source.semantic_cost(target) for target in targets] for source in sources],
+        dtype=float,
+    )
+    if np.any(~np.isfinite(cost).any(axis=0)):
+        raise ContractError("at least one canonical target has no type-compatible source")
+    finite_cost = np.where(np.isfinite(cost), cost, 1e12)
+    source_indices, target_indices = linear_sum_assignment(finite_cost)
+    compiled: list[CompiledMapping] = []
+    for source_index, target_index in zip(source_indices, target_indices, strict=True):
+        value = cost[source_index, target_index]
+        if not np.isfinite(value) or value > max_semantic_cost:
+            raise ContractError("no mapping satisfies the semantic-cost budget")
+        compiled.append(CompiledMapping(int(source_index), int(target_index), float(value)))
+    if len(compiled) != len(targets):
+        raise ContractError("canonical mapping is incomplete")
+    return sorted(compiled, key=lambda item: item.target_index)

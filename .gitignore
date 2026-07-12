@@ -10,5 +10,12 @@ __pycache__/
 *.out
 reproducibility/outputs/*.json
 !reproducibility/outputs/.gitkeep
+!reproducibility/outputs/benchmark_summary.json
 /manuscript/main.pdf
+/submission/cover_letter.pdf
 /output/
+/data/raw/
+/data/processed/
+/.mplconfig/
+/reproducibility/cache/
+/tmp/
