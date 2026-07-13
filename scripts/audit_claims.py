@@ -68,7 +68,7 @@ def tex_abstract_word_count(tex: str) -> int:
     text = re.sub(
         r"\\(?:DatasetRows|StableNrmse|StableAgreement|NrmseGainBest|AgreementGainBest|"
         r"StableCoverage|StableSelectiveError|StableAcceptance|DriftDetection|DriftDelay|"
-        r"DriftErrorReduction)",
+        r"DriftErrorReduction|DriftExposure|NoDriftExposure|DriftExposureReduction)",
         "VALUE",
         text,
     )
@@ -84,6 +84,8 @@ def main() -> None:
     features = pd.read_csv(OUTPUTS / "per_feature_results.csv")
     ablations = pd.read_csv(OUTPUTS / "ablation_results.csv")
     sensitivity = pd.read_csv(OUTPUTS / "sensitivity_results.csv")
+    semantic = pd.read_csv(OUTPUTS / "semantic_results.csv")
+    monitor = pd.read_csv(OUTPUTS / "monitor_sensitivity_results.csv")
     summary = json.loads((OUTPUTS / "benchmark_summary.json").read_text(encoding="utf-8"))
     manifest = json.loads((ROOT / "data" / "colosseum_subset_manifest.json").read_text(encoding="utf-8"))
     tex = MANUSCRIPT.read_text(encoding="utf-8")
@@ -118,6 +120,49 @@ def main() -> None:
     audit.equal("total labeled rows", summary["training_rows"] + summary["test_rows"], 201912)
     audit.equal("canonical features", summary["features"], 8)
     audit.equal("certificate bytes", summary["certificate_bytes"], 48)
+    split = summary["split_protocol"]
+    audit.equal(
+        "single-source leakage-free split protocol",
+        [
+            split["fit_fraction"],
+            split["calibration_stride"],
+            split["prediction_horizon"],
+            split["mapper_anchor_rows"],
+            split["xapp_fit_rows"],
+            split["calibration_rows"],
+            split["disjoint_fit_calibration"],
+        ],
+        [0.6, 4, 4, 6545, 65494, 10977, True],
+    )
+    audit.equal(
+        "feature statistics use fitting prefixes only",
+        split["feature_statistics_source"],
+        "exp1 fitting prefixes only",
+    )
+    certificates = summary["certificate_materialization"]
+    expected_certificate_reports = 4 * summary["test_rows"]
+    audit.equal(
+        "certificates materialized for every full-gate test report",
+        certificates["reports"],
+        expected_certificate_reports,
+    )
+    audit.equal(
+        "encoded certificate byte total",
+        certificates["encoded_bytes"],
+        48 * expected_certificate_reports,
+    )
+    audit.check(
+        "measured certificate serialization is finite and positive",
+        certificates["mean_encoding_us_per_report"],
+        ">0",
+        bool(np.isfinite(certificates["mean_encoding_us_per_report"]) and certificates["mean_encoding_us_per_report"] > 0),
+    )
+    audit.equal(
+        "semantic compiler fail-closed checks",
+        [summary["semantic_checks"]["checks"], summary["semantic_checks"]["passed"]],
+        [4, 4],
+    )
+    audit.equal("all semantic compiler records pass", semantic.status.tolist(), ["PASS"] * 4)
     audit.equal("manifest file count", manifest["file_count"], 108)
     audit.equal("manifest bytes", manifest["total_bytes"], 19295185)
     audit.equal(
@@ -134,11 +179,12 @@ def main() -> None:
 
     # Fixed downstream xApp instrument.
     xapp = summary["xapp"]
-    audit.rounded("canonical AUROC", xapp["canonical_auroc"], 0.743, 3)
-    audit.rounded("canonical Brier score", xapp["canonical_brier"], 0.209, 3)
-    audit.rounded("test risk prevalence percent", 100 * xapp["test_risk_prevalence"], 46.9, 1)
+    audit.equal("portable xApp fitting rows", xapp["training_samples"], 65494)
+    audit.rounded("canonical AUROC", xapp["canonical_auroc"], 0.755, 3)
+    audit.rounded("canonical Brier score", xapp["canonical_brier"], 0.205, 3)
+    audit.rounded("test risk prevalence percent", 100 * xapp["test_risk_prevalence"], 44.9, 1)
     audit.close("registered action threshold", xapp["control_action_threshold"], 0.2)
-    audit.rounded("canonical action rate percent", 100 * xapp["control_action_rate"], 91.0, 0)
+    audit.rounded("canonical action rate percent", 100 * xapp["control_action_rate"], 88.7, 1)
 
     stable = main_results[main_results.profile.isin(["P1", "P2", "P3"])]
     means = stable.groupby("method").mean(numeric_only=True)
@@ -146,84 +192,159 @@ def main() -> None:
     baselines = means.drop(index=[name for name in ["KPM-Bridge", "Oracle canonical", "Deployment retrain"] if name in means.index])
     best_nrmse = baselines.nrmse.min()
     best_agreement = baselines.decision_agreement.max()
-    audit.rounded("stationary KPM-Bridge NRMSE", bridge.nrmse, 0.685, 3)
-    audit.rounded("stationary KPM-Bridge agreement percent", 100 * bridge.decision_agreement, 91.33, 2)
-    audit.rounded("NRMSE gain versus strongest baseline percent", 100 * (best_nrmse - bridge.nrmse) / best_nrmse, 4.5, 1)
-    audit.rounded("agreement gain versus strongest baseline points", 100 * (bridge.decision_agreement - best_agreement), 0.96, 2)
-    audit.rounded("KPM-Bridge mean regret", bridge.regret, 0.0980, 4)
-    audit.rounded("CORAL mean regret", means.loc["CORAL", "regret"], 0.1013, 4)
-    audit.rounded("temporal-ridge mean regret", means.loc["Temporal ridge", "regret"], 0.1029, 4)
+    audit.rounded("stationary KPM-Bridge NRMSE", bridge.nrmse, 0.694, 3)
+    audit.rounded("stationary KPM-Bridge agreement percent", 100 * bridge.decision_agreement, 89.34, 2)
+    audit.rounded("NRMSE gain versus strongest baseline percent", 100 * (best_nrmse - bridge.nrmse) / best_nrmse, 2.6, 1)
+    audit.rounded("agreement gain versus strongest baseline points", 100 * (bridge.decision_agreement - best_agreement), 0.53, 2)
+    audit.rounded("KPM-Bridge mean regret", bridge.regret, 0.0977, 4)
+    audit.rounded("CORAL mean regret", means.loc["CORAL", "regret"], 0.1033, 4)
+    audit.rounded("temporal-ridge mean regret", means.loc["Temporal ridge", "regret"], 0.1019, 4)
 
     bridge_profiles = stable[stable.method == "KPM-Bridge"].set_index("profile").loc[["P1", "P2", "P3"]]
-    audit.rounded("per-profile bridge NRMSE", bridge_profiles.nrmse, [0.665, 0.675, 0.715], 3)
-    audit.rounded("per-profile NRMSE CI lower", bridge_profiles.nrmse_ci_low, [0.596, 0.604, 0.634], 3)
-    audit.rounded("per-profile NRMSE CI upper", bridge_profiles.nrmse_ci_high, [0.742, 0.755, 0.813], 3)
+    audit.rounded("per-profile bridge NRMSE", bridge_profiles.nrmse, [0.675, 0.682, 0.725], 3)
+    audit.rounded("per-profile NRMSE CI lower", bridge_profiles.nrmse_ci_low, [0.600, 0.607, 0.636], 3)
+    audit.rounded("per-profile NRMSE CI upper", bridge_profiles.nrmse_ci_high, [0.749, 0.759, 0.817], 3)
     agreements = 100 * bridge_profiles.decision_agreement
-    audit.check("decision agreement range", [agreements.min(), agreements.max()], [91.1, 91.6], round(agreements.min(), 1) == 91.1 and round(agreements.max(), 1) == 91.6)
+    audit.check("decision agreement range", [agreements.min(), agreements.max()], [87.9, 90.1], round(agreements.min(), 1) == 87.9 and round(agreements.max(), 1) == 90.1)
 
     # Feature diagnostics.
     bridge_features = features[(features.method == "KPM-Bridge") & features.profile.isin(["P1", "P2", "P3"])]
     dl_rate = bridge_features[bridge_features.feature == "dl_brate"].nrmse
     rsrp = bridge_features[bridge_features.feature == "rsrp"].nrmse
     ul_buffer = bridge_features[bridge_features.feature == "ul_buff"].nrmse
-    audit.rounded("DL-rate NRMSE range", [dl_rate.min(), dl_rate.max()], [0.16, 0.24], 2)
+    audit.rounded("DL-rate NRMSE range", [dl_rate.min(), dl_rate.max()], [0.16, 0.18], 2)
     audit.check("RSRP NRMSE below 0.08", float(rsrp.max()), 0.08, bool(rsrp.max() < 0.08))
-    audit.rounded("UL-buffer NRMSE range", [ul_buffer.min(), ul_buffer.max()], [1.11, 1.16], 2)
+    audit.rounded("UL-buffer NRMSE range", [ul_buffer.min(), ul_buffer.max()], [1.13, 1.18], 2)
     feature_means = features[features.profile.isin(["P1", "P2", "P3"])].groupby(["method", "feature"]).nrmse.mean()
     def feature_gain(name: str) -> float:
         return 1.0 - feature_means.loc[("KPM-Bridge", name)] / feature_means.loc[("Temporal ridge", name)]
-    audit.rounded("DL-rate improvement percent", 100 * feature_gain("dl_brate"), 49.4, 1)
-    audit.rounded("RSRP improvement percent", 100 * feature_gain("rsrp"), 42.7, 1)
-    audit.check("DL-BLER change below 0.1 percent", 100 * abs(feature_gain("dl_bler")), 0.1, 100 * abs(feature_gain("dl_bler")) < 0.1)
+    audit.rounded("DL-rate improvement percent", 100 * feature_gain("dl_brate"), 22.8, 1)
+    audit.rounded("RSRP improvement percent", 100 * feature_gain("rsrp"), 42.6, 1)
+    audit.rounded("DL-BLER improvement percent", 100 * feature_gain("dl_bler"), 0.1, 1)
 
     # Calibration, selective inference, and drift.
     stable_full = selective[(selective.profile.isin(["P1", "P2", "P3"])) & (selective.variant == "Full")]
     stable_selective = stable_full.mean(numeric_only=True)
-    audit.rounded("stationary joint coverage percent", 100 * stable_selective.coverage_valid_regime, 94.35, 2)
-    audit.rounded("stationary acceptance percent", 100 * stable_selective.acceptance, 53.53, 2)
-    audit.rounded("stationary selective error percent", 100 * stable_selective.selective_error, 0.233, 3)
-    audit.rounded("mean generic radius", stable_selective.radius, 3.289, 3)
-    audit.rounded("per-profile Wilson upper percent", 100 * stable_full.set_index("profile").loc[["P1", "P2", "P3"], "selective_error_wilson_high"], [0.242, 0.326, 0.270], 3)
+    all_full = selective[selective.variant == "Full"]
+    audit.equal(
+        "one encoded certificate per full-gate report and profile",
+        all_full.certificate_count.astype(int).tolist(),
+        [summary["test_rows"]] * 4,
+    )
+    audit.equal(
+        "certificate reason codes partition every report",
+        all_full.filter(regex=r"^reason_").sum(axis=1).astype(int).tolist(),
+        [summary["test_rows"]] * 4,
+    )
+    audit.rounded("stationary joint coverage percent", 100 * stable_selective.coverage_valid_regime, 94.32, 2)
+    audit.rounded("stationary acceptance percent", 100 * stable_selective.acceptance, 54.45, 2)
+    audit.rounded("stationary selective canonical disagreement percent", 100 * stable_selective.selective_error, 0.209, 3)
+    audit.rounded("mean generic radius", stable_selective.radius, 3.324, 3)
+    audit.equal(
+        "row-level Wilson intervals removed",
+        [column for column in selective.columns if "wilson" in column.lower()],
+        [],
+    )
+    audit.rounded("per-profile cluster-bootstrap upper percent", 100 * stable_full.set_index("profile").loc[["P1", "P2", "P3"], "selective_error_cluster_high"], [0.403, 0.361, 0.352], 3)
     no_uncertainty = selective[(selective.profile.isin(["P1", "P2", "P3"])) & (selective.variant == "No uncertainty gate")]
-    audit.rounded("no-uncertainty selective-error range percent", [100 * no_uncertainty.selective_error.min(), 100 * no_uncertainty.selective_error.max()], [8.23, 8.76], 2)
-    audit.rounded("no-uncertainty acceptance range percent", [100 * no_uncertainty.acceptance.min(), 100 * no_uncertainty.acceptance.max()], [79.4, 92.2], 1)
+    audit.rounded("no-uncertainty selective-disagreement range percent", [100 * no_uncertainty.selective_error.min(), 100 * no_uncertainty.selective_error.max()], [9.67, 11.73], 2)
+    audit.rounded("no-uncertainty acceptance range percent", [100 * no_uncertainty.acceptance.min(), 100 * no_uncertainty.acceptance.max()], [78.1, 92.2], 1)
 
     p4 = selective[selective.profile == "P4"].set_index("variant")
-    audit.rounded("P4 valid-regime coverage percent", 100 * p4.loc["Full", "coverage_valid_regime"], 94.47, 2)
-    audit.rounded("P4 detection percent", 100 * p4.loc["Full", "detection_rate"], 90.6, 1)
+    audit.rounded("P4 valid-regime coverage percent", 100 * p4.loc["Full", "coverage_valid_regime"], 94.43, 2)
+    audit.rounded("P4 detection percent", 100 * p4.loc["Full", "detection_rate"], 88.7, 1)
     audit.rounded("P4 median detection seconds", p4.loc["Full", "median_detection_delay_ms"] / 1000, 8.96, 2)
     audit.rounded("P4 false-alarm percent", 100 * p4.loc["Full", "false_alarm_rate_per_trace"], 9.4, 1)
-    audit.rounded("P4 post-shift acceptance percent", 100 * p4.loc["Full", "post_drift_acceptance"], 4.57, 2)
-    audit.rounded("P4 full selective error percent", 100 * p4.loc["Full", "selective_error"], 5.39, 2)
-    audit.rounded("P4 no-drift selective error percent", 100 * p4.loc["No drift gate", "selective_error"], 51.2, 1)
-    audit.rounded("P4 no-uncertainty selective error percent", 100 * p4.loc["No uncertainty gate", "selective_error"], 10.75, 2)
-    error_reduction = 1 - p4.loc["Full", "selective_error"] / p4.loc["No drift gate", "selective_error"]
-    audit.rounded("P4 drift-gate error reduction percent", 100 * error_reduction, 89.5, 1)
+    audit.rounded("P4 post-shift acceptance percent", 100 * p4.loc["Full", "post_drift_acceptance"], 5.99, 2)
+    audit.rounded("P4 overall selective canonical disagreement percent", 100 * p4.loc["Full", "selective_error"], 6.03, 2)
+    audit.rounded("P4 post-shift conditional canonical disagreement percent", 100 * p4.loc["Full", "post_drift_selective_error"], 76.23, 2)
+    audit.rounded("P4 no-drift post-shift conditional disagreement percent", 100 * p4.loc["No drift gate", "post_drift_selective_error"], 87.6, 1)
+    audit.rounded("P4 no-uncertainty post-shift conditional disagreement percent", 100 * p4.loc["No uncertainty gate", "post_drift_selective_error"], 76.14, 2)
+    audit.rounded("P4 full post-shift joint disagreement exposure percent", 100 * p4.loc["Full", "post_drift_error_exposure"], 4.57, 2)
+    audit.rounded("P4 no-drift post-shift joint disagreement exposure percent", 100 * p4.loc["No drift gate", "post_drift_error_exposure"], 86.0, 1)
+    exposure_reduction = 1 - p4.loc["Full", "post_drift_error_exposure"] / p4.loc["No drift gate", "post_drift_error_exposure"]
+    audit.rounded("P4 drift-gate joint-exposure reduction percent", 100 * exposure_reduction, 94.7, 1)
+    audit.check(
+        "post-shift exposure identity for every P4 variant",
+        (
+            p4.post_drift_acceptance * p4.post_drift_selective_error
+            - p4.post_drift_error_exposure
+        ).abs().max(),
+        0.0,
+        bool(
+            np.allclose(
+                p4.post_drift_acceptance * p4.post_drift_selective_error,
+                p4.post_drift_error_exposure,
+            )
+        ),
+    )
+    audit.rounded(
+        "P4 full joint-exposure cluster interval percent",
+        100 * p4.loc["Full", ["post_drift_error_exposure_cluster_low", "post_drift_error_exposure_cluster_high"]],
+        [3.52, 5.96],
+        2,
+    )
+    monitor_selection = summary["monitor_selection"]
+    audit.equal(
+        "drift window selected without test data",
+        [
+            monitor_selection["selected_window"],
+            monitor_selection["selection_data"],
+            monitor_selection["test_data_used_for_selection"],
+        ],
+        [5, "exp1 only", False],
+    )
+    selected_monitor = monitor[monitor.selected_from_exp1_only]
+    audit.equal(
+        "exactly one monitor candidate selected",
+        len(selected_monitor),
+        1,
+    )
+    audit.equal(
+        "selected monitor row is W=5",
+        int(selected_monitor.iloc[0].window),
+        5,
+    )
+    audit.check(
+        "selected monitor satisfies exp1 validation false-alarm ceiling",
+        float(selected_monitor.iloc[0].selection_validation_false_alarm),
+        monitor_selection["validation_false_alarm_ceiling"],
+        bool(
+            selected_monitor.iloc[0].selection_validation_false_alarm
+            <= monitor_selection["validation_false_alarm_ceiling"]
+        ),
+    )
+    audit.rounded(
+        "training-only synthetic monitor detection by candidate",
+        100 * monitor.sort_values("window").selection_synthetic_detection,
+        [4.55, 9.09, 81.82, 90.91],
+        2,
+    )
 
     alpha = sensitivity[sensitivity.sweep == "alpha"].set_index("value")
-    audit.rounded("alpha coverage endpoints percent", 100 * alpha.loc[[0.01, 0.2], "coverage"], [98.66, 79.48], 2)
-    audit.rounded("alpha acceptance endpoints percent", 100 * (1 - alpha.loc[[0.01, 0.2], "abstention"]), [42.9, 57.5], 1)
-    audit.rounded("alpha selective-error endpoints percent", 100 * alpha.loc[[0.01, 0.2], "selective_error"], [1.38, 1.90], 2)
+    audit.rounded("alpha coverage endpoints percent", 100 * alpha.loc[[0.01, 0.2], "coverage"], [98.72, 79.15], 2)
+    audit.rounded("alpha acceptance endpoints percent", 100 * (1 - alpha.loc[[0.01, 0.2], "abstention"]), [44.4, 57.0], 1)
+    audit.rounded("alpha selective-disagreement endpoints percent", 100 * alpha.loc[[0.01, 0.2], "selective_error"], [1.51, 1.94], 2)
     drift = sensitivity[sensitivity.sweep == "drift_magnitude"].set_index("value")
-    audit.rounded("half-scale drift detection percent", 100 * drift.loc[0.5, "detection_rate"], 11.3, 1)
-    audit.rounded("half-scale post-drift coverage percent", 100 * drift.loc[0.5, "post_drift_coverage"], 90.7, 1)
-    audit.rounded("one-scale drift detection percent", 100 * drift.loc[1.0, "detection_rate"], 79.2, 1)
+    audit.rounded("half-scale drift detection percent", 100 * drift.loc[0.5, "detection_rate"], 9.4, 1)
+    audit.rounded("half-scale post-drift coverage percent", 100 * drift.loc[0.5, "post_drift_coverage"], 90.6, 1)
+    audit.rounded("one-scale drift detection percent", 100 * drift.loc[1.0, "detection_rate"], 71.7, 1)
 
     # Ablation and sensitivity claims.
     stable_ablation = ablations[ablations.profile.isin(["P1", "P2", "P3"])].groupby("variant").mean(numeric_only=True)
     audit.rounded(
         "ablation NRMSE sequence",
         stable_ablation.loc[["No residual/temporal", "No temporal", "Linear residual", "Full"], "nrmse"],
-        [3.210, 0.752, 0.717, 0.685],
+        [0.854, 0.751, 0.713, 0.694],
         3,
     )
-    audit.rounded("untyped aggregate NRMSE", stable_ablation.loc["No typed contract", "nrmse"], 0.685, 3)
+    audit.rounded("untyped aggregate NRMSE", stable_ablation.loc["No typed contract", "nrmse"], 0.695, 3)
     anchors = sensitivity[sensitivity.sweep == "anchor_fraction"].set_index("value")
-    audit.rounded("anchor NRMSE at 1/5/20 percent", anchors.loc[[0.01, 0.05, 0.2], "nrmse"], [0.747, 0.714, 0.710], 3)
+    audit.rounded("anchor NRMSE at 1/5/20 percent", anchors.loc[[0.01, 0.05, 0.2], "nrmse"], [0.760, 0.724, 0.721], 3)
     missing = sensitivity[sensitivity.sweep == "missing_rate"].set_index("value")
-    audit.rounded("missingness agreement endpoints percent", 100 * missing.loc[[0.0, 0.3], "decision_agreement"], [91.57, 89.71], 2)
+    audit.rounded("missingness agreement endpoints percent", 100 * missing.loc[[0.0, 0.3], "decision_agreement"], [90.15, 88.34], 2)
     lag = sensitivity[sensitivity.sweep == "lag_samples"].set_index("value")
-    audit.rounded("zero-lag agreement percent", 100 * lag.loc[0.0, "decision_agreement"], 91.45, 2)
+    audit.rounded("zero-lag agreement percent", 100 * lag.loc[0.0, "decision_agreement"], 89.21, 2)
     audit.check("six-sample age exceeds 1.5 s", lag.loc[6.0, "mean_age_ms"], 1500, bool(lag.loc[6.0, "mean_age_ms"] > 1500))
 
     # Complexity and payload arithmetic.
@@ -231,11 +352,16 @@ def main() -> None:
     expected_fit_macro = f"\\newcommand{{\\BridgeFitRange}}{{{bridge_profiles.fit_seconds.min():.2f}--{bridge_profiles.fit_seconds.max():.2f}~s}}"
     expected_latency_macro = f"\\newcommand{{\\BridgeLatency}}{{{bridge.inference_us_per_sample:.1f}~$\\mu$s/sample}}"
     expected_temporal_macro = f"\\newcommand{{\\TemporalLatency}}{{{means.loc['Temporal ridge', 'inference_us_per_sample']:.2f}~$\\mu$s/sample}}"
+    expected_exposure_macro = f"\\newcommand{{\\DriftExposure}}{{{100 * p4.loc['Full', 'post_drift_error_exposure']:.2f}\\%}}"
+    expected_exposure_reduction_macro = f"\\newcommand{{\\DriftExposureReduction}}{{{100 * exposure_reduction:.1f}\\%}}"
     audit.check("bridge fit-time macro matches benchmark", expected_fit_macro in generated_macros, expected_fit_macro, expected_fit_macro in generated_macros)
     audit.check("bridge batch-latency macro matches benchmark", expected_latency_macro in generated_macros, expected_latency_macro, expected_latency_macro in generated_macros)
-    audit.rounded("bridge model size MiB", bridge.model_bytes / 2**20, 1.44, 2)
+    audit.rounded("bridge model size MiB", bridge.model_bytes / 2**20, 1.45, 2)
     audit.check("temporal-ridge latency macro matches benchmark", expected_temporal_macro in generated_macros, expected_temporal_macro, expected_temporal_macro in generated_macros)
-    audit.rounded("temporal ridge model KiB", means.loc["Temporal ridge", "model_bytes"] / 2**10, 12.1, 1)
+    audit.check("post-shift joint-exposure macro matches benchmark", expected_exposure_macro in generated_macros, expected_exposure_macro, expected_exposure_macro in generated_macros)
+    audit.check("joint-exposure reduction macro matches benchmark", expected_exposure_reduction_macro in generated_macros, expected_exposure_reduction_macro, expected_exposure_reduction_macro in generated_macros)
+    audit.check("training-selected monitor window macro", "\\newcommand{\\MonitorWindow}{5}" in generated_macros, 5, "\\newcommand{\\MonitorWindow}{5}" in generated_macros)
+    audit.rounded("temporal ridge model KiB", means.loc["Temporal ridge", "model_bytes"] / 2**10, 13.4, 1)
     audit.close("certificate rate Mbit/s", 48 * 10 * 100 * 8 / 1e6, 0.384)
     audit.close("canonical-vector rate Mbit/s", 8 * 4 * 10 * 100 * 8 / 1e6, 0.256)
     audit.close("combined payload rate Mbit/s", (48 + 8 * 4) * 10 * 100 * 8 / 1e6, 0.640)
@@ -246,7 +372,11 @@ def main() -> None:
     audit.equal("verified DOI records", int((reference_audit.status == "VERIFIED").sum()), 40)
     audit.equal("declared no-DOI records", int((reference_audit.status == "NO_DOI_DECLARED").sum()), 0)
     bibliography = (ROOT / "manuscript" / "references.bib").read_text(encoding="utf-8")
-    bibliography_entries = entries(bibliography)
+    bibliography_entries = [
+        (key, entry)
+        for key, entry in entries(bibliography)
+        if not entry.lower().startswith("@ieeetranbstctl")
+    ]
     doi_url_pairs = 0
     for _, entry in bibliography_entries:
         doi = field(entry, "doi")
@@ -260,6 +390,36 @@ def main() -> None:
     bib_keys = {key for key, _ in bibliography_entries}
     audit.equal("all citation keys resolve", sorted(cited - bib_keys), [])
     audit.equal("all bibliography records cited", sorted(bib_keys - cited), [])
+    first_citation_order: list[str] = []
+    for group in re.findall(r"\\cite\{([^}]+)\}", tex):
+        for key in (item.strip() for item in group.split(",")):
+            if key not in first_citation_order:
+                first_citation_order.append(key)
+    bbl = (ROOT / "manuscript" / "main.bbl").read_text(encoding="utf-8")
+    bibliography_order = re.findall(
+        r"\\bibitem(?:\[[^]]+\])?\{([^}]+)\}", bbl
+    )
+    audit.equal(
+        "IEEE bibliography follows first-citation order",
+        bibliography_order,
+        first_citation_order,
+    )
+    self_citation_positions = [
+        index + 1
+        for index, key in enumerate(bibliography_order)
+        if key.startswith("alkarawi")
+    ]
+    audit.check(
+        "relevant self-citations are distributed rather than consecutive",
+        self_citation_positions,
+        "nonconsecutive positions",
+        all(
+            right - left > 1
+            for left, right in zip(
+                self_citation_positions, self_citation_positions[1:]
+            )
+        ),
+    )
     abstract_words = tex_abstract_word_count(tex)
     audit.check("abstract word limit", abstract_words, "75--200", 75 <= abstract_words <= 200)
     keywords = re.search(r"\\begin\{IEEEkeywords\}(.*?)\\end\{IEEEkeywords\}", tex, re.S)
@@ -268,6 +428,33 @@ def main() -> None:
     audit.check("exact Related Work heading", "Related Work" in tex, True, "\\section{Related Work}" in tex)
     audit.equal("algorithm count", len(re.findall(r"\\begin\{algorithm\}", tex)), 2)
     audit.equal("proposition count", len(re.findall(r"\\begin\{proposition\}", tex)), 5)
+    stale_result_fragments = [
+        fragment
+        for fragment in (
+            "Per-profile Wilson",
+            "0.665, 0.675, and 0.715",
+            "49.4\\%",
+            "only 4.57\\% of post-shift",
+            "10.75\\% error",
+            "NRMSE 3.210",
+        )
+        if fragment in tex
+    ]
+    audit.equal("no stale pre-split result prose", stale_result_fragments, [])
+    drift_table = ROOT / "manuscript" / "generated" / "table_drift_gate.tex"
+    drift_table_text = drift_table.read_text(encoding="utf-8") if drift_table.exists() else ""
+    drift_table_fields = ["Full gate", "No uncertainty gate", "No drift gate", "Joint exp.", "Cluster hi."]
+    audit.check(
+        "post-shift denominator evidence table generated",
+        [drift_table.exists(), *[field_name in drift_table_text for field_name in drift_table_fields]],
+        [True] * (1 + len(drift_table_fields)),
+        drift_table.exists() and all(field_name in drift_table_text for field_name in drift_table_fields),
+    )
+    audit.equal(
+        "conclusion reports joint disagreement exposure",
+        "\\DriftExposureReduction" in tex,
+        True,
+    )
     expected_result_figures = sorted(
         [
             "fig_anchor_sensitivity.pdf",
@@ -302,9 +489,24 @@ def main() -> None:
     figure_count = len(figure_blocks)
     caption_count = sum(len(re.findall(r"\\caption\{", block)) for block in figure_blocks)
     subfigure_tokens = re.findall(r"\\subfloat|\\begin\{subfigure\}|\\usepackage(?:\[[^]]*\])?\{subfig\}", tex)
-    audit.equal("one caption per figure and no subfigures", [figure_count, caption_count, len(subfigure_tokens)], [16, 16, 0])
-    forbidden = re.findall(r"\bChatGPT\b|\bOpenAI\b|\bTODO\b|\bTBD\b|\bPLACEHOLDER\b|\bACKNOWLEDGMENT\b", tex, flags=re.I)
-    audit.equal("no drafting disclosure or placeholders", forbidden, [])
+    audit.equal("one caption per figure and no subfigures", [figure_count, caption_count, len(subfigure_tokens)], [15, 15, 0])
+    forbidden = re.findall(r"\bTODO\b|\bTBD\b|\bPLACEHOLDER\b", tex, flags=re.I)
+    acknowledgment = re.findall(
+        r"\\section\*\{Acknowledgment\}(.*?)(?=\\IEEEtriggeratref|\\bibliographystyle)",
+        tex,
+        flags=re.I | re.S,
+    )
+    disclosure_is_complete = (
+        len(acknowledgment) == 1
+        and "OpenAI ChatGPT" in acknowledgment[0]
+        and "language editing" in acknowledgment[0]
+        and "remain responsible" in acknowledgment[0]
+    )
+    audit.equal(
+        "no placeholders and one complete AI-use disclosure",
+        [forbidden, disclosure_is_complete],
+        [[], True],
+    )
     repo_mentions = re.findall(r"github\.com/YassirALKarawi/[^}\s]+", tex, flags=re.I)
     audit.equal(
         "verified project repository URL in manuscript",

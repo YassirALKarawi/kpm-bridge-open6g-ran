@@ -16,7 +16,7 @@ from kpm_bridge.dataset import (
 )
 from kpm_bridge.evaluation import build_pairs
 from kpm_bridge.mappers import KPMBridgeMapper, TemporalRidgeMapper, fit_mask
-from kpm_bridge.profiles import default_profiles
+from kpm_bridge.profiles import compile_profile_plan, default_profiles
 
 
 def main() -> None:
@@ -27,11 +27,12 @@ def main() -> None:
     rows: list[dict[str, object]] = []
     for key in ("P1", "P2", "P3"):
         profile = default_profiles()[key]
+        plan = compile_profile_plan(profile)
         pairs = build_pairs(training + test, profile, stats)
         train_pairs = [pair for pair in pairs if pair.trace.experiment == "exp1"]
         test_pairs = [pair for pair in pairs if pair.trace.experiment == "exp2"]
         masks = [fit_mask(len(pair.trace.values), 0.10) for pair in train_pairs]
-        for mapper in (TemporalRidgeMapper(profile), KPMBridgeMapper(profile, stats)):
+        for mapper in (TemporalRidgeMapper(plan), KPMBridgeMapper(plan, stats)):
             mapper.fit(train_pairs, masks)
             prediction = np.vstack([mapper.predict(pair) for pair in test_pairs])
             target = np.vstack([pair.trace.values for pair in test_pairs])

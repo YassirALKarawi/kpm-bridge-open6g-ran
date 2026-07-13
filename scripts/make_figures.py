@@ -244,7 +244,7 @@ def selective_tradeoff(sensitivity: pd.DataFrame) -> None:
     ax.plot(alpha, error, "o-", color=RED, markerfacecolor="white")
     ax.fill_between(alpha, 0, error, color=RED, alpha=0.10)
     ax.set_xlabel("Miscoverage level $\\alpha$ (%)")
-    ax.set_ylabel("Selective decision error (%)")
+    ax.set_ylabel("Canonical-action disagreement (%)")
     ax.set_ylim(0, max(2.1, 1.12 * error.max()))
     polish(ax)
     save(fig, "fig_selective_error")
@@ -285,7 +285,7 @@ def drift_figure(selective: pd.DataFrame, sensitivity: pd.DataFrame) -> None:
     p4 = p4.set_index("variant").reindex(order)
     fig, ax = plt.subplots(figsize=(3.48, 2.35))
     ax.plot(drift.value, 100 * drift.detection_rate, "o-", color=GREEN, markerfacecolor="white", label="Detection")
-    ax.plot(drift.value, 100 * drift.post_drift_coverage, "s-", color=BLUE, markerfacecolor="white", label="Pre-calibrated coverage")
+    ax.plot(drift.value, 100 * drift.post_drift_coverage, "s-", color=BLUE, markerfacecolor="white", label="Post-shift coverage")
     ax.plot(drift.value, 100 * drift.false_alarm_rate, "--", color=RED, label="False alarm")
     ax.set_xlabel("Injected standardized mean shift")
     ax.set_ylabel("Rate (%)")
@@ -295,12 +295,45 @@ def drift_figure(selective: pd.DataFrame, sensitivity: pd.DataFrame) -> None:
     save(fig, "fig_drift_sensitivity")
 
     fig, ax = plt.subplots(figsize=(3.48, 2.35))
-    bars = ax.bar(np.arange(3), 100 * p4.selective_error, color=[GREEN, ORANGE, RED], width=0.60, edgecolor="white")
+    positions = np.arange(3)
+    width = 0.34
+    conditional = 100 * p4.post_drift_selective_error
+    exposure = 100 * p4.post_drift_error_exposure
+    bars_conditional = ax.bar(
+        positions - width / 2,
+        conditional,
+        color=ORANGE,
+        width=width,
+        edgecolor="white",
+        label="Conditional disagreement",
+    )
+    bars_exposure = ax.bar(
+        positions + width / 2,
+        exposure,
+        color=BLUE,
+        width=width,
+        edgecolor="white",
+        label="Joint exposure",
+    )
     ax.set_xticks(np.arange(3), ["Full", "No uncertainty", "No drift"], rotation=10, ha="right")
-    ax.set_ylabel("Selective decision error (%)")
-    for bar, value in zip(bars, 100 * p4.selective_error, strict=True):
-        ax.text(bar.get_x() + bar.get_width() / 2, value + 1.2, f"{value:.1f}", ha="center", fontsize=6.4)
-    ax.set_ylim(0, 57)
+    ax.set_ylabel("Post-shift canonical-action rate (%)")
+    for bars, values in ((bars_conditional, conditional), (bars_exposure, exposure)):
+        for bar, value in zip(bars, values, strict=True):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                value + 1.4,
+                f"{value:.1f}",
+                ha="center",
+                fontsize=5.7,
+            )
+    ax.set_ylim(0, 100)
+    ax.legend(
+        frameon=False,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 1.0),
+        ncol=2,
+        columnspacing=1.3,
+    )
     polish(ax, "y")
     save(fig, "fig_drift_ablation")
 

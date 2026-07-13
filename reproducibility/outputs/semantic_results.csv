@@ -1,0 +1,5 @@
+check,expected,observed,status
+declared_unit_conversion,canonical values,canonical values,PASS
+permuted_source_order,order-invariant canonical output,equal,PASS
+wrong_quantity_decoy,fail closed,rejected,PASS
+permuted_scope_decoy,fail closed,rejected,PASS

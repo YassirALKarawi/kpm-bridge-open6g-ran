@@ -22,11 +22,21 @@ from sklearn.metrics import (
 
 from .certificates import (
     AnchorDriftCalibration,
+    CertificateFlag,
+    DecisionReason,
+    build_certificate,
     calibrate_anchor_mean_shift,
     calibrated_joint_radius,
+    certificate_flags,
+    decision_reason,
     detect_anchor_mean_shift,
     joint_standardised_scores,
-    wilson_interval,
+)
+from .contracts import (
+    CompiledTransformPlan,
+    ContractError,
+    KPMContract,
+    compile_transform_plan,
 )
 from .dataset import (
     CanonicalTrace,
@@ -49,10 +59,14 @@ from .mappers import (
 )
 from .profiles import (
     ImplementationProfile,
+    canonical_contracts,
+    compile_profile_plan,
     default_profiles,
     observe_trace,
+    profile_contracts,
     with_stress,
 )
+from .splits import PREDICTION_HORIZON, fit_stop, xapp_fit_mask
 from .xapp import DeploymentSpecificRiskXApp, PortableRiskXApp, decision_regret
 
 SEED = 20260712
@@ -65,6 +79,7 @@ MIN_SUPPORT = 0.75
 @dataclass
 class ProfileContext:
     profile: ImplementationProfile
+    plan: CompiledTransformPlan
     training_pairs: list[ProfiledTrace]
     test_pairs: list[ProfiledTrace]
     bridge: KPMBridgeMapper
@@ -109,8 +124,13 @@ def build_pairs(
 
 def fit_portable_xapp(training: list[CanonicalTrace], test: list[CanonicalTrace]) -> tuple[PortableRiskXApp, dict[str, float]]:
     xapp = PortableRiskXApp(SEED)
-    train_values = _stack(training, "values")
-    train_risk = _stack(training, "risk")
+    fit_masks = [xapp_fit_mask(len(trace.values), PREDICTION_HORIZON) for trace in training]
+    train_values = np.vstack(
+        [trace.values[mask] for trace, mask in zip(training, fit_masks, strict=True)]
+    )
+    train_risk = np.concatenate(
+        [trace.risk[mask] for trace, mask in zip(training, fit_masks, strict=True)]
+    )
     test_values = _stack(test, "values")
     test_risk = _stack(test, "risk")
     xapp.fit(train_values, train_risk)
@@ -184,15 +204,18 @@ def _cluster_interval(
     transform: Callable[[float], float] = lambda value: value,
     repetitions: int = 1000,
 ) -> tuple[float, float]:
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(stable_seed("cluster-bootstrap", numerator, denominator))
     n = len(trace_rows)
     estimates = np.empty(repetitions, dtype=float)
     for repetition in range(repetitions):
         selected = rng.integers(0, n, n)
         top = sum(float(trace_rows[index][numerator]) for index in selected)
         bottom = sum(float(trace_rows[index][denominator]) for index in selected)
-        estimates[repetition] = transform(top / bottom)
-    lower, upper = np.quantile(estimates, [0.025, 0.975])
+        estimates[repetition] = transform(top / bottom) if bottom > 0 else np.nan
+    finite = estimates[np.isfinite(estimates)]
+    if finite.size == 0:
+        return float("nan"), float("nan")
+    lower, upper = np.quantile(finite, [0.025, 0.975])
     return float(lower), float(upper)
 
 
@@ -231,7 +254,7 @@ def _calibrate_bridge(
         action_scores.append(
             np.abs(xapp.logits(prediction) - xapp.logits(pair.trace.values[mask]))
         )
-        start = int(np.floor(0.60 * len(full_prediction)))
+        start = fit_stop(len(full_prediction))
         residual_blocks.append(
             (full_prediction[start:] - pair.trace.values[start:]) / stats.scale
         )
@@ -269,6 +292,7 @@ def _selective_metrics(
     alpha: float = DEFAULT_ALPHA,
     ignore_drift: bool = False,
     ignore_margin: bool = False,
+    materialize_certificates: bool = False,
 ) -> dict[str, float]:
     radius = calibrated_joint_radius(context.calibration_scores, alpha)
     # A functional conformal projection certifies the fixed xApp logit.  The
@@ -279,7 +303,14 @@ def _selective_metrics(
     total = accepted = disagreements = unsafe = covered = valid_count = 0
     detection_delays: list[float] = []
     detections = false_alarms = drift_traces = 0
-    post_drift_total = post_drift_accepted = 0
+    pre_drift_total = pre_drift_accepted = pre_drift_disagreements = 0
+    pre_drift_covered = 0
+    post_drift_total = post_drift_accepted = post_drift_disagreements = 0
+    post_drift_covered = 0
+    trace_rows: list[dict[str, float]] = []
+    certificate_count = certificate_bytes = 0
+    certificate_seconds = 0.0
+    reason_counts = {reason: 0 for reason in DecisionReason}
     for pair, prediction, scores, drift, detected in zip(
         context.test_pairs,
         context.test_predictions,
@@ -292,22 +323,67 @@ def _selective_metrics(
         logits = xapp.logits(prediction)
         action = xapp.actions(prediction)
         oracle = xapp.actions(pair.trace.values)
-        quality = (pair.observation.support >= MIN_SUPPORT) & (pair.observation.age_ms <= MAX_AGE_MS)
-        if not ignore_drift:
-            quality &= ~drift
-        if not ignore_margin:
-            quality &= np.abs(logits - xapp.logit_threshold) > margin
+        interval_clear = np.abs(logits - xapp.logit_threshold) > margin
+        flags = np.empty(n, dtype=np.uint16)
+        for index in range(n):
+            flags[index] = int(
+                certificate_flags(
+                    support=float(pair.observation.support[index]),
+                    min_support=MIN_SUPPORT,
+                    age_ms=float(pair.observation.age_ms[index]),
+                    max_age_ms=MAX_AGE_MS,
+                    drift=bool(drift[index]) and not ignore_drift,
+                    functional_interval_clear=bool(interval_clear[index]) or ignore_margin,
+                )
+            )
+            reason = decision_reason(int(flags[index]))
+            reason_counts[reason] += 1
+            if materialize_certificates:
+                encode_started = time.perf_counter()
+                payload = build_certificate(
+                    context.plan,
+                    calibration_epoch=1,
+                    support=float(pair.observation.support[index]),
+                    age_ms=float(pair.observation.age_ms[index]),
+                    radius=radius,
+                    flags=int(flags[index]),
+                ).encode()
+                certificate_seconds += time.perf_counter() - encode_started
+                certificate_count += 1
+                certificate_bytes += len(payload)
+        quality = flags == int(CertificateFlag.NONE)
         accepted += int(np.sum(quality))
-        disagreements += int(np.sum((action != oracle) & quality))
-        unsafe += int(np.sum((pair.trace.risk == 1) & (action == 0) & quality))
+        local_disagreements = int(np.sum((action != oracle) & quality))
+        local_unsafe = int(np.sum((pair.trace.risk == 1) & (action == 0) & quality))
+        disagreements += local_disagreements
+        unsafe += local_unsafe
         total += n
 
         valid = np.ones(n, dtype=bool)
+        local_pre_total = local_pre_accepted = local_pre_disagreements = 0
+        local_pre_covered = 0
+        local_post_total = local_post_accepted = local_post_disagreements = 0
+        local_post_covered = 0
         if pair.observation.drift_start is not None:
             drift_traces += 1
-            valid[pair.observation.drift_start :] = False
-            post_drift_total += n - pair.observation.drift_start
-            post_drift_accepted += int(np.sum(quality[pair.observation.drift_start :]))
+            change = pair.observation.drift_start
+            valid[change:] = False
+            local_pre_total = change
+            local_pre_accepted = int(np.sum(quality[:change]))
+            local_pre_disagreements = int(np.sum((action[:change] != oracle[:change]) & quality[:change]))
+            local_pre_covered = int(np.sum(scores[:change] <= radius))
+            local_post_total = n - change
+            local_post_accepted = int(np.sum(quality[change:]))
+            local_post_disagreements = int(np.sum((action[change:] != oracle[change:]) & quality[change:]))
+            local_post_covered = int(np.sum(scores[change:] <= radius))
+            pre_drift_total += local_pre_total
+            pre_drift_accepted += local_pre_accepted
+            pre_drift_disagreements += local_pre_disagreements
+            pre_drift_covered += local_pre_covered
+            post_drift_total += local_post_total
+            post_drift_accepted += local_post_accepted
+            post_drift_disagreements += local_post_disagreements
+            post_drift_covered += local_post_covered
             if detected is not None and detected >= pair.observation.drift_start:
                 detection_delays.append((detected - pair.observation.drift_start) * pair.trace.dt_ms)
                 detections += 1
@@ -317,22 +393,88 @@ def _selective_metrics(
             false_alarms += 1
         covered += int(np.sum((scores <= radius) & valid))
         valid_count += int(np.sum(valid))
+        trace_rows.append(
+            {
+                "total": float(n),
+                "accepted": float(np.sum(quality)),
+                "disagreements": float(local_disagreements),
+                "unsafe": float(local_unsafe),
+                "covered": float(np.sum((scores <= radius) & valid)),
+                "valid": float(np.sum(valid)),
+                "pre_total": float(local_pre_total),
+                "pre_accepted": float(local_pre_accepted),
+                "pre_disagreements": float(local_pre_disagreements),
+                "pre_covered": float(local_pre_covered),
+                "post_total": float(local_post_total),
+                "post_accepted": float(local_post_accepted),
+                "post_disagreements": float(local_post_disagreements),
+                "post_covered": float(local_post_covered),
+            }
+        )
 
-    lower, upper = wilson_interval(disagreements, accepted)
+    selective_low, selective_high = _cluster_interval(
+        trace_rows, "disagreements", "accepted"
+    )
+    coverage_low, coverage_high = _cluster_interval(trace_rows, "covered", "valid")
+    acceptance_low, acceptance_high = _cluster_interval(trace_rows, "accepted", "total")
+    post_selective_low, post_selective_high = _cluster_interval(
+        trace_rows, "post_disagreements", "post_accepted"
+    )
+    post_exposure_low, post_exposure_high = _cluster_interval(
+        trace_rows, "post_disagreements", "post_total"
+    )
     return {
         "radius": float(radius),
         "action_radius": float(action_radius),
         "coverage_valid_regime": covered / valid_count,
+        "coverage_cluster_low": coverage_low,
+        "coverage_cluster_high": coverage_high,
         "acceptance": accepted / total,
+        "acceptance_cluster_low": acceptance_low,
+        "acceptance_cluster_high": acceptance_high,
         "abstention": 1.0 - accepted / total,
         "selective_error": disagreements / accepted if accepted else float("nan"),
-        "selective_error_wilson_low": lower,
-        "selective_error_wilson_high": upper,
+        "selective_error_cluster_low": selective_low,
+        "selective_error_cluster_high": selective_high,
         "accepted_unsafe_rate": unsafe / accepted if accepted else float("nan"),
+        "decision_error_exposure": disagreements / total,
+        "pre_drift_coverage": pre_drift_covered / pre_drift_total if pre_drift_total else float("nan"),
+        "pre_drift_acceptance": pre_drift_accepted / pre_drift_total if pre_drift_total else float("nan"),
+        "pre_drift_selective_error": (
+            pre_drift_disagreements / pre_drift_accepted
+            if pre_drift_accepted
+            else float("nan")
+        ),
+        "pre_drift_error_exposure": (
+            pre_drift_disagreements / pre_drift_total
+            if pre_drift_total
+            else float("nan")
+        ),
+        "post_drift_coverage": post_drift_covered / post_drift_total if post_drift_total else float("nan"),
         "post_drift_acceptance": post_drift_accepted / post_drift_total if post_drift_total else float("nan"),
+        "post_drift_selective_error": (
+            post_drift_disagreements / post_drift_accepted
+            if post_drift_accepted
+            else float("nan")
+        ),
+        "post_drift_selective_error_cluster_low": post_selective_low,
+        "post_drift_selective_error_cluster_high": post_selective_high,
+        "post_drift_error_exposure": (
+            post_drift_disagreements / post_drift_total
+            if post_drift_total
+            else float("nan")
+        ),
+        "post_drift_error_exposure_cluster_low": post_exposure_low,
+        "post_drift_error_exposure_cluster_high": post_exposure_high,
         "median_detection_delay_ms": float(np.median(detection_delays)) if detection_delays else float("nan"),
         "detection_rate": detections / drift_traces if drift_traces else float("nan"),
         "false_alarm_rate_per_trace": false_alarms / len(context.test_pairs),
+        "certificate_count": certificate_count,
+        "certificate_bytes_total": certificate_bytes,
+        "certificate_encoding_us_per_report": (
+            certificate_seconds * 1e6 / certificate_count if certificate_count else float("nan")
+        ),
+        **{f"reason_{reason.value.lower()}": count for reason, count in reason_counts.items()},
     }
 
 
@@ -344,19 +486,20 @@ def evaluate_profile(
     xapp: PortableRiskXApp,
     anchor_fraction: float = DEFAULT_ANCHOR_FRACTION,
 ) -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, object]], ProfileContext]:
+    plan = compile_profile_plan(profile)
     pairs = build_pairs(training_traces + test_traces, profile, stats)
     training_pairs = [pair for pair in pairs if pair.trace.experiment == "exp1"]
     test_pairs = [pair for pair in pairs if pair.trace.experiment == "exp2"]
     masks = [fit_mask(len(pair.trace.values), anchor_fraction) for pair in training_pairs]
     methods: list[BaseMapper] = [
         RawIdentityMapper(),
-        ContractMapper(profile),
+        ContractMapper(plan),
         DistributionMapper("zscore"),
         DistributionMapper("coral"),
         DistributionMapper("ot"),
-        AnchorRidgeMapper(profile),
-        TemporalRidgeMapper(profile),
-        KPMBridgeMapper(profile, stats),
+        AnchorRidgeMapper(plan),
+        TemporalRidgeMapper(plan),
+        KPMBridgeMapper(plan, stats),
     ]
 
     result_rows: list[dict[str, object]] = []
@@ -395,8 +538,16 @@ def evaluate_profile(
             bridge_predictions = predictions
 
     # Non-portable, deployment-specific upper bound.
-    raw_train = np.vstack([pair.observation.raw for pair in training_pairs])
-    risk_train = np.concatenate([pair.trace.risk for pair in training_pairs])
+    deployment_masks = [
+        xapp_fit_mask(len(pair.trace.values), PREDICTION_HORIZON)
+        for pair in training_pairs
+    ]
+    raw_train = np.vstack(
+        [pair.observation.raw[mask] for pair, mask in zip(training_pairs, deployment_masks, strict=True)]
+    )
+    risk_train = np.concatenate(
+        [pair.trace.risk[mask] for pair, mask in zip(training_pairs, deployment_masks, strict=True)]
+    )
     raw_test = np.vstack([pair.observation.raw for pair in test_pairs])
     risk_test = np.concatenate([pair.trace.risk for pair in test_pairs])
     truth_test = np.vstack([pair.trace.values for pair in test_pairs])
@@ -463,6 +614,7 @@ def evaluate_profile(
     )
     context = ProfileContext(
         profile,
+        plan,
         training_pairs,
         test_pairs,
         bridge,
@@ -475,7 +627,9 @@ def evaluate_profile(
         drift_flags,
         detection_indices,
     )
-    selective = _selective_metrics(context, xapp, stats)
+    selective = _selective_metrics(
+        context, xapp, stats, materialize_certificates=True
+    )
     selective_rows = [{"profile": profile.key, "variant": "Full", **selective}]
 
     no_margin = _selective_metrics(context, xapp, stats, ignore_margin=True)
@@ -500,7 +654,7 @@ def evaluate_profile(
                 "decision_agreement": row["decision_agreement"],
             }
         )
-    no_contract = KPMBridgeMapper(profile, stats, use_contract=False)
+    no_contract = KPMBridgeMapper(plan, stats, use_contract=False)
     no_contract.fit(training_pairs, masks)
     no_contract_predictions = [no_contract.predict(pair) for pair in test_pairs]
     no_contract_metrics, _ = _method_metrics(no_contract_predictions, test_pairs, xapp, stats)
@@ -523,11 +677,12 @@ def _evaluate_bridge_once(
     xapp: PortableRiskXApp,
     anchor_fraction: float,
 ) -> dict[str, float]:
+    plan = compile_profile_plan(profile)
     pairs = build_pairs(training_traces + test_traces, profile, stats)
     train_pairs = [pair for pair in pairs if pair.trace.experiment == "exp1"]
     test_pairs = [pair for pair in pairs if pair.trace.experiment == "exp2"]
     masks = [fit_mask(len(pair.trace.values), anchor_fraction) for pair in train_pairs]
-    bridge = KPMBridgeMapper(profile, stats, max_iter=60).fit(train_pairs, masks)
+    bridge = KPMBridgeMapper(plan, stats, max_iter=60).fit(train_pairs, masks)
     calibration_scores, _, radius, _ = _calibrate_bridge(bridge, train_pairs, stats, xapp)
     predictions = [bridge.predict(pair) for pair in test_pairs]
     metrics, _ = _method_metrics(predictions, test_pairs, xapp, stats)
@@ -668,6 +823,188 @@ def sensitivity_analysis(
     return rows
 
 
+def semantic_compiler_checks() -> list[dict[str, object]]:
+    """Exercise semantic fail-closed and order-invariance properties end to end."""
+    profile = default_profiles()["P1"]
+    sources = profile_contracts(profile)
+    targets = canonical_contracts()
+    canonical = np.array(
+        [
+            [100_000.0, 2.0, 10.0, 12.0, -65.0, 40_000.0, 1.0, 20.0],
+            [120_000.0, 3.0, 11.0, 13.0, -64.0, 45_000.0, 2.0, 25.0],
+        ]
+    )
+    raw = canonical * profile.declared_scale + profile.declared_offset
+    reset = np.zeros(raw.shape, dtype=bool)
+    reference_plan = compile_transform_plan(sources, targets)
+    reference = reference_plan.apply(raw, reset_mask=reset, dt_ms=250.0)
+    rows: list[dict[str, object]] = [
+        {
+            "check": "declared_unit_conversion",
+            "expected": "canonical values",
+            "observed": "canonical values" if np.allclose(reference, canonical) else "mismatch",
+            "status": "PASS" if np.allclose(reference, canonical) else "FAIL",
+        }
+    ]
+
+    permutation = np.array([3, 0, 7, 1, 6, 5, 2, 4])
+    permuted_plan = compile_transform_plan(
+        [sources[index] for index in permutation], targets
+    )
+    permuted = permuted_plan.apply(
+        raw[:, permutation], reset_mask=reset[:, permutation], dt_ms=250.0
+    )
+    rows.append(
+        {
+            "check": "permuted_source_order",
+            "expected": "order-invariant canonical output",
+            "observed": "equal" if np.allclose(permuted, reference) else "mismatch",
+            "status": "PASS" if np.allclose(permuted, reference) else "FAIL",
+        }
+    )
+    for label, bad_source in (
+        (
+            "wrong_quantity_decoy",
+            replace(sources[0], quantity="semantic_decoy_quantity"),
+        ),
+        ("permuted_scope_decoy", replace(sources[0], entity_scope="cell")),
+    ):
+        corrupted = [bad_source, *sources[1:]]
+        rejected = False
+        try:
+            compile_transform_plan(corrupted, targets)
+        except ContractError:
+            rejected = True
+        rows.append(
+            {
+                "check": label,
+                "expected": "fail closed",
+                "observed": "rejected" if rejected else "accepted",
+                "status": "PASS" if rejected else "FAIL",
+            }
+        )
+    return rows
+
+
+def monitor_window_sensitivity(
+    context: ProfileContext,
+    stats: FeatureStats,
+    xapp: PortableRiskXApp,
+    *,
+    candidates: tuple[int, ...] = (1, 2, 3, 5),
+) -> tuple[list[dict[str, object]], int]:
+    """Select a drift window on exp1 only, then report frozen exp2 sensitivity.
+
+    The sorted exp1 streams are split 60/40.  The first block estimates each
+    candidate's trace-maximum threshold; the second measures false alarms and
+    a predeclared 1.25-scale residual shift.  Exp2 columns are diagnostics and
+    never enter selection.
+    """
+    calibration_blocks: list[np.ndarray] = []
+    fitting_blocks: list[np.ndarray] = []
+    for pair in context.training_pairs:
+        prediction = context.bridge.predict(pair)
+        stop = fit_stop(len(prediction))
+        residual = (prediction - pair.trace.values) / stats.scale
+        calibration_blocks.append(residual[stop:])
+        fitting_blocks.append(residual[:stop])
+    design_stop = max(1, int(np.floor(0.60 * len(calibration_blocks))))
+    direction = np.array([1, -1, 1, 1, -1, 1, -1, 1], dtype=float)
+    rows: list[dict[str, object]] = []
+    for window in candidates:
+        design_calibration = calibrate_anchor_mean_shift(
+            calibration_blocks[:design_stop],
+            window=window,
+            quantile=0.975,
+            anchor_stride=10,
+        )
+        validation_detections = [
+            detect_anchor_mean_shift(block, design_calibration)[1]
+            for block in calibration_blocks[design_stop:]
+        ]
+        validation_false_alarm = float(
+            np.mean([detected is not None for detected in validation_detections])
+        )
+        synthetic_detected: list[bool] = []
+        synthetic_delays: list[float] = []
+        for block in fitting_blocks[design_stop:]:
+            shifted = block.copy()
+            change = int(np.floor(0.55 * len(shifted)))
+            shifted[change:] += 1.25 * direction
+            _, detected = detect_anchor_mean_shift(shifted, design_calibration)
+            valid_detection = detected is not None and detected >= change
+            synthetic_detected.append(valid_detection)
+            if valid_detection:
+                synthetic_delays.append((detected - change) * 250.0)
+
+        final_calibration = calibrate_anchor_mean_shift(
+            calibration_blocks,
+            window=window,
+            quantile=0.975,
+            anchor_stride=10,
+        )
+        flags, indices = _drift_state(
+            context.test_predictions,
+            context.test_pairs,
+            stats,
+            final_calibration,
+        )
+        candidate_context = replace(
+            context,
+            drift_calibration=final_calibration,
+            drift_flags=flags,
+            detection_indices=indices,
+        )
+        test_metrics = _selective_metrics(candidate_context, xapp, stats)
+        rows.append(
+            {
+                "window": window,
+                "selection_validation_false_alarm": validation_false_alarm,
+                "selection_synthetic_detection": float(np.mean(synthetic_detected)),
+                "selection_synthetic_median_delay_ms": (
+                    float(np.median(synthetic_delays))
+                    if synthetic_delays
+                    else float("nan")
+                ),
+                "test_false_alarm_rate_per_trace": test_metrics[
+                    "false_alarm_rate_per_trace"
+                ],
+                "test_detection_rate": test_metrics["detection_rate"],
+                "test_median_detection_delay_ms": test_metrics[
+                    "median_detection_delay_ms"
+                ],
+                "test_post_drift_acceptance": test_metrics[
+                    "post_drift_acceptance"
+                ],
+                "test_post_drift_selective_error": test_metrics[
+                    "post_drift_selective_error"
+                ],
+                "test_post_drift_error_exposure": test_metrics[
+                    "post_drift_error_exposure"
+                ],
+                "test_overall_selective_error": test_metrics["selective_error"],
+            }
+        )
+
+    eligible = [
+        row for row in rows if row["selection_validation_false_alarm"] <= 0.05
+    ]
+    pool = eligible if eligible else rows
+    chosen = int(
+        min(
+            pool,
+            key=lambda row: (
+                -float(row["selection_synthetic_detection"]),
+                float(row["selection_synthetic_median_delay_ms"]),
+                int(row["window"]),
+            ),
+        )["window"]
+    )
+    for row in rows:
+        row["selected_from_exp1_only"] = bool(row["window"] == chosen)
+    return rows, chosen
+
+
 def run_full_benchmark(output_dir: Path = Path("reproducibility/outputs")) -> dict[str, object]:
     output_dir.mkdir(parents=True, exist_ok=True)
     traces = load_colosseum_subset()
@@ -691,15 +1028,48 @@ def run_full_benchmark(output_dir: Path = Path("reproducibility/outputs")) -> di
         ablation_rows.extend(ablations)
         contexts[key] = context
 
+    monitor_rows, selected_monitor_window = monitor_window_sensitivity(
+        contexts["P4"], stats, xapp
+    )
     sensitivity_rows = sensitivity_analysis(contexts, profiles, training, test, stats, xapp)
     main_frame = pd.DataFrame(main_rows)
     selective_frame = pd.DataFrame(selective_rows)
     ablation_frame = pd.DataFrame(ablation_rows)
     sensitivity_frame = pd.DataFrame(sensitivity_rows)
+    semantic_frame = pd.DataFrame(semantic_compiler_checks())
+    monitor_frame = pd.DataFrame(monitor_rows)
     main_frame.to_csv(output_dir / "main_results.csv", index=False)
     selective_frame.to_csv(output_dir / "selective_results.csv", index=False)
     ablation_frame.to_csv(output_dir / "ablation_results.csv", index=False)
     sensitivity_frame.to_csv(output_dir / "sensitivity_results.csv", index=False)
+    semantic_frame.to_csv(output_dir / "semantic_results.csv", index=False)
+    monitor_frame.to_csv(output_dir / "monitor_sensitivity_results.csv", index=False)
+
+    split_summary = {
+        "fit_fraction": 0.60,
+        "calibration_stride": 4,
+        "prediction_horizon": PREDICTION_HORIZON,
+        "mapper_anchor_rows": int(
+            sum(np.sum(fit_mask(len(trace.values), DEFAULT_ANCHOR_FRACTION)) for trace in training)
+        ),
+        "xapp_fit_rows": int(
+            sum(np.sum(xapp_fit_mask(len(trace.values), PREDICTION_HORIZON)) for trace in training)
+        ),
+        "calibration_rows": int(
+            sum(np.sum(calibration_mask(len(trace.values))) for trace in training)
+        ),
+        "feature_statistics_source": "exp1 fitting prefixes only",
+        "disjoint_fit_calibration": bool(
+            all(
+                not np.any(
+                    xapp_fit_mask(len(trace.values), PREDICTION_HORIZON)
+                    & calibration_mask(len(trace.values))
+                )
+                for trace in training
+            )
+        ),
+    }
+    full_certificates = selective_frame[selective_frame.variant == "Full"]
 
     summary = {
         "status": "FULL_DETERMINISTIC_BENCHMARK",
@@ -715,6 +1085,36 @@ def run_full_benchmark(output_dir: Path = Path("reproducibility/outputs")) -> di
         "feature_scale": stats.scale.tolist(),
         "xapp": xapp_summary,
         "certificate_bytes": 48,
+        "certificate_materialization": {
+            "reports": int(full_certificates.certificate_count.sum()),
+            "encoded_bytes": int(full_certificates.certificate_bytes_total.sum()),
+            "mean_encoding_us_per_report": float(
+                np.average(
+                    full_certificates.certificate_encoding_us_per_report,
+                    weights=full_certificates.certificate_count,
+                )
+            ),
+        },
+        "split_protocol": split_summary,
+        "compiled_plans": {
+            key: {
+                "schema_hash_hex": contexts[key].plan.schema_hash.hex(),
+                "mapping_id": contexts[key].plan.mapping_id,
+                "semantic_cost": contexts[key].plan.total_semantic_cost,
+            }
+            for key in contexts
+        },
+        "semantic_checks": {
+            "checks": int(len(semantic_frame)),
+            "passed": int((semantic_frame.status == "PASS").sum()),
+        },
+        "monitor_selection": {
+            "selected_window": selected_monitor_window,
+            "selection_data": "exp1 only",
+            "validation_false_alarm_ceiling": 0.05,
+            "synthetic_shift_scale": 1.25,
+            "test_data_used_for_selection": False,
+        },
         "environment": {
             "python": platform.python_version(),
             "platform": platform.platform(),

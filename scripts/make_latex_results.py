@@ -33,7 +33,8 @@ def macros(main: pd.DataFrame, selective: pd.DataFrame, summary: dict) -> None:
         selective.profile.isin(["P1", "P2", "P3"]) & (selective.variant == "Full")
     ].mean(numeric_only=True)
     p4 = selective[selective.profile == "P4"].set_index("variant")
-    error_reduction = 1.0 - p4.loc["Full", "selective_error"] / p4.loc["No drift gate", "selective_error"]
+    error_reduction = 1.0 - p4.loc["Full", "post_drift_selective_error"] / p4.loc["No drift gate", "post_drift_selective_error"]
+    exposure_reduction = 1.0 - p4.loc["Full", "post_drift_error_exposure"] / p4.loc["No drift gate", "post_drift_error_exposure"]
     total_rows = summary["training_rows"] + summary["test_rows"]
     lines = [
         f"\\newcommand{{\\DatasetRows}}{{{total_rows:,}}}",
@@ -49,15 +50,19 @@ def macros(main: pd.DataFrame, selective: pd.DataFrame, summary: dict) -> None:
         f"\\newcommand{{\\DriftDetection}}{{{100 * p4.loc['Full', 'detection_rate']:.1f}\\%}}",
         f"\\newcommand{{\\DriftDelay}}{{{p4.loc['Full', 'median_detection_delay_ms'] / 1000:.2f}~s}}",
         f"\\newcommand{{\\DriftFalseAlarm}}{{{100 * p4.loc['Full', 'false_alarm_rate_per_trace']:.1f}\\%}}",
-        f"\\newcommand{{\\DriftSelectiveError}}{{{100 * p4.loc['Full', 'selective_error']:.2f}\\%}}",
-        f"\\newcommand{{\\NoDriftSelectiveError}}{{{100 * p4.loc['No drift gate', 'selective_error']:.1f}\\%}}",
+        f"\\newcommand{{\\DriftSelectiveError}}{{{100 * p4.loc['Full', 'post_drift_selective_error']:.2f}\\%}}",
+        f"\\newcommand{{\\NoDriftSelectiveError}}{{{100 * p4.loc['No drift gate', 'post_drift_selective_error']:.1f}\\%}}",
         f"\\newcommand{{\\DriftErrorReduction}}{{{100 * error_reduction:.1f}\\%}}",
+        f"\\newcommand{{\\DriftExposure}}{{{100 * p4.loc['Full', 'post_drift_error_exposure']:.2f}\\%}}",
+        f"\\newcommand{{\\NoDriftExposure}}{{{100 * p4.loc['No drift gate', 'post_drift_error_exposure']:.1f}\\%}}",
+        f"\\newcommand{{\\DriftExposureReduction}}{{{100 * exposure_reduction:.1f}\\%}}",
         f"\\newcommand{{\\BridgeLatency}}{{{bridge.inference_us_per_sample:.1f}~$\\mu$s/sample}}",
         f"\\newcommand{{\\BridgeLatencyRange}}{{{bridge_profiles.inference_us_per_sample.min():.1f}--{bridge_profiles.inference_us_per_sample.max():.1f}~$\\mu$s/sample}}",
         f"\\newcommand{{\\BridgeFitRange}}{{{bridge_profiles.fit_seconds.min():.2f}--{bridge_profiles.fit_seconds.max():.2f}~s}}",
         f"\\newcommand{{\\TemporalLatency}}{{{means.loc['Temporal ridge', 'inference_us_per_sample']:.2f}~$\\mu$s/sample}}",
         f"\\newcommand{{\\BridgeModelSize}}{{{bridge.model_bytes / 2**20:.2f}~MiB}}",
         f"\\newcommand{{\\CertificateBytes}}{{{summary['certificate_bytes']}~B}}",
+        f"\\newcommand{{\\MonitorWindow}}{{{summary['monitor_selection']['selected_window']}}}",
         "\\newcommand{\\HundredUeCertificateRate}{0.384~Mbit/s}",
     ]
     write("results_macros.tex", "\n".join(lines))
@@ -104,19 +109,19 @@ def selective_table(selective: pd.DataFrame) -> None:
         delay = "--" if np.isnan(row.median_detection_delay_ms) else f"{row.median_detection_delay_ms / 1000:.2f}"
         rows.append(
             f"{profile} & {100 * row.coverage_valid_regime:.2f} & {100 * row.acceptance:.2f} & "
-            f"{100 * row.selective_error:.3f} & {100 * row.selective_error_wilson_high:.3f} & "
+            f"{100 * row.selective_error:.3f} & {100 * row.selective_error_cluster_high:.3f} & "
             f"{detection} & {delay} \\\\"
         )
     content = r"""
 \begin{table}[t]
-\caption{Calibration coverage, selective inference, and drift-detection outcomes at $\alpha=0.05$.}
+\caption{Valid-regime joint coverage, whole-trace acceptance and conditional canonical-action disagreement, and drift diagnostics at $\alpha=0.05$.}
 \label{tab:selective}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.6pt}
+\setlength{\tabcolsep}{2.0pt}
 \begin{tabular}{lrrrrrr}
 \toprule
-Profile & Cov. (\%) & Accept (\%) & Sel. err. (\%) & Wilson hi. & Detect (\%) & Delay (s) \\
+Profile & Valid cov. (\%) & Accept (\%) & Cond. dis. (\%) & Cluster hi. & Detect (\%) & Delay (s) \\
 \midrule
 """ + "\n".join(rows) + r"""
 \bottomrule
@@ -186,17 +191,85 @@ P4 & scaled units / gauges & 2 samples & 1 sample & 5\% & 2.5\% & 1.2\% & shift 
     write("table_profiles.tex", content)
 
 
+def drift_gate_table(selective: pd.DataFrame) -> None:
+    order = ["Full", "No uncertainty gate", "No drift gate"]
+    p4 = selective[selective.profile == "P4"].set_index("variant").reindex(order)
+    labels = {
+        "Full": "Full gate",
+        "No uncertainty gate": "No uncertainty gate",
+        "No drift gate": "No drift gate",
+    }
+    rows = []
+    for variant, row in p4.iterrows():
+        rows.append(
+            f"{labels[variant]} & {100 * row.post_drift_acceptance:.2f} & "
+            f"{100 * row.post_drift_selective_error:.2f} & "
+            f"{100 * row.post_drift_error_exposure:.2f} & "
+            f"{100 * row.post_drift_error_exposure_cluster_high:.2f} \\\\"
+        )
+    content = r"""
+\begin{table}[t]
+\caption{Post-shift P4 admission, conditional canonical-action disagreement, and joint disagreement exposure.}
+\label{tab:drift-gate}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{lrrrr}
+\toprule
+Variant & Accept & Cond. dis. & Joint exp. & Cluster hi. \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+    write("table_drift_gate.tex", content)
+
+
+def monitor_table(monitor: pd.DataFrame) -> None:
+    rows = []
+    for _, row in monitor.sort_values("window").iterrows():
+        label = f"\\textbf{{{int(row.window)}}}" if row.selected_from_exp1_only else str(int(row.window))
+        rows.append(
+            f"{label} & {100 * row.selection_validation_false_alarm:.2f} & "
+            f"{100 * row.selection_synthetic_detection:.2f} & "
+            f"{row.selection_synthetic_median_delay_ms / 1000:.2f} & "
+            f"{100 * row.test_detection_rate:.2f} & "
+            f"{row.test_median_detection_delay_ms / 1000:.2f} \\\\"
+        )
+    content = r"""
+\begin{table}[t]
+\caption{Training-only drift-window selection and frozen P4 test diagnostics.}
+\label{tab:monitor-window}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.7pt}
+\begin{tabular}{rrrrrr}
+\toprule
+$W$ & Val. FA (\%) & Syn. det. (\%) & Syn. delay (s) & Test det. (\%) & Test delay (s) \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+    write("table_monitor_window.tex", content)
+
+
 def main() -> None:
     main_results = pd.read_csv(OUTPUTS / "main_results.csv")
     selective = pd.read_csv(OUTPUTS / "selective_results.csv")
     ablation = pd.read_csv(OUTPUTS / "ablation_results.csv")
     summary = json.loads((OUTPUTS / "benchmark_summary.json").read_text(encoding="utf-8"))
+    monitor = pd.read_csv(OUTPUTS / "monitor_sensitivity_results.csv")
     macros(main_results, selective, summary)
     main_table(main_results)
     selective_table(selective)
     ablation_table(ablation)
     profile_table()
-    print(json.dumps({"generated_files": 5, "output": str(GENERATED)}, indent=2))
+    drift_gate_table(selective)
+    monitor_table(monitor)
+    print(json.dumps({"generated_files": 7, "output": str(GENERATED)}, indent=2))
 
 
 if __name__ == "__main__":

@@ -14,8 +14,11 @@ from sklearn.linear_model import Ridge
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+from .contracts import CompiledTransformPlan
 from .dataset import CanonicalTrace, FeatureStats
-from .profiles import ImplementationProfile, Observation, invert_declared_contract
+from .profiles import Observation
+from .splits import calibration_mask as split_calibration_mask
+from .splits import mapper_fit_mask
 
 
 @dataclass(frozen=True)
@@ -25,21 +28,15 @@ class ProfiledTrace:
 
 
 def fit_mask(length: int, anchor_fraction: float, fit_fraction: float = 0.60) -> np.ndarray:
-    if not 0 < anchor_fraction <= 1:
-        raise ValueError("anchor_fraction must lie in (0, 1]")
-    stop = max(1, int(np.floor(fit_fraction * length)))
-    desired = max(1, int(np.floor(anchor_fraction * stop)))
-    indices = np.linspace(0, stop - 1, desired, dtype=int)
-    mask = np.zeros(length, dtype=bool)
-    mask[np.unique(indices)] = True
-    return mask
+    if fit_fraction != 0.60:
+        raise ValueError("the registered benchmark fixes fit_fraction at 0.60")
+    return mapper_fit_mask(length, anchor_fraction)
 
 
 def calibration_mask(length: int, fit_fraction: float = 0.60, stride: int = 4) -> np.ndarray:
-    start = int(np.floor(fit_fraction * length))
-    mask = np.zeros(length, dtype=bool)
-    mask[start::stride] = True
-    return mask
+    if fit_fraction != 0.60:
+        raise ValueError("the registered benchmark fixes fit_fraction at 0.60")
+    return split_calibration_mask(length, stride)
 
 
 def _stack_selected(arrays: Iterable[np.ndarray], masks: Iterable[np.ndarray]) -> np.ndarray:
@@ -88,11 +85,15 @@ class RawIdentityMapper(BaseMapper):
 class ContractMapper(BaseMapper):
     name = "Contract"
 
-    def __init__(self, profile: ImplementationProfile):
-        self.profile = profile
+    def __init__(self, plan: CompiledTransformPlan):
+        self.plan = plan
 
     def _values(self, pair: ProfiledTrace) -> np.ndarray:
-        return invert_declared_contract(pair.observation, self.profile, pair.trace.dt_ms)
+        return self.plan.apply(
+            pair.observation.raw,
+            reset_mask=pair.observation.reset_mask,
+            dt_ms=pair.trace.dt_ms,
+        )
 
     def fit(self, pairs: list[ProfiledTrace], masks: list[np.ndarray]) -> "ContractMapper":
         values = _stack_selected((self._values(pair) for pair in pairs), masks)
@@ -145,13 +146,17 @@ class AnchorRidgeMapper(BaseMapper):
     name = "Anchor ridge"
     supervised = True
 
-    def __init__(self, profile: ImplementationProfile, use_contract: bool = True):
-        self.profile = profile
+    def __init__(self, plan: CompiledTransformPlan, use_contract: bool = True):
+        self.plan = plan
         self.use_contract = use_contract
 
     def _values(self, pair: ProfiledTrace) -> np.ndarray:
         if self.use_contract:
-            return invert_declared_contract(pair.observation, self.profile, pair.trace.dt_ms)
+            return self.plan.apply(
+                pair.observation.raw,
+                reset_mask=pair.observation.reset_mask,
+                dt_ms=pair.trace.dt_ms,
+            )
         return pair.observation.raw
 
     def fit(self, pairs: list[ProfiledTrace], masks: list[np.ndarray]) -> "AnchorRidgeMapper":
@@ -171,11 +176,15 @@ class AnchorRidgeMapper(BaseMapper):
 
 def temporal_design(
     pair: ProfiledTrace,
-    profile: ImplementationProfile,
+    plan: CompiledTransformPlan,
     use_contract: bool = True,
 ) -> np.ndarray:
     current = (
-        invert_declared_contract(pair.observation, profile, pair.trace.dt_ms)
+        plan.apply(
+            pair.observation.raw,
+            reset_mask=pair.observation.reset_mask,
+            dt_ms=pair.trace.dt_ms,
+        )
         if use_contract
         else pair.observation.raw
     )
@@ -205,13 +214,13 @@ class TemporalRidgeMapper(BaseMapper):
     name = "Temporal ridge"
     supervised = True
 
-    def __init__(self, profile: ImplementationProfile, use_contract: bool = True):
-        self.profile = profile
+    def __init__(self, plan: CompiledTransformPlan, use_contract: bool = True):
+        self.plan = plan
         self.use_contract = use_contract
 
     def fit(self, pairs: list[ProfiledTrace], masks: list[np.ndarray]) -> "TemporalRidgeMapper":
         source = _stack_selected(
-            (temporal_design(pair, self.profile, self.use_contract) for pair in pairs), masks
+            (temporal_design(pair, self.plan, self.use_contract) for pair in pairs), masks
         )
         target = _stack_selected((pair.trace.values for pair in pairs), masks)
         self.model = make_pipeline(
@@ -223,7 +232,7 @@ class TemporalRidgeMapper(BaseMapper):
         return self
 
     def predict(self, pair: ProfiledTrace) -> np.ndarray:
-        return self.model.predict(temporal_design(pair, self.profile, self.use_contract))
+        return self.model.predict(temporal_design(pair, self.plan, self.use_contract))
 
 
 class KPMBridgeMapper(BaseMapper):
@@ -232,13 +241,13 @@ class KPMBridgeMapper(BaseMapper):
 
     def __init__(
         self,
-        profile: ImplementationProfile,
+        plan: CompiledTransformPlan,
         stats: FeatureStats,
         max_iter: int = 70,
         use_contract: bool = True,
         random_state: int = 20260712,
     ):
-        self.profile = profile
+        self.plan = plan
         self.stats = stats
         self.max_iter = max_iter
         self.use_contract = use_contract
@@ -247,7 +256,7 @@ class KPMBridgeMapper(BaseMapper):
     def fit(self, pairs: list[ProfiledTrace], masks: list[np.ndarray]) -> "KPMBridgeMapper":
         started = time.perf_counter()
         source = _stack_selected(
-            (temporal_design(pair, self.profile, self.use_contract) for pair in pairs), masks
+            (temporal_design(pair, self.plan, self.use_contract) for pair in pairs), masks
         )
         target = _stack_selected((pair.trace.values for pair in pairs), masks)
         target_standard = (target - self.stats.location) / self.stats.scale
@@ -270,6 +279,6 @@ class KPMBridgeMapper(BaseMapper):
         return self
 
     def predict(self, pair: ProfiledTrace) -> np.ndarray:
-        source = temporal_design(pair, self.profile, self.use_contract)
+        source = temporal_design(pair, self.plan, self.use_contract)
         standard = np.column_stack([model.predict(source) for model in self.models])
         return standard * self.stats.scale + self.stats.location

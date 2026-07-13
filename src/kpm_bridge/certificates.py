@@ -4,12 +4,38 @@ from __future__ import annotations
 
 import struct
 from dataclasses import dataclass
+from enum import Enum, IntFlag
 
 import numpy as np
 
 from .calibration import split_conformal_radius
+from .contracts import CompiledTransformPlan
 
 CERTIFICATE_STRUCT = struct.Struct("!16sQQfffHH")
+
+
+class CertificateFlag(IntFlag):
+    """Stable wire-level fail-closed condition bits."""
+
+    NONE = 0
+    SCHEMA_INVALID = 1 << 0
+    MAPPING_INVALID = 1 << 1
+    DRIFT = 1 << 2
+    STALE = 1 << 3
+    LOW_SUPPORT = 1 << 4
+    FUNCTIONAL_UNCERTAINTY = 1 << 5
+
+
+class DecisionReason(str, Enum):
+    """Deterministic xApp-facing reason code, ordered by precedence."""
+
+    ALLOW = "ALLOW"
+    SCHEMA_INVALID = "SCHEMA_INVALID"
+    MAPPING_INVALID = "MAPPING_INVALID"
+    DRIFT = "DRIFT"
+    STALE = "STALE"
+    LOW_SUPPORT = "LOW_SUPPORT"
+    FUNCTIONAL_UNCERTAINTY = "FUNCTIONAL_UNCERTAINTY"
 
 
 @dataclass(frozen=True)
@@ -36,6 +62,77 @@ class TelemetryCertificate:
             self.flags,
             self.kpm_count,
         )
+
+    @classmethod
+    def decode(cls, payload: bytes) -> "TelemetryCertificate":
+        if len(payload) != CERTIFICATE_STRUCT.size:
+            raise ValueError(f"certificate must be {CERTIFICATE_STRUCT.size} bytes")
+        return cls(*CERTIFICATE_STRUCT.unpack(payload))
+
+
+def certificate_flags(
+    *,
+    support: float,
+    min_support: float,
+    age_ms: float,
+    max_age_ms: float,
+    drift: bool,
+    functional_interval_clear: bool,
+    schema_valid: bool = True,
+    mapping_valid: bool = True,
+) -> CertificateFlag:
+    flags = CertificateFlag.NONE
+    if not schema_valid:
+        flags |= CertificateFlag.SCHEMA_INVALID
+    if not mapping_valid:
+        flags |= CertificateFlag.MAPPING_INVALID
+    if drift:
+        flags |= CertificateFlag.DRIFT
+    if not np.isfinite(age_ms) or age_ms > max_age_ms:
+        flags |= CertificateFlag.STALE
+    if not np.isfinite(support) or support < min_support:
+        flags |= CertificateFlag.LOW_SUPPORT
+    if not functional_interval_clear:
+        flags |= CertificateFlag.FUNCTIONAL_UNCERTAINTY
+    return flags
+
+
+def decision_reason(flags: int | CertificateFlag) -> DecisionReason:
+    typed = CertificateFlag(flags)
+    precedence = (
+        (CertificateFlag.SCHEMA_INVALID, DecisionReason.SCHEMA_INVALID),
+        (CertificateFlag.MAPPING_INVALID, DecisionReason.MAPPING_INVALID),
+        (CertificateFlag.DRIFT, DecisionReason.DRIFT),
+        (CertificateFlag.STALE, DecisionReason.STALE),
+        (CertificateFlag.LOW_SUPPORT, DecisionReason.LOW_SUPPORT),
+        (CertificateFlag.FUNCTIONAL_UNCERTAINTY, DecisionReason.FUNCTIONAL_UNCERTAINTY),
+    )
+    for flag, reason in precedence:
+        if typed & flag:
+            return reason
+    return DecisionReason.ALLOW
+
+
+def build_certificate(
+    plan: CompiledTransformPlan,
+    *,
+    calibration_epoch: int,
+    support: float,
+    age_ms: float,
+    radius: float,
+    flags: int | CertificateFlag,
+) -> TelemetryCertificate:
+    """Bind one evaluated report to the compiled plan and calibration epoch."""
+    return TelemetryCertificate(
+        schema_hash=plan.schema_hash,
+        mapping_id=plan.mapping_id,
+        calibration_epoch=calibration_epoch,
+        support=float(support),
+        age_ms=float(age_ms),
+        radius=float(radius),
+        flags=int(flags),
+        kpm_count=len(plan.targets),
+    )
 
 
 @dataclass(frozen=True)
