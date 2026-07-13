@@ -5,9 +5,9 @@
 - Manuscript: `paper/KPM-Bridge_Manuscript.pdf`
 - Format: IEEEtran journal mode, 10 point, two columns, US Letter
 - Length: 13 pages including references
-- PDF SHA-256: `65cc2f0562776c04f6b209bdf4250a963357ac423df902f7f9d34ca0ae2a22f7`
+- PDF SHA-256: `b038ac9d2ddd7e214b0219220b39f528be0690d595022ea2bd85f71ffdd5fd5b`
 - Source SHA-256 (`manuscript/main.tex`):
-  `1457bc956fff56015b1371f251ada25a3ff1c84702bbe2ed518d7fc4dee59840`
+  `a820e30deaa976330be327f7e946eee0a3fbc3ced3e8374f22f9e33832baf13d`
 - Bibliography SHA-256 (`manuscript/references.bib`):
   `7af020b4fbeeef7687c85cfb707960f79bfa377ba3882d6a2b80b9efd9d56f2d`
 
@@ -31,7 +31,8 @@
 - 40 references in first-citation order. All have exact DOI links. The three
   directly relevant author publications occur at separated positions [21],
   [37], and [40].
-- The manuscript contains the verified repository URL
+- The manuscript contains the verified repository URL in a concise,
+  standalone reproducibility section:
   `https://github.com/YassirALKarawi/kpm-bridge-open6g-ran`.
 
 ## Interpretation guardrails
