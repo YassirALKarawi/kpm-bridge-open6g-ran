@@ -55,7 +55,18 @@ def save(fig: plt.Figure, name: str) -> None:
     png = FIGURES / f"{name}.png"
     pdf_tmp = FIGURES / f".{name}.pdf.tmp"
     png_tmp = FIGURES / f".{name}.png.tmp"
-    fig.savefig(pdf_tmp, format="pdf", bbox_inches="tight", pad_inches=0.025)
+    pdf_metadata = {
+        "Creator": "KPM-Bridge reproducibility pipeline",
+        "CreationDate": None,
+        "ModDate": None,
+    }
+    fig.savefig(
+        pdf_tmp,
+        format="pdf",
+        bbox_inches="tight",
+        pad_inches=0.025,
+        metadata=pdf_metadata,
+    )
     fig.savefig(png_tmp, format="png", bbox_inches="tight", pad_inches=0.025, dpi=300)
     pdf_tmp.replace(pdf)
     png_tmp.replace(png)

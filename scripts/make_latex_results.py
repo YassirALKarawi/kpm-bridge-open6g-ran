@@ -73,7 +73,8 @@ def main_table(main: pd.DataFrame) -> None:
         label = labels.get(method, method)
         values = f"{row.nrmse:.3f} & {100 * row.decision_agreement:.2f} & {row.regret:.4f} & {row.inference_us_per_sample:.2f}"
         if method == "KPM-Bridge":
-            rows.append(f"\\textbf{{{label}}} & \\textbf{{{values.replace(' & ', '} & \\textbf{')}}} \\\\")
+            bold_values = values.replace(" & ", "} & \\textbf{")
+            rows.append(f"\\textbf{{{label}}} & \\textbf{{{bold_values}}} \\\\")
         else:
             rows.append(f"{label} & {values} \\\\")
     content = r"""
