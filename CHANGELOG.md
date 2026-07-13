@@ -3,6 +3,14 @@
 All notable software, evidence, and reproducibility-package changes are
 documented here.
 
+## 1.0.1 — 2026-07-13
+
+- Added the verified public repository URL to the manuscript and cover letter.
+- Synchronized the manuscript title, repository identity, software version, and
+  release metadata through a fail-closed audit.
+- Rebuilt the 13-page submission PDF and reproducibility archives from the
+  release commit.
+
 ## 1.0.0 — 2026-07-13
 
 - Released the typed contract compiler, event-time canonicalizer, residual

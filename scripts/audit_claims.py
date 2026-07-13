@@ -18,6 +18,12 @@ from audit_references import entries, field
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "reproducibility" / "outputs"
 MANUSCRIPT = ROOT / "manuscript" / "main.tex"
+PROJECT_TITLE = (
+    "KPM-Bridge: An Uncertainty-Aware Cross-Implementation Telemetry Fabric "
+    "for Portable AI xApps in Open 6G RAN"
+)
+PROJECT_REPOSITORY = "https://github.com/YassirALKarawi/kpm-bridge-open6g-ran"
+SOFTWARE_VERSION = "1.0.1"
 
 
 class Audit:
@@ -81,6 +87,27 @@ def main() -> None:
     summary = json.loads((OUTPUTS / "benchmark_summary.json").read_text(encoding="utf-8"))
     manifest = json.loads((ROOT / "data" / "colosseum_subset_manifest.json").read_text(encoding="utf-8"))
     tex = MANUSCRIPT.read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+
+    # Public repository identity must remain synchronized with the manuscript.
+    metadata_state = {
+        "manuscript_title": f"\\title{{{PROJECT_TITLE}}}" in tex,
+        "readme_title": PROJECT_TITLE in readme.replace("\n> ", " "),
+        "citation_title": f'title: "{PROJECT_TITLE}"' in citation,
+        "manuscript_repository": PROJECT_REPOSITORY in tex,
+        "readme_repository": PROJECT_REPOSITORY in readme,
+        "citation_repository": f'repository-code: "{PROJECT_REPOSITORY}"' in citation,
+        "pyproject_repository": f'Homepage = "{PROJECT_REPOSITORY}"' in pyproject,
+        "citation_version": f"version: {SOFTWARE_VERSION}" in citation,
+        "pyproject_version": f'version = "{SOFTWARE_VERSION}"' in pyproject,
+    }
+    audit.equal(
+        "repository identity and release metadata synchronized",
+        metadata_state,
+        {key: True for key in metadata_state},
+    )
 
     # Dataset and benchmark identity.
     audit.equal("benchmark status", summary["status"], "FULL_DETERMINISTIC_BENCHMARK")
@@ -279,7 +306,11 @@ def main() -> None:
     forbidden = re.findall(r"\bChatGPT\b|\bOpenAI\b|\bTODO\b|\bTBD\b|\bPLACEHOLDER\b|\bACKNOWLEDGMENT\b", tex, flags=re.I)
     audit.equal("no drafting disclosure or placeholders", forbidden, [])
     repo_mentions = re.findall(r"github\.com/YassirALKarawi/[^}\s]+", tex, flags=re.I)
-    audit.equal("no unverified project repository URL in manuscript", repo_mentions, [])
+    audit.equal(
+        "verified project repository URL in manuscript",
+        repo_mentions,
+        ["github.com/YassirALKarawi/kpm-bridge-open6g-ran"],
+    )
     pdfinfo = subprocess.run(
         ["pdfinfo", str(ROOT / "manuscript" / "main.pdf")], check=True, capture_output=True, text=True
     ).stdout

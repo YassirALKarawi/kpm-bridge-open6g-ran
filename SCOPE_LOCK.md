@@ -133,5 +133,5 @@ only if support, age, drift, and radius constraints in \(\gamma_t\) are met.
 - 5 tables, including related work, profiles, selective inference, ablation,
   and complexity;
 - sensitivity, ablation, scalability, calibration, and failure-case results;
-- deterministic seeds, generated outputs, a 25-reference DOI audit, an
-  88-check claim audit, and 12 deterministic tests.
+- deterministic seeds, generated outputs, a 40-reference DOI audit, an
+  89-check claim audit, and 12 deterministic tests.

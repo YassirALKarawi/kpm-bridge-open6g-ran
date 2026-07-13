@@ -1,4 +1,5 @@
 claim,computed,expected,status
+repository identity and release metadata synchronized,"{""manuscript_title"": true, ""readme_title"": true, ""citation_title"": true, ""manuscript_repository"": true, ""readme_repository"": true, ""citation_repository"": true, ""pyproject_repository"": true, ""citation_version"": true, ""pyproject_version"": true}","{""manuscript_title"": true, ""readme_title"": true, ""citation_title"": true, ""manuscript_repository"": true, ""readme_repository"": true, ""citation_repository"": true, ""pyproject_repository"": true, ""citation_version"": true, ""pyproject_version"": true}",PASS
 benchmark status,"""FULL_DETERMINISTIC_BENCHMARK""","""FULL_DETERMINISTIC_BENCHMARK""",PASS
 global seed,20260712,20260712,PASS
 input traces,106,106,PASS
@@ -84,6 +85,6 @@ thirteen nonempty vector result figures,"[""fig_anchor_sensitivity.pdf"", ""fig_
 three supplied high-resolution illustrations,"[""fig1_kpm_bridge_architecture.jpeg"", ""fig2_typed_canonicalization.jpeg"", ""fig3_certificate_lifecycle.jpeg""]","[""fig1_kpm_bridge_architecture.jpeg"", ""fig2_typed_canonicalization.jpeg"", ""fig3_certificate_lifecycle.jpeg""]",PASS
 one caption per figure and no subfigures,"[16, 16, 0]","[16, 16, 0]",PASS
 no drafting disclosure or placeholders,[],[],PASS
-no unverified project repository URL in manuscript,[],[],PASS
+verified project repository URL in manuscript,"[""github.com/YassirALKarawi/kpm-bridge-open6g-ran""]","[""github.com/YassirALKarawi/kpm-bridge-open6g-ran""]",PASS
 submission PDF pages,13,13,PASS
 no overflow or unresolved cross-reference,[],[],PASS

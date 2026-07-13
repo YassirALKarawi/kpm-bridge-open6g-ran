@@ -81,7 +81,7 @@ longer mutually consistent.
 | Canonical KPM features | 8 |
 | Certificate size | 48 bytes |
 | DOI-verified references | 40 |
-| Claim/submission checks | 88 |
+| Claim/submission checks | 89 |
 | Deterministic unit tests | 12 |
 
 The complete interpretation boundary is recorded in `SCOPE_LOCK.md`.

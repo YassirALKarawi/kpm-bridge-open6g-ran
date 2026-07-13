@@ -21,9 +21,11 @@
       and a matching `https://doi.org/...` link.
 - [x] DOI links are clickable and rendered in blue.
 - [x] No missing citations, unresolved cross-references, overfull boxes, TODOs,
-      placeholders, project-repository URL, or drafting acknowledgment.
+      placeholders, provisional repository URLs, or drafting acknowledgment.
+- [x] The manuscript uses the verified permanent project repository URL:
+      `https://github.com/YassirALKarawi/kpm-bridge-open6g-ran`.
 - [x] Twelve deterministic unit tests pass.
-- [x] Eighty-eight claim, evidence, reference, and format checks pass.
+- [x] Eighty-nine claim, evidence, reference, and format checks pass.
 - [x] Raw GPL-3.0 traces are not redistributed; the 108-file subset is pinned
       and SHA-256 verified.
 
@@ -37,10 +39,9 @@
       requires ORCID for every author.
 - [ ] Select traditional or open-access publication and review the applicable
       publication/page charges.
-- [ ] Upload `KPM-Bridge_IEEE_JSAC_Final_v1.1.pdf` to the correct special-issue track
+- [ ] Upload `KPM-Bridge_IEEE_JSAC_Final_v1.2.pdf` to the correct special-issue track
       in ScholarOne and paste the five index terms exactly as shown in the PDF.
 - [ ] Review the optional cover letter, compile/sign it if the portal requests
       one, and do not add claims that the authors have not personally confirmed.
-- [ ] Release the reproducibility repository only after its permanent URL has
-      been verified. Do not insert a provisional or nonexistent URL into the
-      submission manuscript.
+- [x] Reproducibility repository and release `v1.0.1` are public, verified, and
+      synchronized with the manuscript URL.

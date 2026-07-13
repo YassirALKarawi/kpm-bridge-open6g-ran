@@ -84,7 +84,7 @@ make benchmark   # regenerates the full deterministic CSV/JSON evidence
 make assets      # regenerates tables, macros, and vector result figures
 make references # verifies DOI metadata through Crossref/DataCite
 make paper       # builds the 13-page IEEE PDF
-make audit       # runs tests plus 88 fail-closed claim/submission checks
+make audit       # runs tests plus 89 fail-closed claim/submission checks
 ```
 
 The complete benchmark downloads 108 hash-pinned public files and regenerates
