@@ -5,9 +5,9 @@
 - Manuscript: `paper/KPM-Bridge_Manuscript.pdf`
 - Format: IEEEtran journal mode, 10 point, two columns, US Letter
 - Length: 13 pages including references
-- PDF SHA-256: `b038ac9d2ddd7e214b0219220b39f528be0690d595022ea2bd85f71ffdd5fd5b`
+- PDF SHA-256: `90d0adca19404ef8bfde6b38532ef59c73bc5072007ceaa839cd56d9c0876795`
 - Source SHA-256 (`manuscript/main.tex`):
-  `a820e30deaa976330be327f7e946eee0a3fbc3ced3e8374f22f9e33832baf13d`
+  `bca3226e2d17d957f62ad4dd8babfb5fc6b735cd37b301ba76e7097800a8b621`
 - Bibliography SHA-256 (`manuscript/references.bib`):
   `7af020b4fbeeef7687c85cfb707960f79bfa377ba3882d6a2b80b9efd9d56f2d`
 
