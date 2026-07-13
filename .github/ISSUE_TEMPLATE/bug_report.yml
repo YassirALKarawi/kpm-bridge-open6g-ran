@@ -1,0 +1,59 @@
+name: Bug report
+description: Report a reproducible software, certificate, or validation defect.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not disclose security vulnerabilities here; follow SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: v1.0.0 or commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected component
+      options:
+        - Typed contract compiler
+        - Event-time alignment
+        - Residual mapper
+        - Certificate and selective gate
+        - Drift monitor
+        - Benchmark or generated assets
+        - Manuscript build
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include commands, inputs, and the smallest code example possible.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: OS, Python version, KPM-Bridge version, and relevant dependency versions
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I checked existing issues and did not find a duplicate.
+          required: true
+        - label: This report does not contain sensitive or raw operator data.
+          required: true

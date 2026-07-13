@@ -17,7 +17,7 @@ tables:
 	python3 scripts/make_latex_results.py
 
 figures:
-	python3 scripts/make_figures.py
+	MPLCONFIGDIR=.mplconfig python3 scripts/make_figures.py
 
 assets: tables figures
 

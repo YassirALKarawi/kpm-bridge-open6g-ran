@@ -1,0 +1,33 @@
+name: Research or feature proposal
+description: Propose a scoped extension to the implementation or evaluation.
+title: "[Proposal]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Research or engineering problem
+      description: Explain the portability or certification gap being addressed.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Identify affected contracts, algorithms, evidence, and compatibility constraints.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan
+      description: State the datasets, baselines, metrics, and failure cases needed.
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope confirmation
+      options:
+        - label: I reviewed SCOPE_LOCK.md and understand the current claim boundary.
+          required: true

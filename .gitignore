@@ -2,6 +2,9 @@ __pycache__/
 *.py[cod]
 .venv/
 .pytest_cache/
+*.egg-info/
+/build/
+/dist/
 *.aux
 *.blg
 *.fdb_latexmk
@@ -12,6 +15,7 @@ reproducibility/outputs/*.json
 !reproducibility/outputs/.gitkeep
 !reproducibility/outputs/benchmark_summary.json
 /manuscript/main.pdf
+/manuscript/figures/.*.tmp
 /submission/cover_letter.pdf
 /output/
 /data/raw/

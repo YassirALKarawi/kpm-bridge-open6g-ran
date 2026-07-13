@@ -40,6 +40,31 @@ K.~Alam, M.~A. Habibi, M.~Tammen, D.~Krummacker, W.~Saad, M.~D. Renzo,
   \url{https://doi.org/10.1109/COMST.2025.3598406}
 \BIBentrySTDinterwordspacing
 
+\bibitem{garcia2021oran}
+\BIBentryALTinterwordspacing
+A.~Garcia-Saavedra and X.~Costa-Perez, ``{O-RAN}: Disrupting the virtualized
+  {RAN} ecosystem,'' \emph{IEEE Commun. Standards Mag.}, vol.~5, no.~4, pp.
+  96--103, Dec. 2021. [Online]. Available:
+  \url{https://doi.org/10.1109/MCOMSTD.101.2000014}
+\BIBentrySTDinterwordspacing
+
+\bibitem{bonati2021intelligence}
+\BIBentryALTinterwordspacing
+L.~Bonati, S.~D'Oro, M.~Polese, S.~Basagni, and T.~Melodia, ``Intelligence and
+  learning in {O-RAN} for data-driven {NextG} cellular networks,'' \emph{IEEE
+  Commun. Mag.}, vol.~59, no.~10, pp. 21--27, Oct. 2021. [Online]. Available:
+  \url{https://doi.org/10.1109/MCOM.101.2001120}
+\BIBentrySTDinterwordspacing
+
+\bibitem{niknam2022intelligent}
+\BIBentryALTinterwordspacing
+S.~Niknam, A.~Roy, H.~S. Dhillon, S.~Singh, R.~Banerji, J.~H. Reed, N.~Saxena,
+  and S.~Yoon, ``Intelligent {O-RAN} for beyond {5G} and {6G} wireless
+  networks,'' in \emph{Proc. IEEE Globecom Workshops}, Dec. 2022, pp. 215--220.
+  [Online]. Available:
+  \url{https://doi.org/10.1109/GCWkshps56602.2022.10008676}
+\BIBentrySTDinterwordspacing
+
 \bibitem{wang2026oran6g}
 \BIBentryALTinterwordspacing
 Q.~Wang, Y.~Wang, L.~Zhou, J.~H. Song, Z.~Li, and J.~Wang, ``The o-ran
@@ -48,13 +73,12 @@ Q.~Wang, Y.~Wang, L.~Zhou, J.~H. Song, Z.~Li, and J.~Wang, ``The o-ran
   \url{https://doi.org/10.1109/MCOMSTD.2026.3671966}
 \BIBentrySTDinterwordspacing
 
-\bibitem{oran2023kpm}
+\bibitem{feraudo2024xdevsm}
 \BIBentryALTinterwordspacing
-{O-RAN Working Group 3}, ``O-ran near-real-time ran intelligent controller e2
-  service model (e2sm) kpm 3.0,'' O-RAN ALLIANCE e.V., Tech. Rep.
-  O-RAN.WG3.E2SM-KPM-R003-v03.00, Mar. 2023, official technical specification;
-  no DOI assigned. [Online]. Available:
-  \url{https://specifications.o-ran.org/specifications}
+A.~Feraudo, S.~Maxenti, A.~Lacava, P.~Bellavista, M.~Polese, and T.~Melodia,
+  ``xdevsm: Streamlining xapp development with a flexible framework for o-ran
+  e2 service models,'' in \emph{Proc. ACM MobiCom}, 2024, pp. 1954--1961.
+  [Online]. Available: \url{https://doi.org/10.1145/3636534.3697325}
 \BIBentrySTDinterwordspacing
 
 \bibitem{huseynov2026granularity}
@@ -105,14 +129,6 @@ P.~S. Upadhyaya, N.~Tripathi, J.~Gaeddert, and J.~H. Reed, ``Open ai cellular
   2023. [Online]. Available: \url{https://doi.org/10.1109/MNET.2023.3320933}
 \BIBentrySTDinterwordspacing
 
-\bibitem{feraudo2024xdevsm}
-\BIBentryALTinterwordspacing
-A.~Feraudo, S.~Maxenti, A.~Lacava, P.~Bellavista, M.~Polese, and T.~Melodia,
-  ``xdevsm: Streamlining xapp development with a flexible framework for o-ran
-  e2 service models,'' in \emph{Proc. ACM MobiCom}, 2024, pp. 1954--1961.
-  [Online]. Available: \url{https://doi.org/10.1145/3636534.3697325}
-\BIBentrySTDinterwordspacing
-
 \bibitem{feraudo2026xdevsm}
 \BIBentryALTinterwordspacing
 A.~Feraudo, S.~Maxenti, A.~Lacava, L.~Bonati, P.~Bellavista, M.~Polese, and
@@ -137,12 +153,34 @@ H.~Song, F.~Qin, P.~Martinez-Julia, L.~Ciavaglia, and A.~Wang, ``Network
   May 2022. [Online]. Available: \url{https://doi.org/10.17487/RFC9232}
 \BIBentrySTDinterwordspacing
 
+\bibitem{tan2021int}
+\BIBentryALTinterwordspacing
+L.~Tan, W.~Su, W.~Zhang, J.~Lv, Z.~Zhang, J.~Miao, X.~Liu, and N.~Li, ``In-band
+  network telemetry: A survey,'' \emph{Comput. Netw.}, vol. 186, p. 107763,
+  2021. [Online]. Available: \url{https://doi.org/10.1016/j.comnet.2020.107763}
+\BIBentrySTDinterwordspacing
+
 \bibitem{bjorklund2018nmda}
 \BIBentryALTinterwordspacing
 M.~Bjorklund, J.~Schoenwaelder, P.~Shafer, K.~Watsen, and R.~Wilton, ``Network
   management datastore architecture (nmda),'' Internet Engineering Task Force,
   Tech. Rep. RFC 8342, Mar. 2018. [Online]. Available:
   \url{https://doi.org/10.17487/RFC8342}
+\BIBentrySTDinterwordspacing
+
+\bibitem{schmidt2021flexric}
+\BIBentryALTinterwordspacing
+R.~Schmidt, M.~Irazabal, and N.~Nikaein, ``{FlexRIC}: An {SDK} for
+  next-generation {SD-RANs},'' in \emph{Proc. ACM CoNEXT}, Dec. 2021, pp.
+  411--425. [Online]. Available: \url{https://doi.org/10.1145/3485983.3494870}
+\BIBentrySTDinterwordspacing
+
+\bibitem{doro2022orchestran}
+\BIBentryALTinterwordspacing
+S.~D'Oro, L.~Bonati, M.~Polese, and T.~Melodia, ``{OrchestRAN}: Network
+  automation through orchestrated intelligence in the open {RAN},'' in
+  \emph{Proc. IEEE INFOCOM}, May 2022, pp. 270--279. [Online]. Available:
+  \url{https://doi.org/10.1109/INFOCOM48880.2022.9796744}
 \BIBentrySTDinterwordspacing
 
 \bibitem{alkarawi2026nativeai}
@@ -154,19 +192,12 @@ Y.~Al-Karawi, H.~S. Mogheer, K.~K. Hasan, and A.~H. Dawwd, ``Digital twin and
   \url{https://doi.org/10.1109/SmartIndustryCon68821.2026.11493034}
 \BIBentrySTDinterwordspacing
 
-\bibitem{alkarawi2026cqdt}
+\bibitem{benDavid2010theory}
 \BIBentryALTinterwordspacing
-Y.~Al-Karawi, R.~S. Alhumaima, and H.~Al-Raweshidy, ``Cybersecurity driven
-  quantum digital twin for proactive threat reversal in open ran,'' \emph{IET
-  Quantum Commun.}, vol.~7, no.~1, p. e70027, Feb. 2026. [Online]. Available:
-  \url{https://doi.org/10.1049/qtc2.70027}
-\BIBentrySTDinterwordspacing
-
-\bibitem{alkarawi2025offgrid}
-\BIBentryALTinterwordspacing
-------, ``Energy-aware optimisation for off-grid oran with ris and edge
-  computing,'' \emph{IET Netw.}, vol.~14, no.~1, p. e70012, 2025. [Online].
-  Available: \url{https://doi.org/10.1049/ntw2.70012}
+S.~Ben-David, J.~Blitzer, K.~Crammer, A.~Kulesza, F.~Pereira, and J.~W.
+  Vaughan, ``A theory of learning from different domains,'' \emph{Mach.
+  Learn.}, vol.~79, no. 1--2, pp. 151--175, 2010. [Online]. Available:
+  \url{https://doi.org/10.1007/s10994-009-5152-4}
 \BIBentrySTDinterwordspacing
 
 \bibitem{sun2016deepcoral}
@@ -176,13 +207,19 @@ B.~Sun and K.~Saenko, ``Deep coral: Correlation alignment for deep domain
   Available: \url{https://doi.org/10.1007/978-3-319-49409-8_35}
 \BIBentrySTDinterwordspacing
 
-\bibitem{ganin2016domain}
+\bibitem{tzeng2017adda}
 \BIBentryALTinterwordspacing
-Y.~Ganin, E.~Ustinova, H.~Ajakan, P.~Germain, H.~Larochelle, F.~Laviolette,
-  M.~Marchand, and V.~Lempitsky, ``Domain-adversarial training of neural
-  networks,'' \emph{J. Mach. Learn. Res.}, vol.~17, no.~59, pp. 1--35, 2016, no
-  DOI assigned. [Online]. Available:
-  \url{https://jmlr.org/papers/v17/15-239.html}
+E.~Tzeng, J.~Hoffman, K.~Saenko, and T.~Darrell, ``Adversarial discriminative
+  domain adaptation,'' in \emph{Proc. IEEE CVPR}, Jul. 2017, pp. 2962--2971.
+  [Online]. Available: \url{https://doi.org/10.1109/CVPR.2017.316}
+\BIBentrySTDinterwordspacing
+
+\bibitem{courty2017ot}
+\BIBentryALTinterwordspacing
+N.~Courty, R.~Flamary, D.~Tuia, and A.~Rakotomamonjy, ``Optimal transport for
+  domain adaptation,'' \emph{IEEE Trans. Pattern Anal. Mach. Intell.}, vol.~39,
+  no.~9, pp. 1853--1865, Sep. 2017. [Online]. Available:
+  \url{https://doi.org/10.1109/TPAMI.2016.2615921}
 \BIBentrySTDinterwordspacing
 
 \bibitem{peyre2019optimal}
@@ -192,6 +229,14 @@ G.~Peyr{\'e} and M.~Cuturi, ``Computational optimal transport with applications
   355--607, 2019. [Online]. Available: \url{https://doi.org/10.1561/2200000073}
 \BIBentrySTDinterwordspacing
 
+\bibitem{vovk2022algorithmic}
+\BIBentryALTinterwordspacing
+V.~Vovk, A.~Gammerman, and G.~Shafer, \emph{Algorithmic Learning in a Random
+  World}, 2nd~ed.\hskip 1em plus 0.5em minus 0.4em\relax Cham, Switzerland:
+  Springer, 2022. [Online]. Available:
+  \url{https://doi.org/10.1007/978-3-031-06649-8}
+\BIBentrySTDinterwordspacing
+
 \bibitem{angelopoulos2023conformal}
 \BIBentryALTinterwordspacing
 A.~N. Angelopoulos and S.~Bates, ``Conformal prediction: A gentle
@@ -199,20 +244,26 @@ A.~N. Angelopoulos and S.~Bates, ``Conformal prediction: A gentle
   494--591, 2023. [Online]. Available: \url{https://doi.org/10.1561/2200000101}
 \BIBentrySTDinterwordspacing
 
-\bibitem{tibshirani2019covariate}
+\bibitem{barber2023exchangeability}
 \BIBentryALTinterwordspacing
-R.~J. Tibshirani, R.~F. Barber, E.~Cand{\`e}s, and A.~Ramdas, ``Conformal
-  prediction under covariate shift,'' in \emph{Adv. Neural Inf. Process.
-  Syst.}, vol.~32, 2019, no DOI assigned. [Online]. Available:
-  \url{https://proceedings.neurips.cc/paper/2019/hash/8fb21ee7a2207526da55a679f0332de2-Abstract.html}
+R.~F. Barber, E.~J. Cand{\`e}s, A.~Ramdas, and R.~J. Tibshirani, ``Conformal
+  prediction beyond exchangeability,'' \emph{Ann. Stat.}, vol.~51, no.~2, 2023.
+  [Online]. Available: \url{https://doi.org/10.1214/23-AOS2276}
 \BIBentrySTDinterwordspacing
 
-\bibitem{elYaniv2010selective}
+\bibitem{chow1970reject}
 \BIBentryALTinterwordspacing
-R.~El-Yaniv and Y.~Wiener, ``On the foundations of noise-free selective
-  classification,'' \emph{J. Mach. Learn. Res.}, vol.~11, pp. 1605--1641, 2010,
-  no DOI assigned. [Online]. Available:
-  \url{https://jmlr.org/papers/v11/el-yaniv10a.html}
+C.~K. Chow, ``On optimum recognition error and reject tradeoff,'' \emph{IEEE
+  Trans. Inf. Theory}, vol.~16, no.~1, pp. 41--46, Jan. 1970. [Online].
+  Available: \url{https://doi.org/10.1109/TIT.1970.1054406}
+\BIBentrySTDinterwordspacing
+
+\bibitem{sadinle2018setvalued}
+\BIBentryALTinterwordspacing
+M.~Sadinle, J.~Lei, and L.~Wasserman, ``Least ambiguous set-valued classifiers
+  with bounded error levels,'' \emph{J. Amer. Stat. Assoc.}, vol. 114, no. 525,
+  pp. 223--234, 2019. [Online]. Available:
+  \url{https://doi.org/10.1080/01621459.2017.1395341}
 \BIBentrySTDinterwordspacing
 
 \bibitem{gama2014drift}
@@ -223,11 +274,42 @@ J.~Gama, I.~{\v{Z}}liobait{\.e}, A.~Bifet, M.~Pechenizkiy, and A.~Bouchachia,
   \url{https://doi.org/10.1145/2523813}
 \BIBentrySTDinterwordspacing
 
+\bibitem{lu2019drift}
+\BIBentryALTinterwordspacing
+J.~Lu, A.~Liu, F.~Dong, F.~Gu, J.~Gama, and G.~Zhang, ``Learning under concept
+  drift: A review,'' \emph{IEEE Trans. Knowl. Data Eng.}, vol.~31, no.~12, pp.
+  2346--2363, Dec. 2019. [Online]. Available:
+  \url{https://doi.org/10.1109/TKDE.2018.2876857}
+\BIBentrySTDinterwordspacing
+
+\bibitem{webb2016drift}
+\BIBentryALTinterwordspacing
+G.~I. Webb, R.~Hyde, H.~Cao, H.~L. Nguyen, and F.~Petitjean, ``Characterizing
+  concept drift,'' \emph{Data Min. Knowl. Discov.}, vol.~30, no.~4, pp.
+  964--994, 2016. [Online]. Available:
+  \url{https://doi.org/10.1007/s10618-015-0448-4}
+\BIBentrySTDinterwordspacing
+
+\bibitem{bifet2007adwin}
+\BIBentryALTinterwordspacing
+A.~Bifet and R.~Gavald{\`a}, ``Learning from time-changing data with adaptive
+  windowing,'' in \emph{Proc. SIAM Int. Conf. Data Mining}, 2007, pp. 443--448.
+  [Online]. Available: \url{https://doi.org/10.1137/1.9781611972771.42}
+\BIBentrySTDinterwordspacing
+
 \bibitem{page1954inspection}
 \BIBentryALTinterwordspacing
 E.~S. Page, ``Continuous inspection schemes,'' \emph{Biometrika}, vol.~41, no.
   1--2, pp. 100--115, 1954. [Online]. Available:
   \url{https://doi.org/10.1093/biomet/41.1-2.100}
+\BIBentrySTDinterwordspacing
+
+\bibitem{alkarawi2025offgrid}
+\BIBentryALTinterwordspacing
+Y.~Al-Karawi, R.~S. Alhumaima, and H.~Al-Raweshidy, ``Energy-aware optimisation
+  for off-grid oran with ris and edge computing,'' \emph{IET Netw.}, vol.~14,
+  no.~1, p. e70012, 2025. [Online]. Available:
+  \url{https://doi.org/10.1049/ntw2.70012}
 \BIBentrySTDinterwordspacing
 
 \bibitem{friedman2001gradient}
@@ -242,6 +324,14 @@ J.~H. Friedman, ``Greedy function approximation: A gradient boosting machine,''
 D.~Bertsimas and M.~Sim, ``The price of robustness,'' \emph{Oper. Res.},
   vol.~52, no.~1, pp. 35--53, 2004. [Online]. Available:
   \url{https://doi.org/10.1287/opre.1030.0065}
+\BIBentrySTDinterwordspacing
+
+\bibitem{alkarawi2026cqdt}
+\BIBentryALTinterwordspacing
+Y.~Al-Karawi, R.~S. Alhumaima, and H.~Al-Raweshidy, ``Cybersecurity driven
+  quantum digital twin for proactive threat reversal in open ran,'' \emph{IET
+  Quantum Commun.}, vol.~7, no.~1, p. e70027, Feb. 2026. [Online]. Available:
+  \url{https://doi.org/10.1049/qtc2.70027}
 \BIBentrySTDinterwordspacing
 
 \end{thebibliography}

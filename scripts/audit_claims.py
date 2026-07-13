@@ -116,7 +116,7 @@ def main() -> None:
     stable = main_results[main_results.profile.isin(["P1", "P2", "P3"])]
     means = stable.groupby("method").mean(numeric_only=True)
     bridge = means.loc["KPM-Bridge"]
-    baselines = means.drop(index=[name for name in ["KPM-Bridge", "Oracle canonical", "Vendor retrain"] if name in means.index])
+    baselines = means.drop(index=[name for name in ["KPM-Bridge", "Oracle canonical", "Deployment retrain"] if name in means.index])
     best_nrmse = baselines.nrmse.min()
     best_agreement = baselines.decision_agreement.max()
     audit.rounded("stationary KPM-Bridge NRMSE", bridge.nrmse, 0.685, 3)
@@ -200,10 +200,14 @@ def main() -> None:
     audit.check("six-sample age exceeds 1.5 s", lag.loc[6.0, "mean_age_ms"], 1500, bool(lag.loc[6.0, "mean_age_ms"] > 1500))
 
     # Complexity and payload arithmetic.
-    audit.rounded("bridge fit-time range seconds", [bridge_profiles.fit_seconds.min(), bridge_profiles.fit_seconds.max()], [1.43, 1.84], 2)
-    audit.rounded("bridge batch latency microseconds", bridge.inference_us_per_sample, 22.1, 1)
+    generated_macros = (ROOT / "manuscript" / "generated" / "results_macros.tex").read_text(encoding="utf-8")
+    expected_fit_macro = f"\\newcommand{{\\BridgeFitRange}}{{{bridge_profiles.fit_seconds.min():.2f}--{bridge_profiles.fit_seconds.max():.2f}~s}}"
+    expected_latency_macro = f"\\newcommand{{\\BridgeLatency}}{{{bridge.inference_us_per_sample:.1f}~$\\mu$s/sample}}"
+    expected_temporal_macro = f"\\newcommand{{\\TemporalLatency}}{{{means.loc['Temporal ridge', 'inference_us_per_sample']:.2f}~$\\mu$s/sample}}"
+    audit.check("bridge fit-time macro matches benchmark", expected_fit_macro in generated_macros, expected_fit_macro, expected_fit_macro in generated_macros)
+    audit.check("bridge batch-latency macro matches benchmark", expected_latency_macro in generated_macros, expected_latency_macro, expected_latency_macro in generated_macros)
     audit.rounded("bridge model size MiB", bridge.model_bytes / 2**20, 1.44, 2)
-    audit.rounded("temporal ridge latency microseconds", means.loc["Temporal ridge", "inference_us_per_sample"], 1.20, 2)
+    audit.check("temporal-ridge latency macro matches benchmark", expected_temporal_macro in generated_macros, expected_temporal_macro, expected_temporal_macro in generated_macros)
     audit.rounded("temporal ridge model KiB", means.loc["Temporal ridge", "model_bytes"] / 2**10, 12.1, 1)
     audit.close("certificate rate Mbit/s", 48 * 10 * 100 * 8 / 1e6, 0.384)
     audit.close("canonical-vector rate Mbit/s", 8 * 4 * 10 * 100 * 8 / 1e6, 0.256)
@@ -211,9 +215,9 @@ def main() -> None:
 
     # Reference, structure, and submission-format checks.
     reference_audit = pd.read_csv(OUTPUTS / "reference_audit.csv")
-    audit.equal("reference records", len(reference_audit), 28)
-    audit.equal("verified DOI records", int((reference_audit.status == "VERIFIED").sum()), 24)
-    audit.equal("declared no-DOI records", int((reference_audit.status == "NO_DOI_DECLARED").sum()), 4)
+    audit.equal("reference records", len(reference_audit), 40)
+    audit.equal("verified DOI records", int((reference_audit.status == "VERIFIED").sum()), 40)
+    audit.equal("declared no-DOI records", int((reference_audit.status == "NO_DOI_DECLARED").sum()), 0)
     bibliography = (ROOT / "manuscript" / "references.bib").read_text(encoding="utf-8")
     bibliography_entries = entries(bibliography)
     doi_url_pairs = 0
@@ -222,7 +226,7 @@ def main() -> None:
         url = field(entry, "url")
         if doi and url and url.lower() == f"https://doi.org/{doi}".lower():
             doi_url_pairs += 1
-    audit.equal("DOI links paired with DOI fields", doi_url_pairs, 24)
+    audit.equal("DOI links paired with DOI fields", doi_url_pairs, 40)
     cited = set()
     for group in re.findall(r"\\cite\{([^}]+)\}", tex):
         cited.update(key.strip() for key in group.split(","))
@@ -237,6 +241,41 @@ def main() -> None:
     audit.check("exact Related Work heading", "Related Work" in tex, True, "\\section{Related Work}" in tex)
     audit.equal("algorithm count", len(re.findall(r"\\begin\{algorithm\}", tex)), 2)
     audit.equal("proposition count", len(re.findall(r"\\begin\{proposition\}", tex)), 5)
+    expected_result_figures = sorted(
+        [
+            "fig_anchor_sensitivity.pdf",
+            "fig_coverage_availability.pdf",
+            "fig_drift_ablation.pdf",
+            "fig_drift_sensitivity.pdf",
+            "fig_feature_gain.pdf",
+            "fig_feature_nrmse.pdf",
+            "fig_lag_sensitivity.pdf",
+            "fig_missingness_sensitivity.pdf",
+            "fig_model_size.pdf",
+            "fig_runtime.pdf",
+            "fig_selective_error.pdf",
+            "fig_stationary_agreement.pdf",
+            "fig_stationary_nrmse.pdf",
+        ]
+    )
+    figure_pdfs = sorted((ROOT / "manuscript" / "figures").glob("*.pdf"))
+    valid_figure_pdfs = sorted(path.name for path in figure_pdfs if path.stat().st_size >= 1000)
+    audit.equal("thirteen nonempty vector result figures", valid_figure_pdfs, expected_result_figures)
+    expected_illustrations = sorted(
+        [
+            "fig1_kpm_bridge_architecture.jpeg",
+            "fig2_typed_canonicalization.jpeg",
+            "fig3_certificate_lifecycle.jpeg",
+        ]
+    )
+    illustration_paths = [ROOT / "manuscript" / "figures" / name for name in expected_illustrations]
+    valid_illustrations = sorted(path.name for path in illustration_paths if path.exists() and path.stat().st_size >= 100_000)
+    audit.equal("three supplied high-resolution illustrations", valid_illustrations, expected_illustrations)
+    figure_blocks = re.findall(r"\\begin\{figure\*?\}.*?\\end\{figure\*?\}", tex, flags=re.S)
+    figure_count = len(figure_blocks)
+    caption_count = sum(len(re.findall(r"\\caption\{", block)) for block in figure_blocks)
+    subfigure_tokens = re.findall(r"\\subfloat|\\begin\{subfigure\}|\\usepackage(?:\[[^]]*\])?\{subfig\}", tex)
+    audit.equal("one caption per figure and no subfigures", [figure_count, caption_count, len(subfigure_tokens)], [16, 16, 0])
     forbidden = re.findall(r"\bChatGPT\b|\bOpenAI\b|\bTODO\b|\bTBD\b|\bPLACEHOLDER\b|\bACKNOWLEDGMENT\b", tex, flags=re.I)
     audit.equal("no drafting disclosure or placeholders", forbidden, [])
     repo_mentions = re.findall(r"github\.com/YassirALKarawi/[^}\s]+", tex, flags=re.I)

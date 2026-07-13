@@ -3,7 +3,7 @@
 ## Research question
 
 Can one AI xApp consume KPM telemetry from heterogeneous O-RAN implementations
-without retraining per vendor, while retaining explicit finite-sample control
+without retraining per deployment, while retaining explicit finite-sample control
 over semantic translation error and refusing unsafe low-support inputs?
 
 ## Core failure mode
@@ -18,7 +18,7 @@ Implementations may differ in:
 5. observation window and reporting period;
 6. clock origin, delay, jitter, and staleness;
 7. quantisation, censoring, missingness, and reset behaviour;
-8. hidden vendor-side filtering and software-version drift.
+8. hidden implementation-side filtering and software-version drift.
 
 An AI xApp trained on one implementation may therefore accept a syntactically
 valid vector whose operational meaning has changed.
@@ -34,7 +34,7 @@ termination and portable xApps. It provides:
 2. **Constrained semantic transport.** Dimensionally valid mappings combine
    metadata matching, temporal alignment, anchor consistency, monotonicity,
    and a learned residual map.
-3. **Uncertainty certificates.** Vendor- and regime-conditioned conformal error
+3. **Uncertainty certificates.** Implementation- and regime-bound conformal error
    sets travel with the canonical KPM vector, support mask, age, schema hash,
    and calibration epoch.
 4. **Selective portable inference.** A portable xApp uses robust inference when
@@ -50,12 +50,12 @@ termination and portable xApps. It provides:
 - It does not claim universal semantic identifiability without anchors.
 - It does not claim real multi-vendor hardware validation until such captures
   are actually collected.
-- Synthetic vendor transformations are controlled stress tests, not evidence
+- Synthetic implementation transformations are controlled stress tests, not evidence
   of undocumented behaviour by named commercial vendors.
 
 ## Mathematical objects
 
-For vendor or implementation \(v\), raw metric \(i\), and time \(t\), use the
+For implementation \(v\), raw metric \(i\), and time \(t\), use the
 typed contract
 
 \[
@@ -67,10 +67,10 @@ where \(q\) is the physical quantity, \(u\) the unit, \(e\) the entity scope,
 the counter/reset semantics, and \(\nu\) the provenance/version tuple.
 
 Let \(z_t\) be the canonical latent KPM state and \(y_{v,t}\) the observed
-vendor report. A masked asynchronous observation model is
+implementation report. A masked asynchronous observation model is
 
 \[
-y_{v,t}=m_{v,t}\odot h_v(z_{\tau_v(t)})+\epsilon_{v,t}.
+y_{v,t}=m_{v,t}\odot\left[h_v(z_{\tau_v(t)})+\epsilon_{v,t}\right].
 \]
 
 KPM-Bridge returns \((\hat z_t,\mathcal U_t,\gamma_t)\): a canonical estimate,
@@ -134,4 +134,4 @@ only if support, age, drift, and radius constraints in \(\gamma_t\) are met.
   and complexity;
 - sensitivity, ablation, scalability, calibration, and failure-case results;
 - deterministic seeds, generated outputs, a 25-reference DOI audit, an
-  85-check claim audit, and 11 deterministic tests.
+  88-check claim audit, and 12 deterministic tests.

@@ -16,7 +16,9 @@ def split_conformal_radius(residuals: np.ndarray, alpha: float = 0.05) -> float:
     if not 0.0 < alpha < 1.0:
         raise ValueError("alpha must lie in (0, 1)")
     rank = int(np.ceil((scores.size + 1) * (1.0 - alpha)))
-    rank = min(max(rank, 1), scores.size)
+    if rank > scores.size:
+        return float("inf")
+    rank = max(rank, 1)
     return float(np.partition(scores, rank - 1)[rank - 1])
 
 

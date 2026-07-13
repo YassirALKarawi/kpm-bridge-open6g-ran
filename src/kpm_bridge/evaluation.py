@@ -53,7 +53,7 @@ from .profiles import (
     observe_trace,
     with_stress,
 )
-from .xapp import PortableRiskXApp, VendorSpecificRiskXApp, decision_regret
+from .xapp import DeploymentSpecificRiskXApp, PortableRiskXApp, decision_regret
 
 SEED = 20260712
 DEFAULT_ALPHA = 0.05
@@ -401,23 +401,23 @@ def evaluate_profile(
     risk_test = np.concatenate([pair.trace.risk for pair in test_pairs])
     truth_test = np.vstack([pair.trace.values for pair in test_pairs])
     oracle_action = xapp.actions(truth_test)
-    vendor = VendorSpecificRiskXApp(SEED)
+    deployment_model = DeploymentSpecificRiskXApp(SEED)
     started = time.perf_counter()
-    vendor.fit(raw_train, risk_train)
+    deployment_model.fit(raw_train, risk_train)
     fit_seconds = time.perf_counter() - started
     started = time.perf_counter()
-    vendor_action = vendor.actions(raw_test)
+    deployment_action = deployment_model.actions(raw_test)
     inference_us = (time.perf_counter() - started) * 1e6 / len(raw_test)
     result_rows.append(
         {
             "profile": profile.key,
             "profile_label": profile.label,
-            "method": "Vendor retrain",
+            "method": "Deployment retrain",
             "nrmse": float("nan"),
             "nmae": float("nan"),
-            "decision_agreement": float(np.mean(vendor_action == oracle_action)),
-            "regret": float(np.mean(decision_regret(vendor_action, risk_test))),
-            "unsafe_rate": float(np.mean((risk_test == 1) & (vendor_action == 0))),
+            "decision_agreement": float(np.mean(deployment_action == oracle_action)),
+            "regret": float(np.mean(decision_regret(deployment_action, risk_test))),
+            "unsafe_rate": float(np.mean((risk_test == 1) & (deployment_action == 0))),
             "nrmse_ci_low": float("nan"),
             "nrmse_ci_high": float("nan"),
             "agreement_ci_low": float("nan"),

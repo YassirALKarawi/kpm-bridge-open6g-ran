@@ -51,9 +51,24 @@ def configure() -> None:
 
 def save(fig: plt.Figure, name: str) -> None:
     FIGURES.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIGURES / f"{name}.pdf", bbox_inches="tight", pad_inches=0.025)
-    fig.savefig(FIGURES / f"{name}.png", bbox_inches="tight", pad_inches=0.025, dpi=300)
+    pdf = FIGURES / f"{name}.pdf"
+    png = FIGURES / f"{name}.png"
+    pdf_tmp = FIGURES / f".{name}.pdf.tmp"
+    png_tmp = FIGURES / f".{name}.png.tmp"
+    fig.savefig(pdf_tmp, format="pdf", bbox_inches="tight", pad_inches=0.025)
+    fig.savefig(png_tmp, format="png", bbox_inches="tight", pad_inches=0.025, dpi=300)
+    pdf_tmp.replace(pdf)
+    png_tmp.replace(png)
     plt.close(fig)
+
+
+def polish(ax: plt.Axes, grid_axis: str = "both") -> None:
+    """Apply one compact IEEE-style visual grammar to every result axis."""
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis=grid_axis, color="#D7E0E8", linewidth=0.55, alpha=0.8)
+    ax.set_axisbelow(True)
+    ax.tick_params(length=2.8, width=0.65, color=GREY)
 
 
 def _box(ax, x, y, w, h, title, subtitle="", color=BLUE, fill="white", lw=1.0):
@@ -174,79 +189,82 @@ def main_performance(main: pd.DataFrame) -> None:
     means = stable.groupby("method", sort=False)[["nrmse", "decision_agreement"]].mean().reindex(methods)
     y = np.arange(len(methods))
     colors = [BLUE if method == "KPM-Bridge" else PURPLE if "ridge" in method else "#AAB6C2" for method in methods]
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.15, 2.65), gridspec_kw={"wspace": 0.34})
-    ax1.barh(y, means.nrmse, color=colors, height=0.62, edgecolor="white")
-    for index, method in enumerate(methods):
-        values = stable[stable.method == method].nrmse.to_numpy()
-        ax1.scatter(values, np.full_like(values, index), color=NAVY, s=7, zorder=3, alpha=0.7)
-    ax1.set_yticks(y, methods)
-    ax1.invert_yaxis()
-    ax1.set_xlabel("Pooled normalized RMSE (lower is better)")
-    ax1.set_title("Canonical KPM reconstruction, P1–P3")
-    ax1.grid(axis="x", alpha=0.28)
-    ax1.set_axisbelow(True)
 
-    ax2.barh(y, 100 * means.decision_agreement, color=colors, height=0.62, edgecolor="white")
-    for index, method in enumerate(methods):
-        values = 100 * stable[stable.method == method].decision_agreement.to_numpy()
-        ax2.scatter(values, np.full_like(values, index), color=NAVY, s=7, zorder=3, alpha=0.7)
-    ax2.set_yticks(y, [])
-    ax2.invert_yaxis()
-    ax2.set_xlabel("Agreement with canonical xApp decision (%)")
-    ax2.set_title("Fixed-model decision portability, P1–P3")
-    ax2.grid(axis="x", alpha=0.28)
-    ax2.set_axisbelow(True)
-    ax2.set_xlim(75, 93)
-    save(fig, "fig_main_performance")
+    fig, ax = plt.subplots(figsize=(3.48, 2.45))
+    bars = ax.barh(y, means.nrmse, color=colors, height=0.62, edgecolor="white")
+    ax.set_yticks(y, methods)
+    ax.invert_yaxis()
+    ax.set_xlabel("Mean normalized RMSE")
+    ax.set_xlim(0, 3.45)
+    for bar, value in zip(bars, means.nrmse, strict=True):
+        ax.text(min(value + 0.04, 3.35), bar.get_y() + bar.get_height() / 2, f"{value:.3f}", va="center", fontsize=5.8, color=DARK)
+    polish(ax, "x")
+    save(fig, "fig_stationary_nrmse")
+
+    fig, ax = plt.subplots(figsize=(3.48, 2.45))
+    agreement = 100 * means.decision_agreement
+    bars = ax.barh(y, agreement, color=colors, height=0.62, edgecolor="white")
+    ax.set_yticks(y, methods)
+    ax.invert_yaxis()
+    ax.set_xlabel("Canonical-decision agreement (%)")
+    ax.set_xlim(75, 93)
+    for bar, value in zip(bars, agreement, strict=True):
+        ax.text(min(value + 0.18, 92.6), bar.get_y() + bar.get_height() / 2, f"{value:.2f}", va="center", fontsize=5.8, color=DARK)
+    polish(ax, "x")
+    save(fig, "fig_stationary_agreement")
 
 
 def selective_tradeoff(sensitivity: pd.DataFrame) -> None:
     data = sensitivity[sensitivity.sweep == "alpha"].sort_values("value")
     alpha = 100 * data.value.to_numpy()
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.15, 2.45), gridspec_kw={"wspace": 0.32})
-    ax1.plot(alpha, 100 * data.coverage, "o-", color=BLUE, label="Empirical joint coverage")
-    ax1.plot(alpha, 100 * (1 - data.abstention), "s-", color=GREEN, label="Accepted decisions")
-    ax1.plot(alpha, 100 * (1 - data.value), "--", color=GREY, label="Nominal $1-\\alpha$")
-    ax1.set_xlabel("Miscoverage level $\\alpha$ (%)")
-    ax1.set_ylabel("Rate (%)")
-    ax1.set_title("Coverage–availability tradeoff")
-    ax1.grid(alpha=0.28)
-    ax1.legend(frameon=False, loc="best")
+    fig, ax = plt.subplots(figsize=(3.48, 2.30))
+    ax.plot(alpha, 100 * data.coverage, "o-", color=BLUE, markerfacecolor="white", label="Joint coverage")
+    ax.plot(alpha, 100 * (1 - data.abstention), "s-", color=GREEN, markerfacecolor="white", label="Accepted decisions")
+    ax.plot(alpha, 100 * (1 - data.value), "--", color=GREY, label="Nominal $1-\\alpha$")
+    ax.set_xlabel("Miscoverage level $\\alpha$ (%)")
+    ax.set_ylabel("Rate (%)")
+    ax.set_ylim(38, 102)
+    ax.legend(frameon=False, loc="best", handlelength=2.2)
+    polish(ax)
+    save(fig, "fig_coverage_availability")
 
-    ax2.plot(alpha, 100 * data.selective_error, "o-", color=RED, label="Selective decision error")
-    ax2.fill_between(alpha, 0, 100 * data.selective_error, color=RED, alpha=0.10)
-    ax2.set_xlabel("Miscoverage level $\\alpha$ (%)")
-    ax2.set_ylabel("Error among accepted decisions (%)")
-    ax2.set_title("Risk paid for lower abstention")
-    ax2.grid(alpha=0.28)
-    ax2.set_ylim(bottom=0)
-    save(fig, "fig_selective_tradeoff")
+    fig, ax = plt.subplots(figsize=(3.48, 2.30))
+    error = 100 * data.selective_error
+    ax.plot(alpha, error, "o-", color=RED, markerfacecolor="white")
+    ax.fill_between(alpha, 0, error, color=RED, alpha=0.10)
+    ax.set_xlabel("Miscoverage level $\\alpha$ (%)")
+    ax.set_ylabel("Selective decision error (%)")
+    ax.set_ylim(0, max(2.1, 1.12 * error.max()))
+    polish(ax)
+    save(fig, "fig_selective_error")
 
 
 def sensitivity_figure(sensitivity: pd.DataFrame) -> None:
-    fig, axes = plt.subplots(1, 3, figsize=(7.15, 2.25), gridspec_kw={"wspace": 0.36})
     anchor = sensitivity[sensitivity.sweep == "anchor_fraction"].sort_values("value")
-    axes[0].plot(100 * anchor.value, anchor.nrmse, "o-", color=BLUE)
-    axes[0].set_xlabel("Anchor fraction (%)")
-    axes[0].set_ylabel("Normalized RMSE")
-    axes[0].set_title("Paired-anchor budget")
+    fig, ax = plt.subplots(figsize=(3.48, 2.25))
+    ax.plot(100 * anchor.value, anchor.nrmse, "o-", color=BLUE, markerfacecolor="white")
+    ax.set_xlabel("Paired-anchor fraction (%)")
+    ax.set_ylabel("Normalized RMSE")
+    polish(ax)
+    save(fig, "fig_anchor_sensitivity")
 
     missing = sensitivity[sensitivity.sweep == "missing_rate"].sort_values("value")
-    axes[1].plot(100 * missing.value, 100 * missing.decision_agreement, "o-", color=GREEN)
-    axes[1].set_xlabel("Missing entries (%)")
-    axes[1].set_ylabel("Decision agreement (%)")
-    axes[1].set_title("Missingness stress")
+    fig, ax = plt.subplots(figsize=(3.48, 2.25))
+    ax.plot(100 * missing.value, 100 * missing.decision_agreement, "o-", color=GREEN, markerfacecolor="white")
+    ax.set_xlabel("Missing entries (%)")
+    ax.set_ylabel("Decision agreement (%)")
+    polish(ax)
+    save(fig, "fig_missingness_sensitivity")
 
     lag = sensitivity[sensitivity.sweep == "lag_samples"].sort_values("value")
-    axes[2].plot(lag.value, 100 * lag.decision_agreement, "o-", color=PURPLE)
-    axes[2].axvline(4, color=GREY, ls="--", lw=0.8)
-    axes[2].set_xlabel("Extra lag (250-ms samples)")
-    axes[2].set_ylabel("Decision agreement (%)")
-    axes[2].set_title("Unseen temporal staleness")
-    for ax in axes:
-        ax.grid(alpha=0.28)
-        ax.set_axisbelow(True)
-    save(fig, "fig_sensitivity")
+    fig, ax = plt.subplots(figsize=(3.48, 2.25))
+    ax.plot(lag.value, 100 * lag.decision_agreement, "o-", color=PURPLE, markerfacecolor="white")
+    ax.axvline(4, color=GREY, ls="--", lw=0.8, label="1.0-s additional lag")
+    ax.set_xlabel("Extra lag (250-ms samples)")
+    ax.set_ylabel("Decision agreement (%)")
+    ax.legend(frameon=False, loc="lower left")
+    polish(ax)
+    save(fig, "fig_lag_sensitivity")
 
 
 def drift_figure(selective: pd.DataFrame, sensitivity: pd.DataFrame) -> None:
@@ -254,50 +272,51 @@ def drift_figure(selective: pd.DataFrame, sensitivity: pd.DataFrame) -> None:
     p4 = selective[(selective.profile == "P4")].copy()
     order = ["Full", "No uncertainty gate", "No drift gate"]
     p4 = p4.set_index("variant").reindex(order)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.15, 2.55), gridspec_kw={"wspace": 0.34})
-    ax1.plot(drift.value, 100 * drift.detection_rate, "o-", color=GREEN, label="Detection")
-    ax1.plot(drift.value, 100 * drift.post_drift_coverage, "s-", color=BLUE, label="Pre-calibrated coverage")
-    ax1.plot(drift.value, 100 * drift.false_alarm_rate, "--", color=RED, label="False alarm")
-    ax1.set_xlabel("Injected standardized mean shift")
-    ax1.set_ylabel("Rate (%)")
-    ax1.set_title("Sensitivity to persistent drift")
-    ax1.grid(alpha=0.28)
-    ax1.legend(frameon=False)
+    fig, ax = plt.subplots(figsize=(3.48, 2.35))
+    ax.plot(drift.value, 100 * drift.detection_rate, "o-", color=GREEN, markerfacecolor="white", label="Detection")
+    ax.plot(drift.value, 100 * drift.post_drift_coverage, "s-", color=BLUE, markerfacecolor="white", label="Pre-calibrated coverage")
+    ax.plot(drift.value, 100 * drift.false_alarm_rate, "--", color=RED, label="False alarm")
+    ax.set_xlabel("Injected standardized mean shift")
+    ax.set_ylabel("Rate (%)")
+    ax.set_ylim(0, 102)
+    ax.legend(frameon=False, loc="best")
+    polish(ax)
+    save(fig, "fig_drift_sensitivity")
 
-    bars = ax2.bar(np.arange(3), 100 * p4.selective_error, color=[GREEN, ORANGE, RED], width=0.62)
-    ax2.set_xticks(np.arange(3), ["Full", "No uncertainty", "No drift"], rotation=12, ha="right")
-    ax2.set_ylabel("Error among admitted decisions (%)")
-    ax2.set_title("Fail-closed gates under P4 drift")
-    ax2.grid(axis="y", alpha=0.28)
-    ax2.set_axisbelow(True)
+    fig, ax = plt.subplots(figsize=(3.48, 2.35))
+    bars = ax.bar(np.arange(3), 100 * p4.selective_error, color=[GREEN, ORANGE, RED], width=0.60, edgecolor="white")
+    ax.set_xticks(np.arange(3), ["Full", "No uncertainty", "No drift"], rotation=10, ha="right")
+    ax.set_ylabel("Selective decision error (%)")
     for bar, value in zip(bars, 100 * p4.selective_error, strict=True):
-        ax2.text(bar.get_x() + bar.get_width() / 2, value + 1.2, f"{value:.1f}", ha="center", fontsize=6.4)
-    save(fig, "fig_drift")
+        ax.text(bar.get_x() + bar.get_width() / 2, value + 1.2, f"{value:.1f}", ha="center", fontsize=6.4)
+    ax.set_ylim(0, 57)
+    polish(ax, "y")
+    save(fig, "fig_drift_ablation")
 
 
 def complexity(main: pd.DataFrame) -> None:
     methods = ["Direct", "Contract", "Z-score", "CORAL", "Gaussian OT", "Anchor ridge", "Temporal ridge", "KPM-Bridge"]
     stable = main[(main.profile.isin(["P1", "P2", "P3"])) & main.method.isin(methods)]
     aggregate = stable.groupby("method")[["inference_us_per_sample", "model_bytes"]].mean().reindex(methods)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.15, 2.35), gridspec_kw={"wspace": 0.37})
     colors = [BLUE if method == "KPM-Bridge" else "#AAB6C2" for method in methods]
     y = np.arange(len(methods))
-    ax1.barh(y, aggregate.inference_us_per_sample, color=colors, height=0.62)
-    ax1.set_xscale("log")
-    ax1.set_yticks(y, methods)
-    ax1.invert_yaxis()
-    ax1.set_xlabel("Amortized CPU time (µs/sample, log scale)")
-    ax1.set_title("Batched reference implementation")
-    ax1.grid(axis="x", alpha=0.28)
+    fig, ax = plt.subplots(figsize=(3.48, 2.45))
+    ax.barh(y, aggregate.inference_us_per_sample, color=colors, height=0.62, edgecolor="white")
+    ax.set_xscale("log")
+    ax.set_yticks(y, methods)
+    ax.invert_yaxis()
+    ax.set_xlabel("Amortized CPU time ($\\mu$s/sample)")
+    polish(ax, "x")
+    save(fig, "fig_runtime")
 
-    ax2.barh(y, aggregate.model_bytes / (1024**2), color=colors, height=0.62)
-    ax2.set_xscale("log")
-    ax2.set_yticks(y, [])
-    ax2.invert_yaxis()
-    ax2.set_xlabel("Serialized model size (MiB, log scale)")
-    ax2.set_title("Memory footprint")
-    ax2.grid(axis="x", alpha=0.28)
-    save(fig, "fig_complexity")
+    fig, ax = plt.subplots(figsize=(3.48, 2.45))
+    ax.barh(y, aggregate.model_bytes / (1024**2), color=colors, height=0.62, edgecolor="white")
+    ax.set_xscale("log")
+    ax.set_yticks(y, methods)
+    ax.invert_yaxis()
+    ax.set_xlabel("Serialized model size (MiB)")
+    polish(ax, "x")
+    save(fig, "fig_model_size")
 
 
 def certificate_lifecycle() -> None:
@@ -339,28 +358,34 @@ def feature_diagnostics(per_feature: pd.DataFrame) -> None:
     ridge = per_feature[per_feature.method == "Temporal ridge"].groupby("feature").nrmse.mean().reindex(features)
     bridge_mean = per_feature[per_feature.method == "KPM-Bridge"].groupby("feature").nrmse.mean().reindex(features)
     improvement = 100 * (ridge - bridge_mean) / ridge
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.15, 2.65), gridspec_kw={"width_ratios": [1.15, 1], "wspace": 0.35})
-    image = ax1.imshow(bridge.to_numpy(), cmap="Blues", vmin=0, vmax=max(1.2, bridge.to_numpy().max()), aspect="auto")
-    ax1.set_xticks(range(3), bridge.columns)
-    ax1.set_yticks(range(len(labels)), labels)
-    ax1.set_title("KPM-Bridge normalized RMSE")
+    fig, ax = plt.subplots(figsize=(3.48, 2.55))
+    image = ax.imshow(bridge.to_numpy(), cmap="Blues", vmin=0, vmax=max(1.2, bridge.to_numpy().max()), aspect="auto")
+    ax.set_xticks(range(3), bridge.columns)
+    ax.set_yticks(range(len(labels)), labels)
+    ax.set_xlabel("Controlled implementation profile")
     for i in range(len(labels)):
         for j in range(3):
             value = bridge.iloc[i, j]
-            ax1.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=5.8, color="white" if value > 0.7 else DARK)
-    cbar = fig.colorbar(image, ax=ax1, fraction=0.045, pad=0.03)
+            ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=5.8, color="white" if value > 0.7 else DARK)
+    cbar = fig.colorbar(image, ax=ax, fraction=0.050, pad=0.035)
+    cbar.set_label("Normalized RMSE", fontsize=6.4)
     cbar.ax.tick_params(labelsize=5.8)
+    save(fig, "fig_feature_nrmse")
 
+    fig, ax = plt.subplots(figsize=(3.48, 2.55))
     colors = [GREEN if value >= 0 else RED for value in improvement]
     y = np.arange(len(labels))
-    ax2.barh(y, improvement, color=colors, height=0.62)
-    ax2.axvline(0, color=GREY, lw=0.8)
-    ax2.set_yticks(y, labels)
-    ax2.invert_yaxis()
-    ax2.set_xlabel("NRMSE reduction vs temporal ridge (%)")
-    ax2.set_title("Mean featurewise change, P1–P3")
-    ax2.grid(axis="x", alpha=0.28)
-    save(fig, "fig_feature_diagnostics")
+    bars = ax.barh(y, improvement, color=colors, height=0.62, edgecolor="white")
+    ax.axvline(0, color=GREY, lw=0.8)
+    ax.set_yticks(y, labels)
+    ax.invert_yaxis()
+    ax.set_xlabel("NRMSE reduction vs. temporal ridge (%)")
+    for bar, value in zip(bars, improvement, strict=True):
+        label = f"{value:.2f}" if abs(value) < 0.1 else f"{value:.1f}"
+        ax.text(value + 0.9, bar.get_y() + bar.get_height() / 2, label, va="center", ha="left", fontsize=5.8)
+    ax.set_xlim(-2.5, 52.0)
+    polish(ax, "x")
+    save(fig, "fig_feature_gain")
 
 
 def main() -> None:
@@ -369,16 +394,13 @@ def main() -> None:
     selective = pd.read_csv(OUTPUTS / "selective_results.csv")
     sensitivity = pd.read_csv(OUTPUTS / "sensitivity_results.csv")
     per_feature = pd.read_csv(OUTPUTS / "per_feature_results.csv")
-    architecture()
-    semantic_contract()
     main_performance(main_results)
     selective_tradeoff(sensitivity)
     sensitivity_figure(sensitivity)
     drift_figure(selective, sensitivity)
     complexity(main_results)
-    certificate_lifecycle()
     feature_diagnostics(per_feature)
-    print(json.dumps({"figure_count": 9, "output": str(FIGURES)}, indent=2))
+    print(json.dumps({"figure_count": 13, "output": str(FIGURES)}, indent=2))
 
 
 if __name__ == "__main__":

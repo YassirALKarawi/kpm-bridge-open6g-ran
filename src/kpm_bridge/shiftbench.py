@@ -8,7 +8,7 @@ import numpy as np
 
 
 @dataclass(frozen=True)
-class VendorProfile:
+class ImplementationProfile:
     scale: np.ndarray
     bias: np.ndarray
     noise_std: np.ndarray
@@ -50,7 +50,9 @@ def _rolling_mean(values: np.ndarray, window: int) -> np.ndarray:
     return result
 
 
-def observe_vendor(canonical: np.ndarray, profile: VendorProfile, seed: int) -> tuple[np.ndarray, np.ndarray]:
+def observe_implementation(
+    canonical: np.ndarray, profile: ImplementationProfile, seed: int
+) -> tuple[np.ndarray, np.ndarray]:
     """Apply documented scale, window, lag, noise, quantisation, and missingness."""
     x = np.asarray(canonical, dtype=float)
     d = x.shape[1]

@@ -10,7 +10,13 @@ from pathlib import Path
 import numpy as np
 
 from kpm_bridge.calibration import split_conformal_radius
-from kpm_bridge.shiftbench import VendorProfile, apply_affine_bridge, fit_affine_bridge, latent_ran_process, observe_vendor
+from kpm_bridge.shiftbench import (
+    ImplementationProfile,
+    apply_affine_bridge,
+    fit_affine_bridge,
+    latent_ran_process,
+    observe_implementation,
+)
 
 
 def main() -> None:
@@ -19,7 +25,7 @@ def main() -> None:
     args = parser.parse_args()
 
     canonical = latent_ran_process(2400, seed=20260712)
-    profile = VendorProfile(
+    profile = ImplementationProfile(
         scale=np.array([1000.0, 100.0, 100.0, 1.0, 1.0, 0.001]),
         bias=np.array([0.0, 0.0, 0.0, -1.5, 0.0, 0.0]),
         noise_std=np.array([120.0, 0.7, 0.5, 0.7, 0.3, 0.0007]),
@@ -28,7 +34,7 @@ def main() -> None:
         missing_rate=0.03,
         quantisation=0.01,
     )
-    raw, mask = observe_vendor(canonical, profile, seed=23)
+    raw, mask = observe_implementation(canonical, profile, seed=23)
     slopes, offsets = fit_affine_bridge(raw[:600], canonical[:600])
     estimate = apply_affine_bridge(raw, slopes, offsets)
 

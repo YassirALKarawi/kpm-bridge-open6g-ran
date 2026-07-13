@@ -54,4 +54,4 @@ for GitHub.
 4. **Downstream relevance:** report both translation metrics and closed-loop
    xApp utility/SLA/unsafe-action outcomes.
 5. **Framework overhead:** include latency, memory, wire metadata, and scaling
-   with vendor count and KPM dimension.
+   with implementation count and KPM dimension.

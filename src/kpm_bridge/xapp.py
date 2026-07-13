@@ -41,7 +41,7 @@ class PortableRiskXApp:
         return float(radius * np.linalg.norm(weights * scaled_radius, ord=2))
 
 
-class VendorSpecificRiskXApp:
+class DeploymentSpecificRiskXApp:
     """Deployment-specific retraining upper bound; it is not portable."""
 
     def __init__(self, random_state: int = 20260712, action_threshold: float = 0.20):
@@ -57,7 +57,7 @@ class VendorSpecificRiskXApp:
             ),
         )
 
-    def fit(self, values: np.ndarray, risk: np.ndarray) -> "VendorSpecificRiskXApp":
+    def fit(self, values: np.ndarray, risk: np.ndarray) -> "DeploymentSpecificRiskXApp":
         self.model.fit(values, risk)
         return self
 

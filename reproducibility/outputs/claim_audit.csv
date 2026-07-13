@@ -61,25 +61,28 @@ anchor NRMSE at 1/5/20 percent,"[0.747, 0.714, 0.71]","[0.747, 0.714, 0.71]",PAS
 missingness agreement endpoints percent,"[91.57, 89.71]","[91.57, 89.71]",PASS
 zero-lag agreement percent,91.45,91.45,PASS
 six-sample age exceeds 1.5 s,1630.451824502559,1500,PASS
-bridge fit-time range seconds,"[1.43, 1.84]","[1.43, 1.84]",PASS
-bridge batch latency microseconds,22.1,22.1,PASS
+bridge fit-time macro matches benchmark,true,"""\\newcommand{\\BridgeFitRange}{0.94--1.14~s}""",PASS
+bridge batch-latency macro matches benchmark,true,"""\\newcommand{\\BridgeLatency}{8.4~$\\mu$s/sample}""",PASS
 bridge model size MiB,1.44,1.44,PASS
-temporal ridge latency microseconds,1.2,1.2,PASS
+temporal-ridge latency macro matches benchmark,true,"""\\newcommand{\\TemporalLatency}{1.39~$\\mu$s/sample}""",PASS
 temporal ridge model KiB,12.1,12.1,PASS
 certificate rate Mbit/s,0.384,0.384,PASS
 canonical-vector rate Mbit/s,0.256,0.256,PASS
 combined payload rate Mbit/s,0.64,0.64,PASS
-reference records,28,28,PASS
-verified DOI records,24,24,PASS
-declared no-DOI records,4,4,PASS
-DOI links paired with DOI fields,24,24,PASS
+reference records,40,40,PASS
+verified DOI records,40,40,PASS
+declared no-DOI records,0,0,PASS
+DOI links paired with DOI fields,40,40,PASS
 all citation keys resolve,[],[],PASS
 all bibliography records cited,[],[],PASS
-abstract word limit,194,"""75--200""",PASS
+abstract word limit,197,"""75--200""",PASS
 keyword limit,5,"""at most 5""",PASS
 exact Related Work heading,true,true,PASS
 algorithm count,2,2,PASS
 proposition count,5,5,PASS
+thirteen nonempty vector result figures,"[""fig_anchor_sensitivity.pdf"", ""fig_coverage_availability.pdf"", ""fig_drift_ablation.pdf"", ""fig_drift_sensitivity.pdf"", ""fig_feature_gain.pdf"", ""fig_feature_nrmse.pdf"", ""fig_lag_sensitivity.pdf"", ""fig_missingness_sensitivity.pdf"", ""fig_model_size.pdf"", ""fig_runtime.pdf"", ""fig_selective_error.pdf"", ""fig_stationary_agreement.pdf"", ""fig_stationary_nrmse.pdf""]","[""fig_anchor_sensitivity.pdf"", ""fig_coverage_availability.pdf"", ""fig_drift_ablation.pdf"", ""fig_drift_sensitivity.pdf"", ""fig_feature_gain.pdf"", ""fig_feature_nrmse.pdf"", ""fig_lag_sensitivity.pdf"", ""fig_missingness_sensitivity.pdf"", ""fig_model_size.pdf"", ""fig_runtime.pdf"", ""fig_selective_error.pdf"", ""fig_stationary_agreement.pdf"", ""fig_stationary_nrmse.pdf""]",PASS
+three supplied high-resolution illustrations,"[""fig1_kpm_bridge_architecture.jpeg"", ""fig2_typed_canonicalization.jpeg"", ""fig3_certificate_lifecycle.jpeg""]","[""fig1_kpm_bridge_architecture.jpeg"", ""fig2_typed_canonicalization.jpeg"", ""fig3_certificate_lifecycle.jpeg""]",PASS
+one caption per figure and no subfigures,"[16, 16, 0]","[16, 16, 0]",PASS
 no drafting disclosure or placeholders,[],[],PASS
 no unverified project repository URL in manuscript,[],[],PASS
 submission PDF pages,13,13,PASS

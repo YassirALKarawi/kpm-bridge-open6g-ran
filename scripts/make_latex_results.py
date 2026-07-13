@@ -16,13 +16,17 @@ GENERATED = ROOT / "manuscript" / "generated"
 
 def write(name: str, content: str) -> None:
     GENERATED.mkdir(parents=True, exist_ok=True)
-    (GENERATED / name).write_text(content.rstrip() + "\n", encoding="utf-8")
+    path = GENERATED / name
+    temporary = GENERATED / f".{name}.tmp"
+    temporary.write_text(content.rstrip() + "\n", encoding="utf-8")
+    temporary.replace(path)
 
 
 def macros(main: pd.DataFrame, selective: pd.DataFrame, summary: dict) -> None:
-    stable = main[(main.profile.isin(["P1", "P2", "P3"])) & ~main.method.isin(["Oracle canonical", "Vendor retrain"])]
+    stable = main[(main.profile.isin(["P1", "P2", "P3"])) & ~main.method.isin(["Oracle canonical", "Deployment retrain"])]
     means = stable.groupby("method").mean(numeric_only=True)
     bridge = means.loc["KPM-Bridge"]
+    bridge_profiles = stable[stable.method == "KPM-Bridge"]
     best_nrmse_baseline = means.drop(index="KPM-Bridge").nrmse.min()
     best_agreement_baseline = means.drop(index="KPM-Bridge").decision_agreement.max()
     stable_selective = selective[
@@ -49,6 +53,9 @@ def macros(main: pd.DataFrame, selective: pd.DataFrame, summary: dict) -> None:
         f"\\newcommand{{\\NoDriftSelectiveError}}{{{100 * p4.loc['No drift gate', 'selective_error']:.1f}\\%}}",
         f"\\newcommand{{\\DriftErrorReduction}}{{{100 * error_reduction:.1f}\\%}}",
         f"\\newcommand{{\\BridgeLatency}}{{{bridge.inference_us_per_sample:.1f}~$\\mu$s/sample}}",
+        f"\\newcommand{{\\BridgeLatencyRange}}{{{bridge_profiles.inference_us_per_sample.min():.1f}--{bridge_profiles.inference_us_per_sample.max():.1f}~$\\mu$s/sample}}",
+        f"\\newcommand{{\\BridgeFitRange}}{{{bridge_profiles.fit_seconds.min():.2f}--{bridge_profiles.fit_seconds.max():.2f}~s}}",
+        f"\\newcommand{{\\TemporalLatency}}{{{means.loc['Temporal ridge', 'inference_us_per_sample']:.2f}~$\\mu$s/sample}}",
         f"\\newcommand{{\\BridgeModelSize}}{{{bridge.model_bytes / 2**20:.2f}~MiB}}",
         f"\\newcommand{{\\CertificateBytes}}{{{summary['certificate_bytes']}~B}}",
         "\\newcommand{\\HundredUeCertificateRate}{0.384~Mbit/s}",
@@ -71,7 +78,7 @@ def main_table(main: pd.DataFrame) -> None:
             rows.append(f"{label} & {values} \\\\")
     content = r"""
 \begin{table}[t]
-\caption{Mean performance across stationary profiles P1--P3.}
+\caption{Mean stationary reconstruction, decision, regret, and runtime performance across profiles P1--P3.}
 \label{tab:main}
 \centering
 \scriptsize
@@ -101,7 +108,7 @@ def selective_table(selective: pd.DataFrame) -> None:
         )
     content = r"""
 \begin{table}[t]
-\caption{Calibration, selective inference, and drift outcomes at $\alpha=0.05$.}
+\caption{Calibration coverage, selective inference, and drift-detection outcomes at $\alpha=0.05$.}
 \label{tab:selective}
 \centering
 \scriptsize
@@ -138,7 +145,7 @@ def ablation_table(ablation: pd.DataFrame) -> None:
         )
     content = r"""
 \begin{table}[t]
-\caption{Ablation means across P1--P3.}
+\caption{Mean stationary ablation results across P1--P3, with the mechanism retained by each variant.}
 \label{tab:ablation}
 \centering
 \scriptsize
@@ -158,7 +165,7 @@ Variant & Retained mechanism & NRMSE & Agree (\%) \\
 def profile_table() -> None:
     content = r"""
 \begin{table*}[t]
-\caption{Controlled implementation profiles applied to the public traces.}
+\caption{Controlled implementation profiles applied to public ColO-RAN traces; profile names denote stress settings rather than vendors.}
 \label{tab:profiles}
 \centering
 \scriptsize

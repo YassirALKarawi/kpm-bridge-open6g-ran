@@ -1,8 +1,13 @@
 # KPM-Bridge
 
+[![CI](https://github.com/YassirALKarawi/kpm-bridge-open6g-ran/actions/workflows/ci.yml/badge.svg)](https://github.com/YassirALKarawi/kpm-bridge-open6g-ran/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/code%20license-MIT-2EA44F.svg)](LICENSE)
+[![Reproducibility](https://img.shields.io/badge/reproducibility-audited-6F42C1.svg)](REPRODUCIBILITY.md)
+
 Reference implementation and reproducibility package for:
 
-> **KPM-Bridge: An Uncertainty-Aware Cross-Vendor Telemetry Fabric for
+> **KPM-Bridge: An Uncertainty-Aware Cross-Implementation Telemetry Fabric for
 > Portable AI xApps in Open 6G RAN**
 
 KPM-Bridge separates E2 protocol interoperability from semantic and
@@ -10,6 +15,12 @@ statistical portability. It compiles heterogeneous KPM reports into typed
 canonical contracts, aligns event-time observations, corrects residual shift
 from paired anchors, emits fixed-size uncertainty certificates, and supports
 selective xApp inference with explicit drift invalidation.
+
+<p align="center">
+  <img src="manuscript/figures/fig1_kpm_bridge_architecture.jpeg"
+       alt="KPM-Bridge end-to-end Open RAN telemetry certification architecture"
+       width="100%">
+</p>
 
 The manuscript targets the IEEE JSAC special issue **Towards Open and
 Intelligent 6G RAN: Enabling Technologies and System Architectures**. The
@@ -40,11 +51,28 @@ scripts/                 data fetch, benchmark, figures, tables, audits
 tests/                   deterministic unit tests
 data/                    upstream policy and hash manifest (raw data ignored)
 reproducibility/outputs/ claim-generating CSV and audit records
-manuscript/              IEEEtran source, references, vector figures
+manuscript/              IEEEtran source, references, and publication figures
 submission/              cover letter and author submission checklist
+.github/                 CI, issue forms, and dependency maintenance
 ```
 
-## Reproduce
+## Quick start
+
+```bash
+git clone https://github.com/YassirALKarawi/kpm-bridge-open6g-ran.git
+cd kpm-bridge-open6g-ran
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install -e '.[test]'
+make test
+make smoke
+```
+
+The smoke experiment is deterministic, runs without downloading the benchmark
+traces, and is explicitly excluded from the paper's quantitative claims.
+
+## Full reproduction
 
 Python 3.11 or newer and a LaTeX distribution containing `IEEEtran`, BibTeX,
 and `latexmk` are required.
@@ -53,17 +81,34 @@ and `latexmk` are required.
 python3 -m pip install -e .
 make fetch       # downloads the pinned public subset; raw files stay ignored
 make benchmark   # regenerates the full deterministic CSV/JSON evidence
-make assets      # regenerates tables, macros, and vector figures
+make assets      # regenerates tables, macros, and vector result figures
 make references # verifies DOI metadata through Crossref/DataCite
 make paper       # builds the 13-page IEEE PDF
-make audit       # runs tests plus 85 fail-closed claim/submission checks
+make audit       # runs tests plus 88 fail-closed claim/submission checks
 ```
 
-For a fast installation check that is explicitly excluded from paper claims:
+The complete benchmark downloads 108 hash-pinned public files and regenerates
+all claim-bearing tables, CSV records, and result figures. See
+[REPRODUCIBILITY.md](REPRODUCIBILITY.md) for the staged protocol, expected
+artifacts, integrity checks, and the distinction between smoke and manuscript
+evidence.
 
-```bash
-make smoke
-```
+## Representative verified results
+
+The plotted values are generated from the tracked audit records in
+`reproducibility/outputs/`; they are not manually entered into the figures.
+
+### Stationary semantic reconstruction
+
+![Stationary-profile normalized root-mean-square error](manuscript/figures/fig_stationary_nrmse.png)
+
+### Selective decision error
+
+![Selective decision error under calibrated acceptance](manuscript/figures/fig_selective_error.png)
+
+### Runtime complexity
+
+![Per-sample inference runtime across portable baselines](manuscript/figures/fig_runtime.png)
 
 ## Data and licensing
 
@@ -75,6 +120,20 @@ the upstream citation and GPL-3.0 data terms.
 The original KPM-Bridge software is released under the MIT License. The
 manuscript and publication figures remain copyright of the authors unless a
 publisher or release record states otherwise.
+
+## Citation
+
+Citation metadata are provided in [`CITATION.cff`](CITATION.cff). GitHub's
+**Cite this repository** control can export BibTeX or APA once the repository
+is published. Until the manuscript receives a persistent publication record,
+cite the software release and the accompanying manuscript title shown above.
+
+## Contributing and security
+
+Small, reviewable pull requests are welcome. Please read
+[`CONTRIBUTING.md`](CONTRIBUTING.md) before proposing changes. Potential
+security or certificate-validation vulnerabilities should be reported through
+the private process in [`SECURITY.md`](SECURITY.md), not a public issue.
 
 ## Scope boundary
 

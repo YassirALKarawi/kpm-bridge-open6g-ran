@@ -1,10 +1,22 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite the accompanying KPM-Bridge manuscript."
-title: "KPM-Bridge: Uncertainty-Aware Cross-Vendor Telemetry for Portable Open RAN xApps"
+title: "KPM-Bridge: An Uncertainty-Aware Cross-Implementation Telemetry Fabric for Portable AI xApps in Open 6G RAN"
 type: software
 version: 1.0.0
-date-released: 2026-07-12
+date-released: 2026-07-13
 license: MIT
+repository-code: "https://github.com/YassirALKarawi/kpm-bridge-open6g-ran"
+url: "https://github.com/YassirALKarawi/kpm-bridge-open6g-ran"
+abstract: >-
+  A reproducible implementation of typed KPM contracts, event-time alignment,
+  residual semantic transport, fixed-size uncertainty certificates, drift
+  invalidation, and selective inference for portable AI xApps in Open 6G RAN.
+keywords:
+  - Open RAN
+  - 6G
+  - xApp
+  - telemetry portability
+  - conformal prediction
 authors:
   - family-names: AL-Karawi
     given-names: Yassir

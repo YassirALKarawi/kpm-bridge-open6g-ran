@@ -1,6 +1,6 @@
 
 \begin{table}[t]
-\caption{Mean performance across stationary profiles P1--P3.}
+\caption{Mean stationary reconstruction, decision, regret, and runtime performance across profiles P1--P3.}
 \label{tab:main}
 \centering
 \scriptsize
@@ -9,14 +9,14 @@
 \toprule
 Method & NRMSE$\downarrow$ & Agree (\%)$\uparrow$ & Regret$\downarrow$ & $\mu$s/sample \\
 \midrule
-Direct & 0.923 & 89.41 & 0.1079 & 0.02 \\
-Contract & 3.210 & 85.79 & 0.1138 & 0.26 \\
+Direct & 0.923 & 89.41 & 0.1079 & 0.03 \\
+Contract & 3.210 & 85.79 & 0.1138 & 0.25 \\
 Z-score & 0.961 & 87.40 & 0.1029 & 0.04 \\
 CORAL & 0.994 & 88.49 & 0.1013 & 0.04 \\
-Gaussian OT & 2.917 & 78.82 & 0.1263 & 0.04 \\
-Anchor ridge & 0.752 & 90.37 & 0.1031 & 0.52 \\
-Temporal ridge & 0.717 & 90.04 & 0.1029 & 1.20 \\
-\textbf{KPM-Bridge} & \textbf{0.685} & \textbf{91.33} & \textbf{0.0980} & \textbf{22.12} \\
+Gaussian OT & 2.917 & 78.82 & 0.1263 & 0.13 \\
+Anchor ridge & 0.752 & 90.37 & 0.1031 & 0.58 \\
+Temporal ridge & 0.717 & 90.04 & 0.1029 & 1.39 \\
+\textbf{KPM-Bridge} & \textbf{0.685} & \textbf{91.33} & \textbf{0.0980} & \textbf{8.40} \\
 \bottomrule
 \end{tabular}
 \end{table}
