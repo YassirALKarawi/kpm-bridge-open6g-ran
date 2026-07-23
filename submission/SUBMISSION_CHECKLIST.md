@@ -1,9 +1,4 @@
-# IEEE JSAC submission checklist
-
-- Target special issue: **Towards Open and Intelligent 6G RAN: Enabling
-  Technologies and System Architectures**
-- Submission deadline: **5 August 2026**
-- Planned publication: **First Quarter 2027**
+# Venue-neutral manuscript readiness checklist
 
 ## Verified in this package
 
@@ -39,8 +34,8 @@
       requires ORCID for every author.
 - [ ] Select traditional or open-access publication and review the applicable
       publication/page charges.
-- [ ] Upload `KPM-Bridge_IEEE_JSAC_Final.pdf` to the correct special-issue track
-      in ScholarOne and paste the five index terms exactly as shown in the PDF.
+- [ ] Upload `paper/KPM-Bridge_Manuscript.pdf` to the selected venue's portal
+      and paste the five index terms exactly as shown in the PDF.
 - [ ] Review the optional cover letter, compile/sign it if the portal requests
       one, and do not add claims that the authors have not personally confirmed.
 - [ ] Confirm that the public reproducibility repository is synchronized with

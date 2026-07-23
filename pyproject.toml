@@ -9,7 +9,7 @@ description = "Uncertainty-aware cross-implementation KPM semantic alignment for
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-  {name = "Yassir AL-Karawi", email = "yassirameen22@gmail.com"},
+  {name = "Yassir AL-Karawi", email = "2002370@alumni.brunel.ac.uk"},
   {name = "Hamed Al-Raweshidy", email = "hamed.al-raweshidy@brunel.ac.uk"},
 ]
 requires-python = ">=3.11"

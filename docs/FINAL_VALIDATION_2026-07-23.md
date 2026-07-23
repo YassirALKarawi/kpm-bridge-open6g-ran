@@ -1,13 +1,13 @@
-# Final JSAC validation — 23 July 2026
+# Final manuscript validation — 23 July 2026
 
-## Submission artifact
+## Manuscript artifact
 
 - Manuscript: `paper/KPM-Bridge_Manuscript.pdf`
 - Format: IEEEtran journal mode, 10 point, two columns, US Letter
 - Length: 13 pages including references
-- PDF SHA-256: `81095e6550e03b3b861b2b728c8fd2d99ea652edd1bb86c15eb738545814a1ae`
+- PDF SHA-256: `d7ba523a4772e5450e83efd46bc133e3c975607417137d8231edbc7c94cab535`
 - Source SHA-256 (`manuscript/main.tex`):
-  `c45579106f2a415a5ee29ccb3c8b21d30008aaaddc9549a01d806a960c1eb774`
+  `0dd97ea0d84a3991a982c7e10ac76365d380387d525cdfa091e890492bb1dd5e`
 - Bibliography SHA-256 (`manuscript/references.bib`):
   `7af020b4fbeeef7687c85cfb707960f79bfa377ba3882d6a2b80b9efd9d56f2d`
 
@@ -43,7 +43,7 @@ implementation profiles rather than commercial multi-vendor traces. Confidence
 interval overlap is reported where it prevents a superiority claim. Under the
 deliberate P4 shift, exposure reduction is attributed mainly to abstention;
 post-shift conditional error remains a stated limitation. These boundaries are
-preserved in the abstract, results, discussion, conclusion, and cover letter.
+preserved in the abstract, results, discussion, and conclusion.
 
 The final PDF was also inspected page by page for clipping, overlap, unreadable
 text, and unbalanced references. No blocking layout defect was found.

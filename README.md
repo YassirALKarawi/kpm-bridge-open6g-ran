@@ -24,10 +24,6 @@ selective xApp inference with explicit drift invalidation.
        width="100%">
 </p>
 
-The manuscript targets the IEEE JSAC special issue **Towards Open and
-Intelligent 6G RAN: Enabling Technologies and System Architectures**. The
-official submission deadline is 5 August 2026.
-
 ## Evidence snapshot
 
 - 108 hash-pinned public ColO-RAN files; 106 retained traces after the
@@ -59,7 +55,6 @@ data/                    upstream policy and hash manifest (raw data ignored)
 reproducibility/outputs/ claim-generating CSV and audit records
 manuscript/              IEEEtran source, references, and publication figures
 paper/                   Current 13-page manuscript PDF
-submission/              cover letter and author submission checklist
 .github/                 CI, issue forms, and dependency maintenance
 ```
 
