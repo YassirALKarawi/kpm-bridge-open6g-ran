@@ -101,20 +101,87 @@ evidence.
 
 ## Representative verified results
 
-The plotted values are generated from the tracked audit records in
-`reproducibility/outputs/`; they are not manually entered into the figures.
+Every preview below is one of the twelve result figures in the manuscript,
+rendered from the tracked audit records in
+[`reproducibility/outputs/`](reproducibility/outputs/); the values are not
+manually entered into the figures. The three architecture illustrations
+(`fig1`–`fig3`) and full provenance for all fifteen figures are listed in the
+[figure and evidence index](docs/FIGURES.md).
 
-### Stationary semantic reconstruction
-
-![Stationary-profile normalized root-mean-square error](manuscript/figures/fig_stationary_nrmse.png)
-
-### Selective canonical-action disagreement
-
-![Conditional canonical-action disagreement under calibrated acceptance](manuscript/figures/fig_selective_error.png)
-
-### Runtime complexity
-
-![Per-sample inference runtime across portable baselines](manuscript/figures/fig_runtime.png)
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_stationary_nrmse.pdf"><img src="manuscript/figures/fig_stationary_nrmse.png" width="100%" alt="Stationary normalized reconstruction error across profiles P1-P3"></a><br>
+      <b>Stationary reconstruction error</b><br>
+      <sub>NRMSE across P1–P3 for all portable methods.</sub>
+    </td>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_stationary_agreement.pdf"><img src="manuscript/figures/fig_stationary_agreement.png" width="100%" alt="Fixed-xApp canonical decision agreement across stationary profiles"></a><br>
+      <b>Canonical-decision agreement</b><br>
+      <sub>Fixed-xApp agreement across stationary P1–P3.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_feature_nrmse.pdf"><img src="manuscript/figures/fig_feature_nrmse.png" width="100%" alt="Per-KPM normalized reconstruction error"></a><br>
+      <b>Per-feature error structure</b><br>
+      <sub>Feature-level NRMSE hidden by the pooled metric.</sub>
+    </td>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_feature_gain.pdf"><img src="manuscript/figures/fig_feature_gain.png" width="100%" alt="Featurewise NRMSE reduction relative to temporal ridge"></a><br>
+      <b>Featurewise gain</b><br>
+      <sub>NRMSE reduction relative to the temporal-ridge baseline.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_coverage_availability.pdf"><img src="manuscript/figures/fig_coverage_availability.png" width="100%" alt="Joint coverage and acceptance versus conformal miscoverage"></a><br>
+      <b>Coverage and availability</b><br>
+      <sub>Joint coverage and acceptance versus miscoverage α.</sub>
+    </td>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_selective_error.pdf"><img src="manuscript/figures/fig_selective_error.png" width="100%" alt="Conditional canonical-action disagreement under calibrated acceptance"></a><br>
+      <b>Selective disagreement</b><br>
+      <sub>Conditional canonical-action disagreement versus α.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_drift_sensitivity.pdf"><img src="manuscript/figures/fig_drift_sensitivity.png" width="100%" alt="Detection, post-shift coverage and false alarms versus mean shift"></a><br>
+      <b>Drift sensitivity</b><br>
+      <sub>Detection, post-shift coverage, and false alarms versus shift.</sub>
+    </td>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_drift_ablation.pdf"><img src="manuscript/figures/fig_drift_ablation.png" width="100%" alt="Post-shift disagreement and joint exposure for full and ablated gates"></a><br>
+      <b>Drift-gate ablation</b><br>
+      <sub>Post-shift disagreement and joint exposure by gate variant.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_anchor_sensitivity.pdf"><img src="manuscript/figures/fig_anchor_sensitivity.png" width="100%" alt="P3 reconstruction error versus paired-anchor fraction"></a><br>
+      <b>Anchor sensitivity</b><br>
+      <sub>P3 error versus the paired-anchor fraction.</sub>
+    </td>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_missingness_sensitivity.pdf"><img src="manuscript/figures/fig_missingness_sensitivity.png" width="100%" alt="Decision agreement under increasing unseen missingness"></a><br>
+      <b>Missingness sensitivity</b><br>
+      <sub>Agreement under unseen missing-entry rates without refitting.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_lag_sensitivity.pdf"><img src="manuscript/figures/fig_lag_sensitivity.png" width="100%" alt="Decision agreement under unseen additional lag"></a><br>
+      <b>Lag sensitivity</b><br>
+      <sub>Agreement under unseen additional event-time lag.</sub>
+    </td>
+    <td width="50%" align="center">
+      <a href="manuscript/figures/fig_runtime.pdf"><img src="manuscript/figures/fig_runtime.png" width="100%" alt="Per-sample inference runtime across portable baselines"></a><br>
+      <b>Runtime complexity</b><br>
+      <sub>Amortized per-sample inference time across baselines.</sub>
+    </td>
+  </tr>
+</table>
 
 ## Data and licensing
 
