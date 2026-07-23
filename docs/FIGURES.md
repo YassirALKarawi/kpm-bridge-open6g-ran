@@ -12,9 +12,9 @@ is produced by `scripts/make_figures.py` from the tracked audit records in
 
 | Publication figure | Kind | Computational source | Primary numerical evidence |
 |---|---|---|---|
-| `manuscript/figures/fig1_kpm_bridge_architecture.jpeg` | Architecture | `scripts/make_figures.py` | Architectural specification; no numerical result |
-| `manuscript/figures/fig2_typed_canonicalization.jpeg` | Architecture | `scripts/make_figures.py` | Typed-canonicalization schematic; no numerical result |
-| `manuscript/figures/fig3_certificate_lifecycle.jpeg` | Architecture | `scripts/make_figures.py` | Certificate-lifecycle schematic; no numerical result |
+| `manuscript/figures/fig1_kpm_bridge_architecture.jpeg` | Architecture | Author-supplied publication asset | Architectural specification; no numerical result |
+| `manuscript/figures/fig2_typed_canonicalization.jpeg` | Architecture | Author-supplied publication asset | Typed-canonicalization schematic; no numerical result |
+| `manuscript/figures/fig3_certificate_lifecycle.jpeg` | Architecture | Author-supplied publication asset | Certificate-lifecycle schematic; no numerical result |
 | `manuscript/figures/fig_stationary_nrmse.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/main_results.csv` |
 | `manuscript/figures/fig_stationary_agreement.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/main_results.csv` |
 | `manuscript/figures/fig_feature_nrmse.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/per_feature_results.csv` |
@@ -22,7 +22,7 @@ is produced by `scripts/make_figures.py` from the tracked audit records in
 | `manuscript/figures/fig_coverage_availability.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/selective_results.csv` |
 | `manuscript/figures/fig_selective_error.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/selective_results.csv` |
 | `manuscript/figures/fig_drift_sensitivity.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/sensitivity_results.csv` |
-| `manuscript/figures/fig_drift_ablation.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/main_results.csv` |
+| `manuscript/figures/fig_drift_ablation.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/selective_results.csv` |
 | `manuscript/figures/fig_anchor_sensitivity.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/sensitivity_results.csv` |
 | `manuscript/figures/fig_missingness_sensitivity.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/sensitivity_results.csv` |
 | `manuscript/figures/fig_lag_sensitivity.pdf` | Result | `scripts/make_figures.py` | `reproducibility/outputs/sensitivity_results.csv` |

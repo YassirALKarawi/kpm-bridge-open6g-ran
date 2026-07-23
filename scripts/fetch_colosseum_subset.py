@@ -41,6 +41,22 @@ def sha256(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def stable_generation_time(manifest_path: Path, identity: dict[str, object]) -> str:
+    """Retain the verification time when the pinned manifest is unchanged."""
+    if manifest_path.exists():
+        try:
+            previous = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            previous = {}
+        previous_identity = {
+            key: value for key, value in previous.items() if key != "generated_utc"
+        }
+        previous_time = previous.get("generated_utc")
+        if previous_identity == identity and isinstance(previous_time, str) and previous_time:
+            return previous_time
+    return datetime.now(timezone.utc).isoformat()
+
+
 def fetch_one(relative_path: str, root: Path, retries: int = 4) -> dict[str, object]:
     target = root / relative_path
     url = f"{BASE_URL}/{relative_path}"
@@ -88,7 +104,8 @@ def main() -> None:
             records.append(future.result())
 
     records.sort(key=lambda item: str(item["path"]))
-    manifest = {
+    manifest_path = Path("data/colosseum_subset_manifest.json")
+    identity = {
         "dataset": "ColO-RAN",
         "repository": f"https://github.com/{UPSTREAM}",
         "upstream_commit": COMMIT,
@@ -103,12 +120,17 @@ def main() -> None:
         },
         "file_count": len(records),
         "total_bytes": sum(int(item["bytes"]) for item in records),
-        "generated_utc": datetime.now(timezone.utc).isoformat(),
         "files": records,
     }
-    manifest_path = Path("data/colosseum_subset_manifest.json")
+    manifest = {
+        key: value for key, value in identity.items() if key != "files"
+    }
+    manifest["generated_utc"] = stable_generation_time(manifest_path, identity)
+    manifest["files"] = records
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    payload = json.dumps(manifest, indent=2) + "\n"
+    if not manifest_path.exists() or manifest_path.read_text(encoding="utf-8") != payload:
+        manifest_path.write_text(payload, encoding="utf-8")
     print(json.dumps({key: manifest[key] for key in ("file_count", "total_bytes", "upstream_commit")}, indent=2))
 
 

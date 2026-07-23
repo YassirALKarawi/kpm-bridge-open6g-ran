@@ -1,13 +1,13 @@
-# Final JSAC validation — 13 July 2026
+# Final JSAC validation — 23 July 2026
 
 ## Submission artifact
 
 - Manuscript: `paper/KPM-Bridge_Manuscript.pdf`
 - Format: IEEEtran journal mode, 10 point, two columns, US Letter
 - Length: 13 pages including references
-- PDF SHA-256: `90d0adca19404ef8bfde6b38532ef59c73bc5072007ceaa839cd56d9c0876795`
+- PDF SHA-256: `81095e6550e03b3b861b2b728c8fd2d99ea652edd1bb86c15eb738545814a1ae`
 - Source SHA-256 (`manuscript/main.tex`):
-  `bca3226e2d17d957f62ad4dd8babfb5fc6b735cd37b301ba76e7097800a8b621`
+  `c45579106f2a415a5ee29ccb3c8b21d30008aaaddc9549a01d806a960c1eb774`
 - Bibliography SHA-256 (`manuscript/references.bib`):
   `7af020b4fbeeef7687c85cfb707960f79bfa377ba3882d6a2b80b9efd9d56f2d`
 
@@ -18,6 +18,7 @@
 - `make claims`: 118/118 manuscript checks passed.
 - `make paper`: 13-page PDF produced without overfull boxes, unresolved
   citations, or unresolved cross-references.
+- The abstract contains 197 words under the repository's macro-aware audit.
 - All PDF fonts are embedded and subset.
 
 ## Structural audit

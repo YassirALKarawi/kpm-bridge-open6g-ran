@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kpm-bridge"
-version = "1.0.1"
+version = "1.0.2"
 description = "Uncertainty-aware cross-implementation KPM semantic alignment for portable Open RAN xApps"
 readme = "README.md"
 license = {file = "LICENSE"}

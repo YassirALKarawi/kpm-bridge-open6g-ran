@@ -10,6 +10,8 @@ Reference implementation and reproducibility package for:
 > **KPM-Bridge: An Uncertainty-Aware Cross-Implementation Telemetry Fabric for
 > Portable AI xApps in Open 6G RAN**
 
+[Read the current 13-page IEEE manuscript](paper/KPM-Bridge_Manuscript.pdf).
+
 KPM-Bridge separates E2 protocol interoperability from semantic and
 statistical portability. It compiles heterogeneous KPM reports into typed
 canonical contracts, aligns event-time observations, corrects residual shift
