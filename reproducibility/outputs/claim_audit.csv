@@ -18,7 +18,7 @@ all semantic compiler records pass,"[""PASS"", ""PASS"", ""PASS"", ""PASS""]","[
 manifest file count,108,108,PASS
 manifest bytes,19295185,19295185,PASS
 pinned upstream commit,"""bd86629d07d5fbfb778ebe3afd9d0b05e5191c6b""","""bd86629d07d5fbfb778ebe3afd9d0b05e5191c6b""",PASS
-hash-verified raw inputs,0,108,FAIL
+hash-verified raw inputs,108,108,PASS
 portable xApp fitting rows,65494,65494,PASS
 canonical AUROC,0.755,0.755,PASS
 canonical Brier score,0.205,0.205,PASS
