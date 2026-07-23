@@ -40,7 +40,7 @@
 \maketitle
 
 \begin{abstract}
-Open Radio Access Network (O-RAN) implementations can emit syntactically valid E2 Service Model for Key Performance Measurement (E2SM-KPM) reports that denote different statistical objects for the same artificial-intelligence (AI) control application, or xApp. Units, entity scope, observation windows, clocks, counter resets, missingness, and hidden filtering may differ silently. KPM-Bridge separates E2 interoperability from semantic and statistical portability by compiling typed canonical contracts, aligning event-time observations, learning an anchor-assisted residual map, and attaching a 48-byte evidence certificate; split-conformal sets cover both the canonical vector and a registered xApp functional, so a fixed xApp can admit, defer, or abstain. On \DatasetRows\ public ColO-RAN samples with experiment-level separation, seven baselines, ablations, and controlled profiles, KPM-Bridge matches the strongest portable baselines on stationary accuracy---\StableNrmse\ normalized root-mean-square error and \StableAgreement\ canonical-decision agreement, with observed margins (\NrmseGainBest, \AgreementGainBest) well within bootstrap interval widths---while adding evidence no baseline emits: admitted actions show \StableSelectiveError\ conditional disagreement at \StableAcceptance\ acceptance; joint coverage is \StableCoverage. Under severe drift, the monitor detects \DriftDetection\ of shifted traces with \DriftDelay\ median delay; fail-closed invalidation cuts post-shift disagreement exposure from \NoDriftExposure\ to \DriftExposure\ by reducing acceptance to 5.99\%, and conditional disagreement remains \DriftSelectiveError. The profiles are controlled stressors, not commercial-vendor measurements.
+Open Radio Access Network (O-RAN) implementations can emit syntactically valid E2 Service Model for Key Performance Measurement (E2SM-KPM) reports that denote different statistical objects for the same artificial-intelligence (AI) control application, or xApp. Units, entity scope, observation windows, clocks, counter resets, missingness, and hidden filtering may differ silently. KPM-Bridge separates E2 interoperability from semantic and statistical portability by compiling typed canonical contracts, aligning event-time observations, learning an anchor-assisted residual map, and attaching a 48-byte evidence certificate; split-conformal sets cover the canonical vector and a registered xApp functional, so a fixed xApp can admit, defer, or abstain. On \DatasetRows\ public ColO-RAN samples with experiment-level separation, seven baselines, ablations, and controlled profiles, KPM-Bridge reaches \StableNrmse\ normalized root-mean-square error and \StableAgreement\ canonical-decision agreement across three stationary profiles---matching the strongest portable baselines within bootstrap interval widths, so the contribution is the evidence layer, not raw accuracy. Under the admission gate, admitted actions show \StableSelectiveError\ conditional canonical-action disagreement at \StableAcceptance\ acceptance, with \StableCoverage\ joint coverage. Under severe drift, the monitor detects \DriftDetection\ of shifted traces; fail-closed invalidation cuts post-shift disagreement exposure from \NoDriftExposure\ to \DriftExposure\ by reducing acceptance to 5.99\%; conditional disagreement remains \DriftSelectiveError. The profiles are controlled stressors, not commercial-vendor measurements.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -50,9 +50,9 @@ Open Radio Access Network (O-RAN) implementations can emit syntactically valid E
 \section{Introduction}
 \IEEEPARstart{O}{pen} Radio Access Network (O-RAN) architectures disaggregate the radio access network (RAN), expose standardized interfaces, and place programmable applications in a near-real-time RAN Intelligent Controller (Near-RT RIC) \cite{polese2023understanding,alam2026survey,garcia2021oran}. This direction is central to an artificial-intelligence (AI)-native 6G RAN because a control application, or xApp, can observe several E2 nodes and adapt radio behavior without modifying each baseband stack \cite{bonati2021intelligence,niknam2022intelligent,wang2026oran6g}. The E2 Service Model for Key Performance Measurement (E2SM-KPM) structures KPM subscription and reporting across the E2 interface \cite{feraudo2024xdevsm}.\footnote{Normative E2SM-KPM releases are distributed through the \href{https://specifications.o-ran.org/}{official O-RAN specification portal} (accessed July 13, 2026); O-RAN specifications do not carry Crossref DOIs.} Protocol conformance does not, by itself, guarantee that independently implemented reports are interchangeable inputs to a learned model.
 
-Consider an xApp trained on per-user-equipment downlink throughput averaged over 250~ms. Another implementation can expose a cumulative byte counter at cell scope, reset it after a restart, and report every second. Both messages may decode correctly, and a software adapter may label both values ``throughput.'' Yet differentiation, scope disaggregation, event-time alignment, and information loss remain unresolved. The failure is silent: the decoder succeeds, the xApp produces a number, and the resulting action is outside the semantics on which the model was trained. KPM granularity itself is now an optimization variable in O-RAN digital-twin workflows \cite{huseynov2026granularity}, which makes explicit treatment of window and freshness even more important.
+Consider an xApp trained on per-user-equipment downlink throughput averaged over 250~ms. Another implementation can expose a cumulative byte counter at cell scope, reset it after a restart, and report every second. Both messages may decode correctly, and a software adapter may label both values ``throughput.'' Yet differentiation, scope disaggregation, event-time alignment, and information loss remain unresolved, and the failure is silent: the decoder succeeds, the xApp produces a number, and the action falls outside the semantics the model was trained on. KPM granularity is itself now an optimization variable in O-RAN digital-twin workflows \cite{huseynov2026granularity}, making explicit treatment of window and freshness more important still.
 
-Open experimentation platforms make AI xApps reproducible \cite{polese2023coloran,bonati2022openrangym,bonati2023openrangym,lacava2023nsoran,upadhyaya2023oaic}. More recently, xDevSM demonstrated that application logic can be insulated from low-level service-model procedures and can run across heterogeneous open-source RAN stacks \cite{feraudo2024xdevsm,feraudo2026xdevsm}. KPM-Bridge addresses the next boundary. Protocol and application-programming-interface (API) portability answer whether an xApp can request and decode a measurement; semantic portability asks whether that measurement denotes the expected quantity, scope, time support, and statistical regime. The two layers are complementary.
+Open experimentation platforms make AI xApps reproducible \cite{polese2023coloran,bonati2022openrangym,bonati2023openrangym,lacava2023nsoran,upadhyaya2023oaic}. xDevSM recently showed that application logic can be insulated from low-level service-model procedures and run across heterogeneous open-source RAN stacks \cite{feraudo2024xdevsm,feraudo2026xdevsm}. KPM-Bridge addresses the next boundary: protocol and application-programming-interface (API) portability answer whether an xApp can request and decode a measurement, whereas semantic portability asks whether that measurement denotes the expected quantity, scope, time support, and statistical regime.
 
 The central design rule is that a canonical KPM vector is never emitted alone. It is paired with evidence specifying what was mapped, how old and complete it is, how its uncertainty was calibrated, and whether the calibration regime remains valid. A fixed xApp may then admit, defer, or abstain under an explicit quality budget rather than treating every decoded report as equally trustworthy.
 
@@ -70,11 +70,11 @@ The contribution is Open-RAN-specific: contracts are keyed by E2 node, service-m
 \section{Related Work}
 O-RAN service-model implementations expose KPM subscription, indication, and measurement information structures through the E2 interface \cite{garcia2021oran,feraudo2024xdevsm}. General network-telemetry guidance separates data acquisition, export, analysis, and use \cite{song2022telemetry,tan2021int}, while the Network Management Datastore Architecture emphasizes explicit operational state and provenance \cite{bjorklund2018nmda}. KPM-Bridge specializes these principles for learned Near-RT RIC inputs: it treats scope, time support, counter semantics, and calibration state as part of the feature type.
 
-ColO-RAN demonstrated closed-loop machine-learning xApps on Colosseum and released traces spanning seven base stations, 42 user equipment (UE) devices, three traffic slices, and three schedulers \cite{polese2023coloran}. OpenRAN Gym added repeatable data collection and testing workflows \cite{bonati2022openrangym,bonati2023openrangym}; FlexRIC, OrchestRAN, Open AI Cellular (OAIC), and ns-O-RAN broadened software-development, orchestration, testbed, and simulation access \cite{schmidt2021flexric,doro2022orchestran,upadhyaya2023oaic,lacava2023nsoran}. These platforms provide the evidence backbone used here, but their objective is experimentation or control orchestration rather than a cross-implementation uncertainty contract.
+ColO-RAN demonstrated closed-loop machine-learning xApps on Colosseum and released traces spanning seven base stations, 42 user equipment (UE) devices, three traffic slices, and three schedulers \cite{polese2023coloran}. OpenRAN Gym added repeatable data-collection and testing workflows \cite{bonati2022openrangym,bonati2023openrangym}, and FlexRIC, OrchestRAN, Open AI Cellular (OAIC), and ns-O-RAN broadened software-development, orchestration, testbed, and simulation access \cite{schmidt2021flexric,doro2022orchestran,upadhyaya2023oaic,lacava2023nsoran}. These platforms are the evidence backbone used here, but their objective is experimentation or control orchestration, not a cross-implementation uncertainty contract.
 
 Recent application and architecture studies expose why this boundary matters. A native-AI digital-twin architecture connects E2/A1/O1 services to shadow testing, guarded control, and rollback \cite{alkarawi2026nativeai}. Such systems are direct telemetry consumers and deployment stressors, not semantic-interoperability mechanisms: they do not define a typed cross-implementation KPM contract, a finite-sample translation set, or drift-aware abstention.
 
-Open-RAN intelligence frameworks establish the role of data-driven xApps and coordinated model placement \cite{bonati2021intelligence,niknam2022intelligent,doro2022orchestran}. FlexRIC provides a portable software-development kit (SDK) at the RIC boundary \cite{schmidt2021flexric}, whereas xDevSM hides service-model mechanics behind developer-facing APIs \cite{feraudo2024xdevsm}. Its 2026 extension unifies observability and control across heterogeneous OpenAirInterface (OAI)- and srsRAN-based deployments and reports stack-specific KPM granularity and scheduler behavior \cite{feraudo2026xdevsm}. This is the closest complementary work. KPM-Bridge does not dispute its portability claim and does not replace its APIs; it can sit behind such an API to decide whether two successfully decoded metrics are semantically and statistically fit for the same trained input.
+Open-RAN intelligence frameworks establish the role of data-driven xApps and coordinated model placement \cite{bonati2021intelligence,niknam2022intelligent,doro2022orchestran}. FlexRIC provides a portable software-development kit (SDK) at the RIC boundary \cite{schmidt2021flexric}, whereas xDevSM hides service-model mechanics behind developer-facing APIs \cite{feraudo2024xdevsm}. Its 2026 extension unifies observability and control across heterogeneous OpenAirInterface (OAI)- and srsRAN-based deployments and reports stack-specific KPM granularity and scheduler behavior \cite{feraudo2026xdevsm}. It is the closest complementary work: KPM-Bridge neither disputes its portability claim nor replaces its APIs, but can sit behind such an API to decide whether two decoded metrics are semantically and statistically fit for the same trained input.
 
 \begin{table*}[t]
 \caption{Comparison of representative O-RAN telemetry and portability work by interface scope, KPM semantics, temporal repair, uncertainty sets, and drift handling.}
@@ -99,9 +99,9 @@ KPM-Bridge & AI-input evidence layer & complementary & quantity/scope/unit contr
 
 Table~\ref{tab:related} separates protocol or API portability from the semantic, temporal, and statistical evidence required by a fixed learned input. The comparison also makes the boundary of the contribution explicit: KPM-Bridge complements E2 decoders and portable xApp APIs rather than replacing them.
 
-Domain-adaptation theory bounds target error using source error and distribution divergence, but also retains a joint-labeling term that cannot be removed by marginal alignment \cite{benDavid2010theory}. Correlation alignment (CORAL), adversarial adaptation, and optimal transport (OT) are established ways to reduce distribution mismatch \cite{sun2016deepcoral,tzeng2017adda,courty2017ot,peyre2019optimal}. They do not determine whether two columns represent the same physical quantity or entity. An unconstrained map can make distributions similar while aligning cell load to per-UE throughput. KPM-Bridge therefore applies statistical correction only after type-compatible matching.
+Domain-adaptation theory bounds target error using source error and distribution divergence, but also retains a joint-labeling term that cannot be removed by marginal alignment \cite{benDavid2010theory}. Correlation alignment (CORAL), adversarial adaptation, and optimal transport (OT) are established ways to reduce distribution mismatch \cite{sun2016deepcoral,tzeng2017adda,courty2017ot,peyre2019optimal}. They do not determine whether two columns represent the same physical quantity or entity; an unconstrained map can align cell load to per-UE throughput while matching marginals. KPM-Bridge therefore applies statistical correction only after type-compatible matching.
 
-Conformal prediction converts held-out nonconformity scores into finite-sample prediction sets under exchangeability \cite{vovk2022algorithmic,angelopoulos2023conformal}; weighted methods extend the framework beyond exchangeability under quantified departures \cite{barber2023exchangeability}. Reject-option and set-valued classification formalize the error--coverage tradeoff when a model may abstain \cite{chow1970reject,sadinle2018setvalued}. Concept-drift methods characterize, detect, and adapt to invalid operating regimes \cite{gama2014drift,lu2019drift,webb2016drift,bifet2007adwin,page1954inspection}. Our contribution is their joint placement at the O-RAN telemetry boundary, with separate certificates for the canonical vector and the downstream xApp functional.
+Conformal prediction converts held-out nonconformity scores into finite-sample prediction sets under exchangeability \cite{vovk2022algorithmic,angelopoulos2023conformal}; weighted methods extend the framework beyond exchangeability under quantified departures \cite{barber2023exchangeability}. Reject-option and set-valued classification formalize the error--coverage tradeoff under abstention \cite{chow1970reject,sadinle2018setvalued}, and concept-drift methods detect and adapt to invalid operating regimes \cite{gama2014drift,lu2019drift,webb2016drift,bifet2007adwin,page1954inspection}. Our contribution is their joint placement at the O-RAN telemetry boundary, with separate certificates for the canonical vector and the downstream xApp functional.
 
 \section{Problem Formulation}
 Let $\cV$ denote the connected RAN implementations and let $z_t\in\cZ\subseteq\R^d$ be the canonical KPM state at event time $t$. In the released benchmark $d=8$, but the formulation is general. Multi-metric controllers can depend jointly on queue, energy, latency, signal-to-interference-plus-noise ratio, and fairness observations, as illustrated by energy-aware off-grid O-RAN control \cite{alkarawi2025offgrid}; compatibility is therefore feature- and scope-specific. A raw stream $i$ from implementation $v$ has contract
@@ -199,7 +199,7 @@ x_t=[\tilde y_t,\tilde y_{t-1},\tilde y_{t-2},\tilde y_{t-4},\tilde y_{t-8},
 \Delta\tilde y_t,m_t,\operatorname{age}_t,\operatorname{support}_t],
 \label{eq:temporal-design}
 \end{equation}
-where $\tilde y$ is the contract-normalized report, $\Delta\tilde y_t=\tilde y_t-\tilde y_{t-1}$ is the causal first difference, $m_t$ is the observation mask, and age and support summarize event-time staleness and completeness. One histogram gradient-boosted regressor per canonical KPM predicts the standardized target \cite{friedman2001gradient}. The released configuration uses 70 trees, at most 15 leaves, depth five, and deterministic seeds. This is not a universal model choice: the contract and certificate interfaces also admit linear, monotone, or neural residuals. The ablation includes a temporal ridge map.
+where $\tilde y$ is the contract-normalized report, $\Delta\tilde y_t=\tilde y_t-\tilde y_{t-1}$ is the causal first difference, $m_t$ is the observation mask, and age and support summarize event-time staleness and completeness. One histogram gradient-boosted regressor per canonical KPM predicts the standardized target \cite{friedman2001gradient}. The released configuration uses 70 trees, at most 15 leaves, depth five, and deterministic seeds. The ablation includes a temporal ridge map.
 
 \subsection{Joint and Functional Calibration}
 On held-out calibration samples, the joint score is
@@ -236,6 +236,18 @@ H_t=\sqrt{W(\bar r_t-\mu_r)^\top(\Sigma_r+0.1I)^{-1}(\bar r_t-\mu_r)}.
 \end{equation}
 where $\bar r_t=W^{-1}\sum_{j=0}^{W-1}r_{t-j}$ and the $d\times d$ identity $I$ makes $0.1I$ a covariance regularizer. Anchors arrive every ten samples (2.5~s in this corpus). The threshold is the 97.5th percentile of the \emph{per-stream maximum} calibration score, which addresses repeated testing more directly than a pointwise quantile. Candidate windows are ranked without test data on held-out \texttt{exp1} streams, subject to a predeclared 5\% validation false-alarm ceiling and synthetic 1.25-scale shifts; this procedure selects $W=5$. A trigger invalidates the calibration epoch rather than widening a stale interval. Recalibration is a separate control-plane action.
 
+\emph{Admission gate and selective metrics:}
+An event is \emph{admitted}, $g_t=1$, only when it clears the support and age budgets, the calibration epoch is drift-valid, and its functional interval avoids the threshold, $g_t=\ind\{s_t\ge s_{\min}\}\ind\{a_t\le a_{\max}\}\ind\{\text{epoch valid}\}\ind\{\theta\notin I_t^\ell\}$; then $g_t=1$ emits $a(\hat z_t)$ and $g_t=0$ abstains with a reason code. Over $T$ events with $\cA=\{t:g_t=1\}$, the acceptance rate, selective (admission-conditional) error, and joint disagreement exposure are
+\begin{equation}
+\begin{aligned}
+\mathrm{acc}=\frac{1}{T}\sum_{t} g_t,\qquad
+\mathrm{serr}=\frac{1}{|\cA|}\sum_{t\in\cA}\ind\{a(\hat z_t)\ne a(z_t)\},\\
+\mathrm{exp}=\frac{1}{T}\sum_{t} g_t\,\ind\{a(\hat z_t)\ne a(z_t)\}=\mathrm{acc}\cdot\mathrm{serr}.
+\end{aligned}
+\label{eq:selective-metrics}
+\end{equation}
+Thus $\mathrm{serr}=\Pr\{a(\hat z_t)\ne a(z_t)\mid g_t=1\}$ is measured directly, whereas Proposition~\ref{prop:stability} bounds only the joint $\Pr\{\theta\notin I_t^\ell,\,a(\hat z_t)\ne a(z_t)\}$; the identity $\mathrm{exp}=\mathrm{acc}\cdot\mathrm{serr}$ is instantiated post-shift by $5.99\%\times76.23\%=4.57\%$.
+
 \begin{algorithm}[t]
 \caption{Certified streaming inference with event-time alignment, calibrated uncertainty, drift checks, and selective action.}
 \label{alg:stream}
@@ -258,7 +270,7 @@ Algorithm~\ref{alg:stream} is the online counterpart of the compiler. It binds t
 The encoded sidecar is fixed at \CertificateBytes: 16-byte schema hash; two 8-byte identifiers for mapping and calibration epoch; three 4-byte floats for support, age, and the generic radius; and two 2-byte fields for flags and KPM count. The functional quantile is resolved from the authenticated registry as described above, and the feature vector is carried separately.
 
 \subsection{O-RAN Placement and Certificate Lifecycle}
-KPM-Bridge is an internal evidence layer, not a proposed replacement for the E2 Application Protocol (E2AP) or E2SM-KPM. The E2 termination performs subscription handling and Abstract Syntax Notation One decoding, then passes values and report metadata to a local bridge adapter. The adapter retrieves a contract using the E2 node identity, service-model revision, measurement identifier, and operator policy. A deployment may provision that registry from the Service Management and Orchestration framework or the non-real-time RIC (Non-RT RIC), but this paper does not claim a new standardized A1, O1, or R1 message. The xApp-facing API returns a canonical vector, certificate, and reason code.
+KPM-Bridge is an internal evidence layer, not a replacement for the E2 Application Protocol (E2AP) or E2SM-KPM. The E2 termination handles subscription and Abstract Syntax Notation One decoding, then passes values and report metadata to a local bridge adapter, which retrieves a contract from the E2 node identity, service-model revision, measurement identifier, and operator policy. A deployment may provision that registry from the Service Management and Orchestration framework or the non-real-time RIC (Non-RT RIC); no new standardized A1, O1, or R1 message is claimed. The xApp-facing API returns a canonical vector, certificate, and reason code.
 
 \begin{figure*}[t]
 \centering
@@ -377,7 +389,7 @@ The rank of the test nonconformity score among $n_c+1$ exchangeable scores is un
 
 Temporal traces are not literally independent. The experiment separates repetitions and subsamples calibration points, but the formal statement remains conditional on exchangeability. Section~\ref{sec:results} reports empirical coverage rather than relabeling it as a theorem under arbitrary autocorrelation.
 
-\begin{proposition}[Decision stability]
+\begin{proposition}[Decision stability]\label{prop:stability}
 For a threshold action $a(z)=\ind[\ell(z)\ge\theta]$, if $\theta\notin I_t^\ell$ and $\ell(z_t)\in I_t^\ell$, then $a(\hat z_t)=a(z_t)$. Under calibration exchangeability, the joint probability of passing the interval gate and disagreeing with the canonical action is at most $\alpha$; no conditional selective-error bound is claimed.
 \end{proposition}
 \begin{IEEEproof}
@@ -399,7 +411,7 @@ Computationally, let $n_{\rm asn}=p_v+d$ be the padded assignment dimension, $h$
 \subsection{Trace Backbone and Controlled Profiles}
 The benchmark pins commit \texttt{bd86629} of the public ColO-RAN dataset \cite{polese2023coloran}. Its Rome-static-medium scenario has seven base stations (BSs), 42 UEs, 10~MHz bandwidth, 50 physical resource blocks (PRBs), and enhanced mobile broadband (eMBB), machine-type communication (MTC), and ultra-reliable low-latency communication (URLLC) slices. Round-robin, water-filling, and proportional-fair schedulers are available across 28 resource allocations.
 
-Our deterministic subset crosses three schedulers, training configurations \texttt{tr0}, \texttt{tr9}, and \texttt{tr18}, experiments \texttt{exp1}/\texttt{exp2}, BS1/BS4, and one UE from each traffic class: 108 files and 208,585 raw rows. Two traces have fewer than 400 attached samples and are excluded by a predeclared rule. After a four-sample prediction horizon, 53 \texttt{exp1} traces (\TrainingRows\ rows) are used for fitting/calibration and 53 independent \texttt{exp2} traces (\TestRows\ rows) for testing. Files are hash-verified; raw data under the GNU General Public License version 3.0 (GPL-3.0) are downloaded from upstream rather than redistributed.
+Our deterministic subset crosses three schedulers, training configurations \texttt{tr0}, \texttt{tr9}, and \texttt{tr18}, experiments \texttt{exp1}/\texttt{exp2}, BS1/BS4, and one UE per traffic class: 108 files and 208,585 raw rows. Two traces with fewer than 400 attached samples are excluded by a predeclared rule. After a four-sample horizon, 53 \texttt{exp1} traces (\TrainingRows\ rows) fit and calibrate the model and 53 independent \texttt{exp2} traces (\TestRows\ rows) test it. Files are hash-verified; raw data under the GNU General Public License version 3.0 (GPL-3.0) are downloaded from upstream rather than redistributed.
 
 The canonical vector contains reported downlink (DL) rate, DL block error rate (BLER), DL modulation and coding scheme (MCS), DL signal-to-noise ratio (SNR), reference signal received power (RSRP), uplink (UL) rate, UL BLER, and UL buffer. Names refer to dataset fields; the study does not relabel source units as standardized commercial KPMs.
 
@@ -505,7 +517,7 @@ Table~\ref{tab:repro} fixes the split, seeds, calibration level, model capacity,
 
 \input{generated/table_main}
 
-Figs.~\ref{fig:stationary-nrmse} and \ref{fig:stationary-agreement}, together with Table~\ref{tab:main}, summarize P1--P3. KPM-Bridge obtains mean NRMSE \StableNrmse, an observed \NrmseGainBest\ reduction relative to temporal ridge, the strongest reconstruction baseline. It reaches \StableAgreement\ decision agreement, \AgreementGainBest\ above the same strongest decision baseline. Its mean label regret is 0.0977, compared with 0.1033 for CORAL and 0.1019 for temporal ridge. These margins are small relative to the whole-trace bootstrap interval widths reported below, so we read the stationary comparison as accuracy parity with the strongest baselines rather than as a significance claim. The operative difference lies in what accompanies the numbers: at matched accuracy, only KPM-Bridge emits per-sample evidence of meaning, age, support, and calibration state, and the selective results below show that this evidence, not raw accuracy, is what changes the quality of admitted decisions.
+Figs.~\ref{fig:stationary-nrmse} and \ref{fig:stationary-agreement}, together with Table~\ref{tab:main}, summarize P1--P3. KPM-Bridge obtains mean NRMSE \StableNrmse, an observed \NrmseGainBest\ reduction relative to temporal ridge, the strongest reconstruction baseline. It reaches \StableAgreement\ decision agreement, \AgreementGainBest\ above the same strongest decision baseline. Its mean label regret is 0.0977, compared with 0.1033 for CORAL and 0.1019 for temporal ridge. Because these margins are small relative to the whole-trace bootstrap interval widths reported below, we treat the stationary comparison as accuracy parity with the strongest baselines rather than as a significance claim. What distinguishes KPM-Bridge at this matched accuracy is the accompanying evidence: it alone emits per-sample meaning, age, support, and calibration state, and the selective results below show that this evidence, not raw accuracy, is what improves the quality of admitted decisions.
 
 Per-profile KPM-Bridge NRMSE is 0.675, 0.682, and 0.725 for P1--P3. Whole-trace bootstrap 95\% intervals are $[0.600,0.749]$, $[0.607,0.759]$, and $[0.636,0.817]$. The intervals expose substantial scenario heterogeneity that a row-level interval would suppress. Decision agreement ranges from 87.94\% to 90.13\%.
 
@@ -553,21 +565,21 @@ The functional interval $I_t^\ell$ is more selective than the generic ball for t
 \label{fig:selective-error}
 \end{figure}
 
-Figs.~\ref{fig:coverage-availability} and \ref{fig:selective-error} sweep the order statistics $\hat q_\alpha$ and $\hat q_\alpha^\ell$. Mean coverage across P1--P4 decreases from 98.72\% at $\alpha=0.01$ to 79.15\% at $\alpha=0.20$, while acceptance rises from 44.41\% to 56.96\%. Conditional disagreement rises from 1.51\% to 1.94\%. These coupled curves define an operating tradeoff; they do not identify a universally optimal $\alpha$.
+Figs.~\ref{fig:coverage-availability} and \ref{fig:selective-error} sweep the order statistics $\hat q_\alpha$ and $\hat q_\alpha^\ell$. Mean coverage across P1--P4 decreases from 98.72\% at $\alpha=0.01$ to 79.15\% at $\alpha=0.20$, while acceptance rises from 44.41\% to 56.96\%. Conditional disagreement rises from 1.51\% to 1.94\%. These coupled curves define an operating tradeoff, not a universally optimal $\alpha$.
 
 \subsection{Drift Invalidation}
 Before the injected P4 change, coverage is 94.43\%. At the 1.25-scale shift, the anchor-residual monitor detects \DriftDetection\ of traces with \DriftDelay\ median delay and \DriftFalseAlarm\ pre-change false alarms at trace level. Three denominators must not be conflated. The full gate accepts 5.99\% of post-shift samples; 76.23\% of those admitted actions disagree with the fixed xApp on canonical input, so the joint disagreement exposure is \DriftExposure. Ignoring drift accepts 98.19\%, with \NoDriftSelectiveError\ conditional disagreement and \NoDriftExposure\ joint exposure. Thus invalidation reduces exposure by \DriftExposureReduction\ mainly through abstention, not by making the few pre-alarm actions accurate.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_drift_sensitivity.pdf}
+\includegraphics[width=0.95\columnwidth]{figures/fig_drift_sensitivity.pdf}
 \caption{Detection rate, post-shift coverage, and trace-level false-alarm rate versus the injected standardized mean shift.}
 \label{fig:drift-sensitivity}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_drift_ablation.pdf}
+\includegraphics[width=0.95\columnwidth]{figures/fig_drift_ablation.pdf}
 \caption{Post-shift P4 conditional canonical-action disagreement and joint disagreement exposure for the full and ablated gates.}
 \label{fig:drift-ablation}
 \end{figure}
@@ -577,25 +589,25 @@ Figs.~\ref{fig:drift-sensitivity} and \ref{fig:drift-ablation} show that a 0.5-s
 \subsection{Ablation and Sensitivity}
 \input{generated/table_ablation}
 
-Table~\ref{tab:ablation} shows that contract normalization alone is insufficient (NRMSE 0.854). Current-sample anchor regression reduces NRMSE to 0.751, temporal ridge reaches 0.713, and the full nonlinear residual reaches 0.694. Removing the typed compiler gives 0.695 because the benchmark preserves column order and supplies paired anchors. This negative result is intentional: typing is justified by fail-closed semantics, not an artificial accuracy gain on already paired columns. The executable compiler accepts the declared conversion and permutation checks and rejects both quantity and scope decoys (4/4 checks); the untyped variant cannot provide that guarantee. The benchmark also materializes 369,492 certificates, totaling 17,735,616 encoded bytes.
+Table~\ref{tab:ablation} shows that contract normalization alone is insufficient (NRMSE 0.854). Current-sample anchor regression reduces NRMSE to 0.751, temporal ridge reaches 0.713, and the full nonlinear residual reaches 0.694. Removing the typed compiler gives 0.695 because the benchmark preserves column order and supplies paired anchors. This negative result is intentional: typing is justified by fail-closed semantics, not an accuracy gain on already paired columns. The executable compiler accepts the declared conversion and permutation checks and rejects both quantity and scope decoys (4/4 checks), a guarantee the untyped variant cannot provide.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_anchor_sensitivity.pdf}
+\includegraphics[width=0.95\columnwidth]{figures/fig_anchor_sensitivity.pdf}
 \caption{P3 reconstruction error versus the paired-anchor fraction. The curve shows diminishing returns beyond the initial anchor increase.}
 \label{fig:anchor-sensitivity}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_missingness_sensitivity.pdf}
+\includegraphics[width=0.95\columnwidth]{figures/fig_missingness_sensitivity.pdf}
 \caption{Fixed-xApp decision agreement when a P1 mapper trained at 3\% loss is evaluated under increasing missing-entry rates without refitting.}
 \label{fig:missingness-sensitivity}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_lag_sensitivity.pdf}
+\includegraphics[width=0.95\columnwidth]{figures/fig_lag_sensitivity.pdf}
 \caption{Fixed-xApp decision agreement under unseen additional lag. The dashed line marks the one-second age increment reached at four 250-ms samples.}
 \label{fig:lag-sensitivity}
 \end{figure}
@@ -605,7 +617,7 @@ Figs.~\ref{fig:anchor-sensitivity}, \ref{fig:missingness-sensitivity}, and \ref{
 \section{Complexity, Overhead, and Deployment}
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_runtime.pdf}
+\includegraphics[width=0.95\columnwidth]{figures/fig_runtime.pdf}
 \caption{Amortized single-thread processor inference time per sample for KPM-Bridge and all portable baselines; the horizontal axis is logarithmic.}
 \label{fig:runtime}
 \end{figure}
@@ -640,22 +652,22 @@ Compilation occurs only after a schema or policy change. Per-implementation stre
 
 \section{Discussion and Limitations}
 \emph{Certificate interpretation:}
-The certificate binds a mapping, model, calibration epoch, and measured operating evidence. Its finite-sample guarantee requires the stated exchangeability assumption and is neither conditional coverage for every subgroup nor proof that an xApp is beneficial, fair, secure, or RAN-stable. It certifies telemetry fitness, not system trustworthiness.
+The certificate binds a mapping, model, calibration epoch, and measured operating evidence. Its finite-sample guarantee requires the stated exchangeability assumption and is neither per-subgroup conditional coverage nor proof that an xApp is beneficial, fair, secure, or RAN-stable: it certifies telemetry fitness, not system trustworthiness.
 
 \emph{Information loss and anchors:}
-Cell aggregation cannot identify UEs without side information, long windows suppress transients, and consecutive losses enlarge uncertainty; the bridge therefore exposes support and abstains. A cybersecurity-driven quantum digital twin similarly maps O-RAN observations into detection registers \cite{alkarawi2026cqdt}; KPM-Bridge can guard input compatibility, not validate its policy. The 10\% anchor budget requires a trusted reference, digital twin, temporary dual reporting, or validated probe. Performance remains useful at 5\%, but anchor cost and integrity are deployment constraints.
+Cell aggregation cannot identify UEs without side information, long windows suppress transients, and consecutive losses enlarge uncertainty, so the bridge exposes support and abstains. A cybersecurity-driven quantum digital twin similarly maps O-RAN observations into detection registers \cite{alkarawi2026cqdt}; KPM-Bridge guards input compatibility, not policy. The 10\% anchor budget needs a trusted reference, digital twin, temporary dual reporting, or validated probe; performance remains useful at 5\%, but anchor cost and integrity are deployment constraints.
 
 \emph{Controlled profiles versus vendors:}
 P1--P4 are controlled profiles over a public experimental corpus, not commercial products. Static UEs and a 250-ms cadence limit generalization to mobility, handovers, multi-cell conversion, and faster loops. Vendor studies should disclose, where permitted, report schemas, timestamp behavior, aggregation/reset tests, and anchor procedures.
 
 \emph{Contract governance and versioning:}
-Operator-governed contracts bind quantity/scope namespaces, E2SM revision, measurement identifier, labels, canonical ontology, and transform hash. Units may convert, UE-to-cell scope is breaking, and window or clock changes require recalibration. The operator, not the xApp, approves sources against model-card requirements for features, age, support, and functional score.
+Operator-governed contracts bind quantity/scope namespaces, E2SM revision, measurement identifier, labels, canonical ontology, and transform hash. Units may convert, UE-to-cell scope is breaking, and window or clock changes force recalibration; the operator, not the xApp, approves sources against model-card requirements for features, age, support, and functional score.
 
 \emph{Calibration under time dependence:}
 Split-conformal coverage is exact for exchangeable calibration units. Experiment separation and subsampling reduce, but do not remove, dependence; the measured \StableCoverage\ coverage at nominal 95\% motivates block-aware or weighted calibration \cite{barber2023exchangeability}.
 
 \emph{Drift and false alarms:}
-The anchor-residual detector cannot observe drift without reference evidence. Under P4, detection is imperfect, \DriftFalseAlarm\ of traces trigger early, and post-shift conditional disagreement remains \DriftSelectiveError; its main benefit is the \DriftExposureReduction\ exposure reduction achieved through abstention. Lower thresholds trade delay for availability, while per-stream-maximum calibration is empirical rather than an anytime-valid false-alarm theorem. Alarms therefore need cause codes and operator diagnostics. An adversary corrupting reports and anchors can evade residual monitoring, whereas induced missingness can force denial of service. Authenticated anchors, access or execution controls, rate limits, redundant evidence, and emergency policies remain platform responsibilities.
+The anchor-residual detector cannot observe drift without reference evidence. Under P4, detection is imperfect, \DriftFalseAlarm\ of traces trigger early, and post-shift conditional disagreement remains \DriftSelectiveError; its main benefit is the \DriftExposureReduction\ exposure reduction achieved through abstention. Lower thresholds trade delay for availability, and per-stream-maximum calibration is empirical, not an anytime-valid false-alarm theorem, so alarms need cause codes and operator diagnostics. An adversary corrupting reports and anchors can evade residual monitoring, and induced missingness can force denial of service; authenticated anchors, access or execution controls, rate limits, redundant evidence, and emergency policies remain platform responsibilities.
 
 \emph{External validity:}
 Validation should combine xDevSM and KPM-Bridge on OAI, srsRAN, and vendor E2 traces while varying granularity and schedulers. Conditional or block-aware calibration, monotone maps, and cost-aware anchor selection also remain open.
