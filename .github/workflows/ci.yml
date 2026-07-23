@@ -59,13 +59,43 @@ jobs:
       - name: Regenerate tables and result figures
         run: make assets
 
-      - name: Confirm expected independent figures
+      - name: Validate regenerated publication figures
         run: |
-          test "$(find manuscript/figures -maxdepth 1 -name 'fig_*.pdf' | wc -l)" -eq 13
-          test "$(find manuscript/figures -maxdepth 1 -name 'fig*.jpeg' | wc -l)" -eq 3
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
 
-      - name: Confirm generated assets are current
-        run: git diff --exit-code -- manuscript/generated manuscript/figures
+          root = Path("manuscript/figures")
+          pdfs = sorted(root.glob("fig_*.pdf"))
+          pngs = sorted(root.glob("fig_*.png"))
+          illustrations = sorted(root.glob("fig*.jpeg"))
+
+          assert len(pdfs) == 13, f"expected 13 result PDFs, found {len(pdfs)}"
+          assert len(pngs) == 13, f"expected 13 result PNGs, found {len(pngs)}"
+          assert len(illustrations) == 3, (
+              f"expected 3 architecture illustrations, found {len(illustrations)}"
+          )
+          assert [p.stem for p in pdfs] == [p.stem for p in pngs], (
+              "PDF/PNG result-figure sets do not match"
+          )
+
+          for path in pdfs:
+              assert path.stat().st_size >= 1_000, f"{path} is unexpectedly small"
+              assert path.read_bytes().startswith(b"%PDF-"), f"{path} is not a PDF"
+
+          for path in pngs:
+              assert path.stat().st_size >= 10_000, f"{path} is unexpectedly small"
+              with Image.open(path) as image:
+                  image.verify()
+              with Image.open(path) as image:
+                  width, height = image.size
+              assert width >= 900 and height >= 500, (
+                  f"{path} resolution is only {width}x{height}"
+              )
+          PY
+
+      - name: Confirm generated numerical evidence is current
+        run: git diff --exit-code -- manuscript/generated
 
   manuscript-integrity:
     name: Manuscript and evidence integrity
