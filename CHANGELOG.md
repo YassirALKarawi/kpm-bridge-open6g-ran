@@ -3,6 +3,18 @@
 All notable software, evidence, and reproducibility-package changes are
 documented here.
 
+## Unreleased final JSAC audit — 2026-07-13
+
+- Enforced disjoint fit, calibration, monitor-selection, and test partitions.
+- Added executable semantic-plan and fixed-width certificate tests, bringing
+  the deterministic suite to 18 tests.
+- Recomputed all result records, cluster-bootstrap intervals, drift
+  denominators, tables, and figures; 118/118 manuscript claims now pass.
+- Finalized 15 independently numbered figures, two explicit algorithms, and a
+  13-page IEEEtran manuscript with 40/40 DOI records verified.
+- Narrowed the drift conclusion to the demonstrated exposure reduction through
+  abstention and retained the high post-shift conditional disagreement.
+
 ## 1.0.1 — 2026-07-13
 
 - Added the verified public repository URL to the manuscript and cover letter.

@@ -8,65 +8,89 @@ train/test rows,"[109539, 92373]","[109539, 92373]",PASS
 total labeled rows,201912,201912,PASS
 canonical features,8,8,PASS
 certificate bytes,48,48,PASS
+single-source leakage-free split protocol,"[0.6, 4, 4, 6545, 65494, 10977, true]","[0.6, 4, 4, 6545, 65494, 10977, true]",PASS
+feature statistics use fitting prefixes only,"""exp1 fitting prefixes only""","""exp1 fitting prefixes only""",PASS
+certificates materialized for every full-gate test report,369492,369492,PASS
+encoded certificate byte total,17735616,17735616,PASS
+measured certificate serialization is finite and positive,44.92872323562379,""">0""",PASS
+semantic compiler fail-closed checks,"[4, 4]","[4, 4]",PASS
+all semantic compiler records pass,"[""PASS"", ""PASS"", ""PASS"", ""PASS""]","[""PASS"", ""PASS"", ""PASS"", ""PASS""]",PASS
 manifest file count,108,108,PASS
 manifest bytes,19295185,19295185,PASS
 pinned upstream commit,"""bd86629d07d5fbfb778ebe3afd9d0b05e5191c6b""","""bd86629d07d5fbfb778ebe3afd9d0b05e5191c6b""",PASS
-hash-verified raw inputs,108,108,PASS
-canonical AUROC,0.743,0.743,PASS
-canonical Brier score,0.209,0.209,PASS
-test risk prevalence percent,46.9,46.9,PASS
+hash-verified raw inputs,0,108,FAIL
+portable xApp fitting rows,65494,65494,PASS
+canonical AUROC,0.755,0.755,PASS
+canonical Brier score,0.205,0.205,PASS
+test risk prevalence percent,44.9,44.9,PASS
 registered action threshold,0.2,0.2,PASS
-canonical action rate percent,91.0,91.0,PASS
-stationary KPM-Bridge NRMSE,0.685,0.685,PASS
-stationary KPM-Bridge agreement percent,91.33,91.33,PASS
-NRMSE gain versus strongest baseline percent,4.5,4.5,PASS
-agreement gain versus strongest baseline points,0.96,0.96,PASS
-KPM-Bridge mean regret,0.098,0.098,PASS
-CORAL mean regret,0.1013,0.1013,PASS
-temporal-ridge mean regret,0.1029,0.1029,PASS
-per-profile bridge NRMSE,"[0.665, 0.675, 0.715]","[0.665, 0.675, 0.715]",PASS
-per-profile NRMSE CI lower,"[0.596, 0.604, 0.634]","[0.596, 0.604, 0.634]",PASS
-per-profile NRMSE CI upper,"[0.742, 0.755, 0.813]","[0.742, 0.755, 0.813]",PASS
-decision agreement range,"[91.09913069836423, 91.61659792363568]","[91.1, 91.6]",PASS
-DL-rate NRMSE range,"[0.16, 0.24]","[0.16, 0.24]",PASS
-RSRP NRMSE below 0.08,0.0796028323970104,0.08,PASS
-UL-buffer NRMSE range,"[1.11, 1.16]","[1.11, 1.16]",PASS
-DL-rate improvement percent,49.4,49.4,PASS
-RSRP improvement percent,42.7,42.7,PASS
-DL-BLER change below 0.1 percent,0.018716006919028416,0.1,PASS
-stationary joint coverage percent,94.35,94.35,PASS
-stationary acceptance percent,53.53,53.53,PASS
-stationary selective error percent,0.233,0.233,PASS
-mean generic radius,3.289,3.289,PASS
-per-profile Wilson upper percent,"[0.242, 0.326, 0.27]","[0.242, 0.326, 0.27]",PASS
-no-uncertainty selective-error range percent,"[8.23, 8.76]","[8.23, 8.76]",PASS
-no-uncertainty acceptance range percent,"[79.4, 92.2]","[79.4, 92.2]",PASS
-P4 valid-regime coverage percent,94.47,94.47,PASS
-P4 detection percent,90.6,90.6,PASS
+canonical action rate percent,88.7,88.7,PASS
+stationary KPM-Bridge NRMSE,0.694,0.694,PASS
+stationary KPM-Bridge agreement percent,89.34,89.34,PASS
+NRMSE gain versus strongest baseline percent,2.6,2.6,PASS
+agreement gain versus strongest baseline points,0.53,0.53,PASS
+KPM-Bridge mean regret,0.0977,0.0977,PASS
+CORAL mean regret,0.1033,0.1033,PASS
+temporal-ridge mean regret,0.1019,0.1019,PASS
+per-profile bridge NRMSE,"[0.675, 0.682, 0.725]","[0.675, 0.682, 0.725]",PASS
+per-profile NRMSE CI lower,"[0.6, 0.607, 0.636]","[0.6, 0.607, 0.636]",PASS
+per-profile NRMSE CI upper,"[0.749, 0.759, 0.817]","[0.749, 0.759, 0.817]",PASS
+decision agreement range,"[87.94344667814188, 90.13131542766826]","[87.9, 90.1]",PASS
+DL-rate NRMSE range,"[0.16, 0.18]","[0.16, 0.18]",PASS
+RSRP NRMSE below 0.08,0.0797241624542233,0.08,PASS
+UL-buffer NRMSE range,"[1.13, 1.18]","[1.13, 1.18]",PASS
+DL-rate improvement percent,22.8,22.8,PASS
+RSRP improvement percent,42.6,42.6,PASS
+DL-BLER improvement percent,0.1,0.1,PASS
+one encoded certificate per full-gate report and profile,"[92373, 92373, 92373, 92373]","[92373, 92373, 92373, 92373]",PASS
+certificate reason codes partition every report,"[92373, 92373, 92373, 92373]","[92373, 92373, 92373, 92373]",PASS
+stationary joint coverage percent,94.32,94.32,PASS
+stationary acceptance percent,54.45,54.45,PASS
+stationary selective canonical disagreement percent,0.209,0.209,PASS
+mean generic radius,3.324,3.324,PASS
+row-level Wilson intervals removed,[],[],PASS
+per-profile cluster-bootstrap upper percent,"[0.403, 0.361, 0.352]","[0.403, 0.361, 0.352]",PASS
+no-uncertainty selective-disagreement range percent,"[9.67, 11.73]","[9.67, 11.73]",PASS
+no-uncertainty acceptance range percent,"[78.1, 92.2]","[78.1, 92.2]",PASS
+P4 valid-regime coverage percent,94.43,94.43,PASS
+P4 detection percent,88.7,88.7,PASS
 P4 median detection seconds,8.96,8.96,PASS
 P4 false-alarm percent,9.4,9.4,PASS
-P4 post-shift acceptance percent,4.57,4.57,PASS
-P4 full selective error percent,5.39,5.39,PASS
-P4 no-drift selective error percent,51.2,51.2,PASS
-P4 no-uncertainty selective error percent,10.75,10.75,PASS
-P4 drift-gate error reduction percent,89.5,89.5,PASS
-alpha coverage endpoints percent,"[98.66, 79.48]","[98.66, 79.48]",PASS
-alpha acceptance endpoints percent,"[42.9, 57.5]","[42.9, 57.5]",PASS
-alpha selective-error endpoints percent,"[1.38, 1.9]","[1.38, 1.9]",PASS
-half-scale drift detection percent,11.3,11.3,PASS
-half-scale post-drift coverage percent,90.7,90.7,PASS
-one-scale drift detection percent,79.2,79.2,PASS
-ablation NRMSE sequence,"[3.21, 0.752, 0.717, 0.685]","[3.21, 0.752, 0.717, 0.685]",PASS
-untyped aggregate NRMSE,0.685,0.685,PASS
-anchor NRMSE at 1/5/20 percent,"[0.747, 0.714, 0.71]","[0.747, 0.714, 0.71]",PASS
-missingness agreement endpoints percent,"[91.57, 89.71]","[91.57, 89.71]",PASS
-zero-lag agreement percent,91.45,91.45,PASS
+P4 post-shift acceptance percent,5.99,5.99,PASS
+P4 overall selective canonical disagreement percent,6.03,6.03,PASS
+P4 post-shift conditional canonical disagreement percent,76.23,76.23,PASS
+P4 no-drift post-shift conditional disagreement percent,87.6,87.6,PASS
+P4 no-uncertainty post-shift conditional disagreement percent,76.14,76.14,PASS
+P4 full post-shift joint disagreement exposure percent,4.57,4.57,PASS
+P4 no-drift post-shift joint disagreement exposure percent,86.0,86.0,PASS
+P4 drift-gate joint-exposure reduction percent,94.7,94.7,PASS
+post-shift exposure identity for every P4 variant,1.1102230246251565e-16,0.0,PASS
+P4 full joint-exposure cluster interval percent,"[3.52, 5.96]","[3.52, 5.96]",PASS
+drift window selected without test data,"[5, ""exp1 only"", false]","[5, ""exp1 only"", false]",PASS
+exactly one monitor candidate selected,1,1,PASS
+selected monitor row is W=5,5,5,PASS
+selected monitor satisfies exp1 validation false-alarm ceiling,0.0,0.05,PASS
+training-only synthetic monitor detection by candidate,"[4.55, 9.09, 81.82, 90.91]","[4.55, 9.09, 81.82, 90.91]",PASS
+alpha coverage endpoints percent,"[98.72, 79.15]","[98.72, 79.15]",PASS
+alpha acceptance endpoints percent,"[44.4, 57.0]","[44.4, 57.0]",PASS
+alpha selective-disagreement endpoints percent,"[1.51, 1.94]","[1.51, 1.94]",PASS
+half-scale drift detection percent,9.4,9.4,PASS
+half-scale post-drift coverage percent,90.6,90.6,PASS
+one-scale drift detection percent,71.7,71.7,PASS
+ablation NRMSE sequence,"[0.854, 0.751, 0.713, 0.694]","[0.854, 0.751, 0.713, 0.694]",PASS
+untyped aggregate NRMSE,0.695,0.695,PASS
+anchor NRMSE at 1/5/20 percent,"[0.76, 0.724, 0.721]","[0.76, 0.724, 0.721]",PASS
+missingness agreement endpoints percent,"[90.15, 88.34]","[90.15, 88.34]",PASS
+zero-lag agreement percent,89.21,89.21,PASS
 six-sample age exceeds 1.5 s,1630.451824502559,1500,PASS
-bridge fit-time macro matches benchmark,true,"""\\newcommand{\\BridgeFitRange}{0.94--1.14~s}""",PASS
-bridge batch-latency macro matches benchmark,true,"""\\newcommand{\\BridgeLatency}{8.4~$\\mu$s/sample}""",PASS
-bridge model size MiB,1.44,1.44,PASS
-temporal-ridge latency macro matches benchmark,true,"""\\newcommand{\\TemporalLatency}{1.39~$\\mu$s/sample}""",PASS
-temporal ridge model KiB,12.1,12.1,PASS
+bridge fit-time macro matches benchmark,true,"""\\newcommand{\\BridgeFitRange}{1.00--1.44~s}""",PASS
+bridge batch-latency macro matches benchmark,true,"""\\newcommand{\\BridgeLatency}{10.4~$\\mu$s/sample}""",PASS
+bridge model size MiB,1.45,1.45,PASS
+temporal-ridge latency macro matches benchmark,true,"""\\newcommand{\\TemporalLatency}{2.34~$\\mu$s/sample}""",PASS
+post-shift joint-exposure macro matches benchmark,true,"""\\newcommand{\\DriftExposure}{4.57\\%}""",PASS
+joint-exposure reduction macro matches benchmark,true,"""\\newcommand{\\DriftExposureReduction}{94.7\\%}""",PASS
+training-selected monitor window macro,true,5,PASS
+temporal ridge model KiB,13.4,13.4,PASS
 certificate rate Mbit/s,0.384,0.384,PASS
 canonical-vector rate Mbit/s,0.256,0.256,PASS
 combined payload rate Mbit/s,0.64,0.64,PASS
@@ -76,15 +100,20 @@ declared no-DOI records,0,0,PASS
 DOI links paired with DOI fields,40,40,PASS
 all citation keys resolve,[],[],PASS
 all bibliography records cited,[],[],PASS
-abstract word limit,197,"""75--200""",PASS
+IEEE bibliography follows first-citation order,"[""polese2023understanding"", ""alam2026survey"", ""garcia2021oran"", ""bonati2021intelligence"", ""niknam2022intelligent"", ""wang2026oran6g"", ""feraudo2024xdevsm"", ""huseynov2026granularity"", ""polese2023coloran"", ""bonati2022openrangym"", ""bonati2023openrangym"", ""lacava2023nsoran"", ""upadhyaya2023oaic"", ""feraudo2026xdevsm"", ""groen2025security"", ""song2022telemetry"", ""tan2021int"", ""bjorklund2018nmda"", ""schmidt2021flexric"", ""doro2022orchestran"", ""alkarawi2026nativeai"", ""benDavid2010theory"", ""sun2016deepcoral"", ""tzeng2017adda"", ""courty2017ot"", ""peyre2019optimal"", ""vovk2022algorithmic"", ""angelopoulos2023conformal"", ""barber2023exchangeability"", ""chow1970reject"", ""sadinle2018setvalued"", ""gama2014drift"", ""lu2019drift"", ""webb2016drift"", ""bifet2007adwin"", ""page1954inspection"", ""alkarawi2025offgrid"", ""friedman2001gradient"", ""bertsimas2004robustness"", ""alkarawi2026cqdt""]","[""polese2023understanding"", ""alam2026survey"", ""garcia2021oran"", ""bonati2021intelligence"", ""niknam2022intelligent"", ""wang2026oran6g"", ""feraudo2024xdevsm"", ""huseynov2026granularity"", ""polese2023coloran"", ""bonati2022openrangym"", ""bonati2023openrangym"", ""lacava2023nsoran"", ""upadhyaya2023oaic"", ""feraudo2026xdevsm"", ""groen2025security"", ""song2022telemetry"", ""tan2021int"", ""bjorklund2018nmda"", ""schmidt2021flexric"", ""doro2022orchestran"", ""alkarawi2026nativeai"", ""benDavid2010theory"", ""sun2016deepcoral"", ""tzeng2017adda"", ""courty2017ot"", ""peyre2019optimal"", ""vovk2022algorithmic"", ""angelopoulos2023conformal"", ""barber2023exchangeability"", ""chow1970reject"", ""sadinle2018setvalued"", ""gama2014drift"", ""lu2019drift"", ""webb2016drift"", ""bifet2007adwin"", ""page1954inspection"", ""alkarawi2025offgrid"", ""friedman2001gradient"", ""bertsimas2004robustness"", ""alkarawi2026cqdt""]",PASS
+relevant self-citations are distributed rather than consecutive,"[21, 37, 40]","""nonconsecutive positions""",PASS
+abstract word limit,199,"""75--200""",PASS
 keyword limit,5,"""at most 5""",PASS
 exact Related Work heading,true,true,PASS
 algorithm count,2,2,PASS
 proposition count,5,5,PASS
+no stale pre-split result prose,[],[],PASS
+post-shift denominator evidence table generated,"[true, true, true, true, true, true]","[true, true, true, true, true, true]",PASS
+conclusion reports joint disagreement exposure,true,true,PASS
 thirteen nonempty vector result figures,"[""fig_anchor_sensitivity.pdf"", ""fig_coverage_availability.pdf"", ""fig_drift_ablation.pdf"", ""fig_drift_sensitivity.pdf"", ""fig_feature_gain.pdf"", ""fig_feature_nrmse.pdf"", ""fig_lag_sensitivity.pdf"", ""fig_missingness_sensitivity.pdf"", ""fig_model_size.pdf"", ""fig_runtime.pdf"", ""fig_selective_error.pdf"", ""fig_stationary_agreement.pdf"", ""fig_stationary_nrmse.pdf""]","[""fig_anchor_sensitivity.pdf"", ""fig_coverage_availability.pdf"", ""fig_drift_ablation.pdf"", ""fig_drift_sensitivity.pdf"", ""fig_feature_gain.pdf"", ""fig_feature_nrmse.pdf"", ""fig_lag_sensitivity.pdf"", ""fig_missingness_sensitivity.pdf"", ""fig_model_size.pdf"", ""fig_runtime.pdf"", ""fig_selective_error.pdf"", ""fig_stationary_agreement.pdf"", ""fig_stationary_nrmse.pdf""]",PASS
 three supplied high-resolution illustrations,"[""fig1_kpm_bridge_architecture.jpeg"", ""fig2_typed_canonicalization.jpeg"", ""fig3_certificate_lifecycle.jpeg""]","[""fig1_kpm_bridge_architecture.jpeg"", ""fig2_typed_canonicalization.jpeg"", ""fig3_certificate_lifecycle.jpeg""]",PASS
-one caption per figure and no subfigures,"[16, 16, 0]","[16, 16, 0]",PASS
-no drafting disclosure or placeholders,[],[],PASS
+one caption per figure and no subfigures,"[15, 15, 0]","[15, 15, 0]",PASS
+no placeholders,[],[],PASS
 verified project repository URL in manuscript,"[""github.com/YassirALKarawi/kpm-bridge-open6g-ran""]","[""github.com/YassirALKarawi/kpm-bridge-open6g-ran""]",PASS
 submission PDF pages,13,13,PASS
 no overflow or unresolved cross-reference,[],[],PASS

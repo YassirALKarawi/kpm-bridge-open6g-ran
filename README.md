@@ -33,12 +33,16 @@ official submission deadline is 5 August 2026.
 - 201,912 labeled samples with independent experiment-level train/test splits.
 - Eight canonical KPM features, four controlled implementation profiles,
   seven portable baselines, ablations, and five sensitivity sweeps.
-- Stationary-profile mean: 0.685 NRMSE and 91.33% canonical-decision agreement.
-- At `alpha=0.05`: 94.35% empirical joint coverage, 53.53% acceptance, and
-  0.233% selective decision error.
-- Under the severe P4 shift: 90.6% trace-level detection and 89.5% selective
-  error reduction relative to ignoring the drift flag.
+- Stationary-profile mean: 0.694 NRMSE and 89.34% canonical-action agreement.
+- At `alpha=0.05`: 94.32% empirical joint coverage, 54.45% acceptance, and
+  0.209% conditional canonical-action disagreement.
+- Under the severe P4 shift: 88.7% trace-level detection. The drift gate
+  reduces post-shift joint disagreement exposure from 85.99% to 4.57%
+  (94.7% relative reduction), while the conditional disagreement among the
+  few admitted post-shift actions remains 76.23% and is reported explicitly.
 - Fixed certificate size: 48 bytes.
+- Two explicit algorithms, 18 deterministic tests, 118 fail-closed claim
+  checks, and 40 DOI records verified against Crossref/DataCite.
 
 Profiles P1--P4 are deterministic stressors applied to public traces. They are
 not measurements of, or claims about, named commercial vendors.
@@ -52,6 +56,7 @@ tests/                   deterministic unit tests
 data/                    upstream policy and hash manifest (raw data ignored)
 reproducibility/outputs/ claim-generating CSV and audit records
 manuscript/              IEEEtran source, references, and publication figures
+paper/                   Current 13-page manuscript PDF
 submission/              cover letter and author submission checklist
 .github/                 CI, issue forms, and dependency maintenance
 ```
@@ -84,11 +89,12 @@ make benchmark   # regenerates the full deterministic CSV/JSON evidence
 make assets      # regenerates tables, macros, and vector result figures
 make references # verifies DOI metadata through Crossref/DataCite
 make paper       # builds the 13-page IEEE PDF
-make audit       # runs tests plus 89 fail-closed claim/submission checks
+make audit       # runs 18 tests plus 118 fail-closed claim/submission checks
 ```
 
 The complete benchmark downloads 108 hash-pinned public files and regenerates
-all claim-bearing tables, CSV records, and result figures. See
+all claim-bearing tables, CSV records, encoded certificate evidence, semantic
+fail-closed checks, and result figures. See
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for the staged protocol, expected
 artifacts, integrity checks, and the distinction between smoke and manuscript
 evidence.
@@ -102,9 +108,9 @@ The plotted values are generated from the tracked audit records in
 
 ![Stationary-profile normalized root-mean-square error](manuscript/figures/fig_stationary_nrmse.png)
 
-### Selective decision error
+### Selective canonical-action disagreement
 
-![Selective decision error under calibrated acceptance](manuscript/figures/fig_selective_error.png)
+![Conditional canonical-action disagreement under calibrated acceptance](manuscript/figures/fig_selective_error.png)
 
 ### Runtime complexity
 

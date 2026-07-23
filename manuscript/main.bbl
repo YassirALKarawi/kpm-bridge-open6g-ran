@@ -24,7 +24,7 @@
 \bibitem{polese2023understanding}
 \BIBentryALTinterwordspacing
 M.~Polese, L.~Bonati, S.~D'Oro, S.~Basagni, and T.~Melodia, ``Understanding
-  o-ran: Architecture, interfaces, algorithms, security, and research
+  {O-RAN}: Architecture, interfaces, algorithms, security, and research
   challenges,'' \emph{IEEE Commun. Surveys Tuts.}, vol.~25, no.~2, pp.
   1376--1411, 2023. [Online]. Available:
   \url{https://doi.org/10.1109/COMST.2023.3239220}
@@ -34,7 +34,7 @@ M.~Polese, L.~Bonati, S.~D'Oro, S.~Basagni, and T.~Melodia, ``Understanding
 \BIBentryALTinterwordspacing
 K.~Alam, M.~A. Habibi, M.~Tammen, D.~Krummacker, W.~Saad, M.~D. Renzo,
   T.~Melodia, X.~Costa-P{\'e}rez, M.~Debbah, A.~Dutta, and H.~D. Schotten, ``A
-  comprehensive tutorial and survey of o-ran: Exploring slicing-aware
+  comprehensive tutorial and survey of {O-RAN}: Exploring slicing-aware
   architecture, deployment options, use cases, and challenges,'' \emph{IEEE
   Commun. Surveys Tuts.}, vol.~28, pp. 1637--1678, 2026. [Online]. Available:
   \url{https://doi.org/10.1109/COMST.2025.3598406}
@@ -67,80 +67,83 @@ S.~Niknam, A.~Roy, H.~S. Dhillon, S.~Singh, R.~Banerji, J.~H. Reed, N.~Saxena,
 
 \bibitem{wang2026oran6g}
 \BIBentryALTinterwordspacing
-Q.~Wang, Y.~Wang, L.~Zhou, J.~H. Song, Z.~Li, and J.~Wang, ``The o-ran
-  evolution path toward 6g ai-native ran,'' \emph{IEEE Commun. Standards Mag.},
-  pp. 1--7, 2026. [Online]. Available:
+Q.~Wang, Y.~Wang, L.~Zhou, J.~H. Song, Z.~Li, and J.~Wang, ``The {O-RAN}
+  evolution path toward {6G} {AI}-native {RAN},'' \emph{IEEE Commun. Standards
+  Mag.}, pp. 1--7, 2026. [Online]. Available:
   \url{https://doi.org/10.1109/MCOMSTD.2026.3671966}
 \BIBentrySTDinterwordspacing
 
 \bibitem{feraudo2024xdevsm}
 \BIBentryALTinterwordspacing
 A.~Feraudo, S.~Maxenti, A.~Lacava, P.~Bellavista, M.~Polese, and T.~Melodia,
-  ``xdevsm: Streamlining xapp development with a flexible framework for o-ran
-  e2 service models,'' in \emph{Proc. ACM MobiCom}, 2024, pp. 1954--1961.
-  [Online]. Available: \url{https://doi.org/10.1145/3636534.3697325}
+  ``{xDevSM}: Streamlining {xApp} development with a flexible framework for
+  {O-RAN} {E2} service models,'' in \emph{Proc. ACM MobiCom}, 2024, pp.
+  1954--1961. [Online]. Available:
+  \url{https://doi.org/10.1145/3636534.3697325}
 \BIBentrySTDinterwordspacing
 
 \bibitem{huseynov2026granularity}
 \BIBentryALTinterwordspacing
-K.~Huseynov, M.~A. Erturk, M.~Ozdem, and B.~Canberk, ``Ai-enabled kpm
-  granularity control xapp for o-ran digital twins,'' \emph{IEEE Commun.
+K.~Huseynov, M.~A. Erturk, M.~Ozdem, and B.~Canberk, ``{AI}-enabled {KPM}
+  granularity control {xApp} for {O-RAN} digital twins,'' \emph{IEEE Commun.
   Standards Mag.}, pp. 1--7, 2026. [Online]. Available:
   \url{https://doi.org/10.1109/MCOMSTD.2026.3677760}
 \BIBentrySTDinterwordspacing
 
 \bibitem{polese2023coloran}
 \BIBentryALTinterwordspacing
-M.~Polese, L.~Bonati, S.~D'Oro, S.~Basagni, and T.~Melodia, ``Colo-ran:
-  Developing machine learning-based xapps for open ran closed-loop control on
-  programmable experimental platforms,'' \emph{IEEE Trans. Mobile Comput.},
+M.~Polese, L.~Bonati, S.~D'Oro, S.~Basagni, and T.~Melodia, ``{ColO-RAN}:
+  Developing machine learning-based {xApps} for open {RAN} closed-loop control
+  on programmable experimental platforms,'' \emph{IEEE Trans. Mobile Comput.},
   vol.~22, no.~10, pp. 5787--5800, 2023. [Online]. Available:
   \url{https://doi.org/10.1109/TMC.2022.3188013}
 \BIBentrySTDinterwordspacing
 
 \bibitem{bonati2022openrangym}
 \BIBentryALTinterwordspacing
-L.~Bonati, M.~Polese, S.~D'Oro, S.~Basagni, and T.~Melodia, ``Openran gym: An
-  open toolbox for data collection and experimentation with ai in o-ran,'' in
-  \emph{Proc. IEEE WCNC}, 2022, pp. 518--523. [Online]. Available:
+L.~Bonati, M.~Polese, S.~D'Oro, S.~Basagni, and T.~Melodia, ``{OpenRAN} gym: An
+  open toolbox for data collection and experimentation with {AI} in {O-RAN},''
+  in \emph{Proc. IEEE WCNC}, 2022, pp. 518--523. [Online]. Available:
   \url{https://doi.org/10.1109/WCNC51071.2022.9771908}
 \BIBentrySTDinterwordspacing
 
 \bibitem{bonati2023openrangym}
 \BIBentryALTinterwordspacing
-------, ``Openran gym: Ai/ml development, data collection, and testing for
-  o-ran on pawr platforms,'' \emph{Comput. Netw.}, vol. 220, p. 109502, 2023.
-  [Online]. Available: \url{https://doi.org/10.1016/j.comnet.2022.109502}
+L.~Bonati, M.~Polese, S.~D'Oro, S.~Basagni, and T.~Melodia, ``{OpenRAN} gym:
+  {AI}/{ML} development, data collection, and testing for {O-RAN} on {PAWR}
+  platforms,'' \emph{Comput. Netw.}, vol. 220, p. 109502, 2023. [Online].
+  Available: \url{https://doi.org/10.1016/j.comnet.2022.109502}
 \BIBentrySTDinterwordspacing
 
 \bibitem{lacava2023nsoran}
 \BIBentryALTinterwordspacing
 A.~Lacava, M.~Bordin, M.~Polese, R.~Sivaraj, T.~Zugno, F.~Cuomo, and
-  T.~Melodia, ``ns-o-ran: Simulating o-ran 5g systems in ns-3,'' in \emph{Proc.
-  Workshop on ns-3}, 2023, pp. 35--44. [Online]. Available:
+  T.~Melodia, ``{ns-O-RAN}: Simulating {O-RAN} {5G} systems in {ns-3},'' in
+  \emph{Proc. Workshop on ns-3}, 2023, pp. 35--44. [Online]. Available:
   \url{https://doi.org/10.1145/3592149.3592161}
 \BIBentrySTDinterwordspacing
 
 \bibitem{upadhyaya2023oaic}
 \BIBentryALTinterwordspacing
-P.~S. Upadhyaya, N.~Tripathi, J.~Gaeddert, and J.~H. Reed, ``Open ai cellular
-  (oaic): An open source 5g o-ran testbed for design and testing of ai-based
-  ran management algorithms,'' \emph{IEEE Netw.}, vol.~37, no.~5, pp. 7--15,
-  2023. [Online]. Available: \url{https://doi.org/10.1109/MNET.2023.3320933}
+P.~S. Upadhyaya, N.~Tripathi, J.~Gaeddert, and J.~H. Reed, ``Open {AI} cellular
+  ({OAIC}): An open source {5G} {O-RAN} testbed for design and testing of
+  {AI}-based {RAN} management algorithms,'' \emph{IEEE Netw.}, vol.~37, no.~5,
+  pp. 7--15, 2023. [Online]. Available:
+  \url{https://doi.org/10.1109/MNET.2023.3320933}
 \BIBentrySTDinterwordspacing
 
 \bibitem{feraudo2026xdevsm}
 \BIBentryALTinterwordspacing
 A.~Feraudo, S.~Maxenti, A.~Lacava, L.~Bonati, P.~Bellavista, M.~Polese, and
-  T.~Melodia, ``xdevsm: An open-source framework for portable, ai-ready xapps
-  across heterogeneous o-ran deployments,'' 2026. [Online]. Available:
-  \url{https://doi.org/10.48550/arXiv.2602.03821}
+  T.~Melodia, ``{xDevSM}: An open-source framework for portable, {AI}-ready
+  {xApps} across heterogeneous {O-RAN} deployments,'' 2026. [Online].
+  Available: \url{https://doi.org/10.48550/arXiv.2602.03821}
 \BIBentrySTDinterwordspacing
 
 \bibitem{groen2025security}
 \BIBentryALTinterwordspacing
 J.~Groen, S.~D'Oro, U.~Demir, L.~Bonati, M.~Polese, T.~Melodia, and
-  K.~Chowdhury, ``Implementing and evaluating security in o-ran: Interfaces,
+  K.~Chowdhury, ``Implementing and evaluating security in {O-RAN}: Interfaces,
   intelligence, and platforms,'' \emph{IEEE Netw.}, vol.~39, no.~1, pp.
   227--234, 2025. [Online]. Available:
   \url{https://doi.org/10.1109/MNET.2024.3434419}
@@ -163,8 +166,8 @@ L.~Tan, W.~Su, W.~Zhang, J.~Lv, Z.~Zhang, J.~Miao, X.~Liu, and N.~Li, ``In-band
 \bibitem{bjorklund2018nmda}
 \BIBentryALTinterwordspacing
 M.~Bjorklund, J.~Schoenwaelder, P.~Shafer, K.~Watsen, and R.~Wilton, ``Network
-  management datastore architecture (nmda),'' Internet Engineering Task Force,
-  Tech. Rep. RFC 8342, Mar. 2018. [Online]. Available:
+  management datastore architecture ({NMDA}),'' Internet Engineering Task
+  Force, Tech. Rep. RFC 8342, Mar. 2018. [Online]. Available:
   \url{https://doi.org/10.17487/RFC8342}
 \BIBentrySTDinterwordspacing
 
@@ -186,8 +189,8 @@ S.~D'Oro, L.~Bonati, M.~Polese, and T.~Melodia, ``{OrchestRAN}: Network
 \bibitem{alkarawi2026nativeai}
 \BIBentryALTinterwordspacing
 Y.~Al-Karawi, H.~S. Mogheer, K.~K. Hasan, and A.~H. Dawwd, ``Digital twin and
-  native-ai empowered 6g networks: Architectures, applications, evaluation, and
-  open challenges,'' in \emph{Proc. Int. Russian Smart Industry Conf.
+  native-{AI} empowered {6G} networks: Architectures, applications, evaluation,
+  and open challenges,'' in \emph{Proc. Int. Russian Smart Industry Conf.
   (SmartIndustryCon)}, Mar. 2026, pp. 13--20. [Online]. Available:
   \url{https://doi.org/10.1109/SmartIndustryCon68821.2026.11493034}
 \BIBentrySTDinterwordspacing
@@ -202,7 +205,7 @@ S.~Ben-David, J.~Blitzer, K.~Crammer, A.~Kulesza, F.~Pereira, and J.~W.
 
 \bibitem{sun2016deepcoral}
 \BIBentryALTinterwordspacing
-B.~Sun and K.~Saenko, ``Deep coral: Correlation alignment for deep domain
+B.~Sun and K.~Saenko, ``Deep {CORAL}: Correlation alignment for deep domain
   adaptation,'' in \emph{Proc. ECCV Workshops}, 2016, pp. 443--450. [Online].
   Available: \url{https://doi.org/10.1007/978-3-319-49409-8_35}
 \BIBentrySTDinterwordspacing
@@ -307,8 +310,8 @@ E.~S. Page, ``Continuous inspection schemes,'' \emph{Biometrika}, vol.~41, no.
 \bibitem{alkarawi2025offgrid}
 \BIBentryALTinterwordspacing
 Y.~Al-Karawi, R.~S. Alhumaima, and H.~Al-Raweshidy, ``Energy-aware optimisation
-  for off-grid oran with ris and edge computing,'' \emph{IET Netw.}, vol.~14,
-  no.~1, p. e70012, 2025. [Online]. Available:
+  for off-grid {ORAN} with {RIS} and edge computing,'' \emph{IET Netw.},
+  vol.~14, no.~1, p. e70012, 2025. [Online]. Available:
   \url{https://doi.org/10.1049/ntw2.70012}
 \BIBentrySTDinterwordspacing
 
@@ -329,7 +332,7 @@ D.~Bertsimas and M.~Sim, ``The price of robustness,'' \emph{Oper. Res.},
 \bibitem{alkarawi2026cqdt}
 \BIBentryALTinterwordspacing
 Y.~Al-Karawi, R.~S. Alhumaima, and H.~Al-Raweshidy, ``Cybersecurity driven
-  quantum digital twin for proactive threat reversal in open ran,'' \emph{IET
+  quantum digital twin for proactive threat reversal in open {RAN},'' \emph{IET
   Quantum Commun.}, vol.~7, no.~1, p. e70027, Feb. 2026. [Online]. Available:
   \url{https://doi.org/10.1049/qtc2.70027}
 \BIBentrySTDinterwordspacing

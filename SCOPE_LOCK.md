@@ -129,9 +129,10 @@ only if support, age, drift, and radius constraints in \(\gamma_t\) are met.
 
 - 2 complete algorithms;
 - 5 propositions with explicit assumptions and proofs;
-- 9 publication figures;
-- 5 tables, including related work, profiles, selective inference, ablation,
+- 15 independently numbered publication figures with no subfigures;
+- 10 tables, including related work, profiles, certificate schema, failure
+  semantics, fairness, reproducibility, main results, selective inference, ablation,
   and complexity;
 - sensitivity, ablation, scalability, calibration, and failure-case results;
-- deterministic seeds, generated outputs, a 40-reference DOI audit, an
-  89-check claim audit, and 12 deterministic tests.
+- deterministic seeds, generated outputs, a 40-reference DOI audit, a
+  118-check claim audit, and 18 deterministic tests.

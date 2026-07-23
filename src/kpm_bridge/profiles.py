@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 
 import numpy as np
 
+from .contracts import CompiledTransformPlan, KPMContract, compile_transform_plan
 from .dataset import CanonicalTrace, FeatureStats
 
 RATE_COLUMNS = (0, 5)
@@ -39,6 +40,7 @@ class ImplementationProfile:
 class Observation:
     raw: np.ndarray
     mask: np.ndarray
+    reset_mask: np.ndarray
     age_ms: np.ndarray
     drift_start: int | None
 
@@ -160,8 +162,11 @@ def _semantic_filter(
     return _lag(_rolling_mean(hidden, window), lag)
 
 
-def _to_counters(values: np.ndarray, dt_s: float, reset_period: int) -> np.ndarray:
+def _to_counters(
+    values: np.ndarray, dt_s: float, reset_period: int
+) -> tuple[np.ndarray, np.ndarray]:
     result = values.copy()
+    reset_mask = np.zeros(values.shape, dtype=bool)
     for column in RATE_COLUMNS:
         increments = np.maximum(values[:, column], 0.0) * dt_s
         counter = np.empty(len(values), dtype=float)
@@ -169,10 +174,78 @@ def _to_counters(values: np.ndarray, dt_s: float, reset_period: int) -> np.ndarr
         for index, increment in enumerate(increments):
             if index == 0 or (reset_period > 0 and index % reset_period == 0):
                 running = 0.0
+                reset_mask[index, column] = True
             running += increment
             counter[index] = running
         result[:, column] = counter
-    return result
+    return result, reset_mask
+
+
+_QUANTITIES = (
+    "downlink_throughput",
+    "downlink_bler",
+    "downlink_mcs",
+    "downlink_snr",
+    "rsrp",
+    "uplink_throughput",
+    "uplink_bler",
+    "uplink_buffer",
+)
+_TARGET_UNITS = ("bit/s", "%", "count", "dB", "dBm", "bit/s", "%", "count")
+
+
+def canonical_contracts() -> list[KPMContract]:
+    """Return the registered eight-feature canonical xApp contract."""
+    return [
+        KPMContract(
+            name=f"canonical.{quantity}",
+            quantity=quantity,
+            unit=unit,
+            entity_scope="ue",
+            aggregation="mean" if index in RATE_COLUMNS else "gauge",
+            window_ms=250,
+            clock="canonical-event-time",
+            counter_semantics="gauge",
+            schema_version="canonical-v1",
+            provenance="registered-portable-xapp",
+        )
+        for index, (quantity, unit) in enumerate(zip(_QUANTITIES, _TARGET_UNITS, strict=True))
+    ]
+
+
+def profile_contracts(profile: ImplementationProfile) -> list[KPMContract]:
+    """Materialize the declared source semantics of a controlled profile."""
+    units = list(_TARGET_UNITS)
+    for index in RATE_COLUMNS:
+        units[index] = "kbit" if profile.rates_as_counters else (
+            "kbit/s" if np.isclose(profile.declared_scale[index], 1e-3) else "bit/s"
+        )
+    for index in (1, 6):
+        units[index] = "ratio" if np.isclose(profile.declared_scale[index], 1e-2) else "%"
+    return [
+        KPMContract(
+            name=f"{profile.key}.{quantity}",
+            quantity=quantity,
+            unit=units[index],
+            entity_scope="ue",
+            aggregation="mean" if profile.window > 1 else (
+                "mean" if index in RATE_COLUMNS else "gauge"
+            ),
+            window_ms=250 * profile.window,
+            clock="e2-node",
+            counter_semantics=(
+                "cumulative" if profile.rates_as_counters and index in RATE_COLUMNS else "gauge"
+            ),
+            schema_version="e2sm-kpm-controlled-v1",
+            provenance=f"controlled-profile-{profile.key}",
+        )
+        for index, quantity in enumerate(_QUANTITIES)
+    ]
+
+
+def compile_profile_plan(profile: ImplementationProfile) -> CompiledTransformPlan:
+    """Compile the profile declaration into an executable canonical plan."""
+    return compile_transform_plan(profile_contracts(profile), canonical_contracts())
 
 
 def observe_trace(
@@ -193,6 +266,7 @@ def observe_trace(
         profile.lag,
     )
     drift_start: int | None = None
+    reset_mask = np.zeros((n, d), dtype=bool)
     active_lag = np.full(n, profile.lag, dtype=float)
     active_noise = np.full(n, profile.noise_fraction, dtype=float)
     if inject_drift and profile.drift_fraction is not None:
@@ -212,7 +286,9 @@ def observe_trace(
         active_noise[drift_start:] *= profile.drift_noise_multiplier
 
     if profile.rates_as_counters:
-        base = _to_counters(base, trace.dt_ms / 1000.0, profile.reset_period)
+        base, reset_mask = _to_counters(
+            base, trace.dt_ms / 1000.0, profile.reset_period
+        )
 
     raw = base * profile.declared_scale + profile.declared_offset
     noise = rng.normal(size=raw.shape) * (
@@ -234,7 +310,13 @@ def observe_trace(
 
     base_age = (active_lag + (profile.window - 1) / 2.0) * trace.dt_ms
     age = np.maximum(0.0, base_age + np.abs(rng.normal(0, profile.timestamp_jitter_ms, n)))
-    return Observation(raw=raw, mask=mask, age_ms=age, drift_start=drift_start)
+    return Observation(
+        raw=raw,
+        mask=mask,
+        reset_mask=reset_mask,
+        age_ms=age,
+        drift_start=drift_start,
+    )
 
 
 def invert_declared_contract(
@@ -242,21 +324,12 @@ def invert_declared_contract(
     profile: ImplementationProfile,
     dt_ms: float,
 ) -> np.ndarray:
-    physical = (observation.raw - profile.declared_offset) / profile.declared_scale
-    if not profile.rates_as_counters:
-        return physical
-    result = physical.copy()
-    dt_s = dt_ms / 1000.0
-    for column in RATE_COLUMNS:
-        counter = physical[:, column]
-        rate = np.full(len(counter), np.nan, dtype=float)
-        valid = np.isfinite(counter)
-        for index in range(1, len(counter)):
-            if valid[index] and valid[index - 1]:
-                delta = counter[index] - counter[index - 1]
-                rate[index] = (counter[index] if delta < 0 else delta) / dt_s
-        result[:, column] = rate
-    return result
+    """Compatibility wrapper; benchmark paths use the compiled plan directly."""
+    return compile_profile_plan(profile).apply(
+        observation.raw,
+        reset_mask=observation.reset_mask,
+        dt_ms=dt_ms,
+    )
 
 
 def with_stress(

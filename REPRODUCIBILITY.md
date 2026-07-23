@@ -55,6 +55,19 @@ The benchmark writes its claim-bearing records to
 from those records by `make assets`. The three architecture illustrations are
 author-supplied publication assets and are not synthesized by the benchmark.
 
+For each `exp1` trace, all fitted quantities—including robust feature scales,
+task thresholds, and the fixed xApp—use only the first 60% prefix (with a
+four-sample label-horizon guard). Mapping uses 10% evenly spaced paired anchors
+inside that prefix. Every fourth row of the remaining 40% is reserved for
+calibration; the two masks are asserted disjoint. The full `exp2` repetition
+is test-only. `benchmark_summary.json` records the resulting row counts.
+
+The benchmark also executes the compiled semantic plan, materializes and
+encodes one 48-byte certificate for every full-gate test report, and writes
+semantic decoy/permutation checks and drift-window sensitivity to separate
+CSV records. The monitor window is selected from `exp1` only; `exp2` never
+enters that selection.
+
 ## 5. Verify references and build the manuscript
 
 ```bash
@@ -81,7 +94,8 @@ longer mutually consistent.
 | Canonical KPM features | 8 |
 | Certificate size | 48 bytes |
 | DOI-verified references | 40 |
-| Claim/submission checks | 89 |
-| Deterministic unit tests | 12 |
+| Semantic compiler checks | 4 / 4 pass |
+| Encoded full-gate certificates | 369,492 |
+| Deterministic unit tests | 18 |
 
 The complete interpretation boundary is recorded in `SCOPE_LOCK.md`.

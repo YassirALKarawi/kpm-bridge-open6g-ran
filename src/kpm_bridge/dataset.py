@@ -10,6 +10,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from .splits import PREDICTION_HORIZON, fitting_prefix, xapp_fit_mask
+
 FEATURE_NAMES = (
     "dl_brate",
     "dl_bler",
@@ -105,7 +107,11 @@ def load_colosseum_subset(
 
 
 def robust_feature_stats(traces: list[CanonicalTrace]) -> FeatureStats:
-    values = np.vstack([trace.values for trace in traces])
+    if not traces:
+        raise ValueError("traces cannot be empty")
+    # Scaling is part of the fitted mapper and conformal score definition.  It
+    # must therefore be frozen from the fitting prefix, never from calibration.
+    values = np.vstack([fitting_prefix(trace.values) for trace in traces])
     location = np.median(values, axis=0)
     q25, q75 = np.quantile(values, [0.25, 0.75], axis=0)
     robust_scale = (q75 - q25) / 1.349
@@ -129,13 +135,17 @@ def _future_mean(values: np.ndarray, horizon: int) -> np.ndarray:
 
 def attach_qos_risk_labels(
     traces: list[CanonicalTrace],
-    horizon: int = 4,
+    horizon: int = PREDICTION_HORIZON,
 ) -> tuple[list[CanonicalTrace], dict[str, dict[str, float]]]:
     """Create a trace-backed one-second QoS-risk task without future leakage."""
     training = [trace for trace in traces if trace.experiment == "exp1"]
     future_by_class: dict[str, list[np.ndarray]] = {key: [] for key in ("eMBB", "MTC", "URLLC")}
     for trace in training:
-        future_by_class[trace.traffic_class].append(_future_mean(trace.values, horizon))
+        future = _future_mean(trace.values, horizon)
+        # Both the label thresholds and the downstream xApp are frozen before
+        # the calibration suffix.  Guarding by ``horizon`` also prevents a
+        # training label from peeking across the split boundary.
+        future_by_class[trace.traffic_class].append(future[xapp_fit_mask(len(future), horizon)])
 
     thresholds: dict[str, dict[str, float]] = {}
     for key, blocks in future_by_class.items():

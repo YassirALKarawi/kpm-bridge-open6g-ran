@@ -9,10 +9,10 @@
 
 - [x] IEEEtran journal format, 10-point, double-column, single-spaced.
 - [x] Complete manuscript is exactly 13 pages, including references.
-- [x] Abstract is 197 words (required range: 75--200).
+- [x] Abstract is within the required 75--200-word range.
 - [x] Five index terms (maximum allowed: five).
-- [x] Sixteen independently numbered figures are placed with the text: three
-      supplied architecture illustrations and thirteen vector result figures.
+- [x] Fifteen independently numbered figures are placed with the text: three
+      supplied architecture illustrations and twelve vector result figures.
 - [x] Every result plot has its own caption; no subfigure environment is used.
 - [x] Two explicit algorithms and five propositions are included.
 - [x] Related-work comparison, baselines, ablations, sensitivity, complexity,
@@ -21,11 +21,11 @@
       and a matching `https://doi.org/...` link.
 - [x] DOI links are clickable and rendered in blue.
 - [x] No missing citations, unresolved cross-references, overfull boxes, TODOs,
-      placeholders, provisional repository URLs, or drafting acknowledgment.
+      placeholders, or provisional repository URLs.
 - [x] The manuscript uses the verified permanent project repository URL:
       `https://github.com/YassirALKarawi/kpm-bridge-open6g-ran`.
-- [x] Twelve deterministic unit tests pass.
-- [x] Eighty-nine claim, evidence, reference, and format checks pass.
+- [x] Eighteen deterministic unit tests pass.
+- [x] One hundred eighteen claim, evidence, reference, and format checks pass.
 - [x] Raw GPL-3.0 traces are not redistributed; the 108-file subset is pinned
       and SHA-256 verified.
 
@@ -39,9 +39,9 @@
       requires ORCID for every author.
 - [ ] Select traditional or open-access publication and review the applicable
       publication/page charges.
-- [ ] Upload `KPM-Bridge_IEEE_JSAC_Final_v1.2.pdf` to the correct special-issue track
+- [ ] Upload `KPM-Bridge_IEEE_JSAC_Final.pdf` to the correct special-issue track
       in ScholarOne and paste the five index terms exactly as shown in the PDF.
 - [ ] Review the optional cover letter, compile/sign it if the portal requests
       one, and do not add claims that the authors have not personally confirmed.
-- [x] Reproducibility repository and release `v1.0.1` are public, verified, and
-      synchronized with the manuscript URL.
+- [ ] Confirm that the public reproducibility repository is synchronized with
+      the exact submitted manuscript and tag the archival release if desired.

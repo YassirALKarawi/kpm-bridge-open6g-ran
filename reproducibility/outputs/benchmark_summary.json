@@ -9,22 +9,22 @@
   "features": 8,
   "risk_thresholds": {
     "eMBB": {
-      "dl_brate_q35": 58648.0,
-      "dl_bler_q75": 8.0
+      "dl_brate_q35": 57020.67626937525,
+      "dl_bler_q75": 7.75
     },
     "MTC": {
-      "dl_brate_q35": 56733.642236399486,
-      "dl_bler_q75": 3.75
+      "dl_brate_q35": 55304.0,
+      "dl_bler_q75": 3.5
     },
     "URLLC": {
-      "dl_brate_q35": 115613.95976549834,
-      "dl_bler_q75": 7.0
+      "dl_brate_q35": 110302.76074212497,
+      "dl_bler_q75": 6.75
     }
   },
   "feature_location": [
-    101344.0,
+    91040.0,
     0.0,
-    9.5,
+    9.3,
     13.0,
     -57.0,
     0.0,
@@ -32,28 +32,76 @@
     0.0
   ],
   "feature_scale": [
-    645345.5893372905,
-    5.3486300091097965,
-    3.4903217286133965,
+    620289.1299935622,
+    5.323592884165046,
+    3.7179948409490917,
     2.2238695329873983,
     2.965159377316531,
-    64705.65478243139,
-    24.284430313731907,
-    72.67337354809764
+    62446.33699985583,
+    23.679531006681213,
+    71.33125371070294
   ],
   "xapp": {
-    "training_samples": 109539,
+    "training_samples": 65494,
     "test_samples": 92373,
-    "test_risk_prevalence": 0.46878416853409544,
-    "canonical_auroc": 0.7433042849547599,
-    "canonical_brier": 0.2086972235527861,
-    "canonical_balanced_accuracy_at_0_5": 0.6814901972664118,
-    "canonical_f1_at_0_5": 0.6842339573042759,
+    "test_risk_prevalence": 0.44920052396262977,
+    "canonical_auroc": 0.7550874238398475,
+    "canonical_brier": 0.20495506023820245,
+    "canonical_balanced_accuracy_at_0_5": 0.6914453321605358,
+    "canonical_f1_at_0_5": 0.6845718857785419,
     "control_action_threshold": 0.2,
-    "control_action_rate": 0.9101902070951469,
-    "canonical_regret": 0.10020027497212389
+    "control_action_rate": 0.8865902374070346,
+    "canonical_regret": 0.1018544379851255
   },
   "certificate_bytes": 48,
+  "certificate_materialization": {
+    "reports": 369492,
+    "encoded_bytes": 17735616,
+    "mean_encoding_us_per_report": 44.92872323562379
+  },
+  "split_protocol": {
+    "fit_fraction": 0.6,
+    "calibration_stride": 4,
+    "prediction_horizon": 4,
+    "mapper_anchor_rows": 6545,
+    "xapp_fit_rows": 65494,
+    "calibration_rows": 10977,
+    "feature_statistics_source": "exp1 fitting prefixes only",
+    "disjoint_fit_calibration": true
+  },
+  "compiled_plans": {
+    "P1": {
+      "schema_hash_hex": "7e0a88680813a99b108a86825e80a5e9",
+      "mapping_id": 15820701458706103990,
+      "semantic_cost": 10.345177444479562
+    },
+    "P2": {
+      "schema_hash_hex": "a40c355a65e488fe44322e41c04869b8",
+      "mapping_id": 6495759175742988102,
+      "semantic_cost": 14.588898309344879
+    },
+    "P3": {
+      "schema_hash_hex": "ead39f1272b4cbb1796ea3f36533a6b1",
+      "mapping_id": 2982997157479693419,
+      "semantic_cost": 15.890354888959124
+    },
+    "P4": {
+      "schema_hash_hex": "c2f5b029d284c7ef5be3f49f3f38ed0e",
+      "mapping_id": 240594557299779986,
+      "semantic_cost": 10.345177444479562
+    }
+  },
+  "semantic_checks": {
+    "checks": 4,
+    "passed": 4
+  },
+  "monitor_selection": {
+    "selected_window": 5,
+    "selection_data": "exp1 only",
+    "validation_false_alarm_ceiling": 0.05,
+    "synthetic_shift_scale": 1.25,
+    "test_data_used_for_selection": false
+  },
   "environment": {
     "python": "3.12.13",
     "platform": "Linux-6.12.47-x86_64-with-glibc2.39",
