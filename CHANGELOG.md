@@ -24,10 +24,10 @@ documented here.
 
 ## 1.0.1 — 2026-07-13
 
-- Added the verified public repository URL to the manuscript and cover letter.
+- Added the verified public repository URL to the manuscript.
 - Synchronized the manuscript title, repository identity, software version, and
   release metadata through a fail-closed audit.
-- Rebuilt the 13-page submission PDF and reproducibility archives from the
+- Rebuilt the 13-page manuscript PDF and reproducibility archives from the
   release commit.
 
 ## 1.0.0 — 2026-07-13
@@ -41,4 +41,5 @@ documented here.
 - Published 16 independently numbered manuscript figures: three architecture
   illustrations and 13 generated vector result figures.
 - Verified 40 cited DOI records and paired every DOI with its resolver URL.
-- Added the 13-page IEEE JSAC manuscript source and submission documentation.
+- Added the 13-page IEEEtran manuscript source and reproducibility
+  documentation.
