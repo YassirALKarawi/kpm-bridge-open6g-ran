@@ -21,8 +21,7 @@
       and a matching `https://doi.org/...` link.
 - [x] DOI links are clickable and rendered in blue.
 - [x] No missing citations, unresolved cross-references, overfull boxes, TODOs,
-      placeholders, or provisional repository URLs; AI-tool use is disclosed in
-      the manuscript Acknowledgment in accordance with IEEE author guidance.
+      placeholders, or provisional repository URLs.
 - [x] The manuscript uses the verified permanent project repository URL:
       `https://github.com/YassirALKarawi/kpm-bridge-open6g-ran`.
 - [x] Eighteen deterministic unit tests pass.

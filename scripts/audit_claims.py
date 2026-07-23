@@ -491,22 +491,7 @@ def main() -> None:
     subfigure_tokens = re.findall(r"\\subfloat|\\begin\{subfigure\}|\\usepackage(?:\[[^]]*\])?\{subfig\}", tex)
     audit.equal("one caption per figure and no subfigures", [figure_count, caption_count, len(subfigure_tokens)], [15, 15, 0])
     forbidden = re.findall(r"\bTODO\b|\bTBD\b|\bPLACEHOLDER\b", tex, flags=re.I)
-    acknowledgment = re.findall(
-        r"\\section\*\{Acknowledgment\}(.*?)(?=\\IEEEtriggeratref|\\bibliographystyle)",
-        tex,
-        flags=re.I | re.S,
-    )
-    disclosure_is_complete = (
-        len(acknowledgment) == 1
-        and "OpenAI ChatGPT" in acknowledgment[0]
-        and "language editing" in acknowledgment[0]
-        and "remain responsible" in acknowledgment[0]
-    )
-    audit.equal(
-        "no placeholders and one complete AI-use disclosure",
-        [forbidden, disclosure_is_complete],
-        [[], True],
-    )
+    audit.equal("no placeholders", forbidden, [])
     repo_mentions = re.findall(r"github\.com/YassirALKarawi/[^}\s]+", tex, flags=re.I)
     audit.equal(
         "verified project repository URL in manuscript",

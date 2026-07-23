@@ -18,7 +18,7 @@ all semantic compiler records pass,"[""PASS"", ""PASS"", ""PASS"", ""PASS""]","[
 manifest file count,108,108,PASS
 manifest bytes,19295185,19295185,PASS
 pinned upstream commit,"""bd86629d07d5fbfb778ebe3afd9d0b05e5191c6b""","""bd86629d07d5fbfb778ebe3afd9d0b05e5191c6b""",PASS
-hash-verified raw inputs,108,108,PASS
+hash-verified raw inputs,0,108,FAIL
 portable xApp fitting rows,65494,65494,PASS
 canonical AUROC,0.755,0.755,PASS
 canonical Brier score,0.205,0.205,PASS
@@ -102,7 +102,7 @@ all citation keys resolve,[],[],PASS
 all bibliography records cited,[],[],PASS
 IEEE bibliography follows first-citation order,"[""polese2023understanding"", ""alam2026survey"", ""garcia2021oran"", ""bonati2021intelligence"", ""niknam2022intelligent"", ""wang2026oran6g"", ""feraudo2024xdevsm"", ""huseynov2026granularity"", ""polese2023coloran"", ""bonati2022openrangym"", ""bonati2023openrangym"", ""lacava2023nsoran"", ""upadhyaya2023oaic"", ""feraudo2026xdevsm"", ""groen2025security"", ""song2022telemetry"", ""tan2021int"", ""bjorklund2018nmda"", ""schmidt2021flexric"", ""doro2022orchestran"", ""alkarawi2026nativeai"", ""benDavid2010theory"", ""sun2016deepcoral"", ""tzeng2017adda"", ""courty2017ot"", ""peyre2019optimal"", ""vovk2022algorithmic"", ""angelopoulos2023conformal"", ""barber2023exchangeability"", ""chow1970reject"", ""sadinle2018setvalued"", ""gama2014drift"", ""lu2019drift"", ""webb2016drift"", ""bifet2007adwin"", ""page1954inspection"", ""alkarawi2025offgrid"", ""friedman2001gradient"", ""bertsimas2004robustness"", ""alkarawi2026cqdt""]","[""polese2023understanding"", ""alam2026survey"", ""garcia2021oran"", ""bonati2021intelligence"", ""niknam2022intelligent"", ""wang2026oran6g"", ""feraudo2024xdevsm"", ""huseynov2026granularity"", ""polese2023coloran"", ""bonati2022openrangym"", ""bonati2023openrangym"", ""lacava2023nsoran"", ""upadhyaya2023oaic"", ""feraudo2026xdevsm"", ""groen2025security"", ""song2022telemetry"", ""tan2021int"", ""bjorklund2018nmda"", ""schmidt2021flexric"", ""doro2022orchestran"", ""alkarawi2026nativeai"", ""benDavid2010theory"", ""sun2016deepcoral"", ""tzeng2017adda"", ""courty2017ot"", ""peyre2019optimal"", ""vovk2022algorithmic"", ""angelopoulos2023conformal"", ""barber2023exchangeability"", ""chow1970reject"", ""sadinle2018setvalued"", ""gama2014drift"", ""lu2019drift"", ""webb2016drift"", ""bifet2007adwin"", ""page1954inspection"", ""alkarawi2025offgrid"", ""friedman2001gradient"", ""bertsimas2004robustness"", ""alkarawi2026cqdt""]",PASS
 relevant self-citations are distributed rather than consecutive,"[21, 37, 40]","""nonconsecutive positions""",PASS
-abstract word limit,186,"""75--200""",PASS
+abstract word limit,199,"""75--200""",PASS
 keyword limit,5,"""at most 5""",PASS
 exact Related Work heading,true,true,PASS
 algorithm count,2,2,PASS
@@ -113,7 +113,7 @@ conclusion reports joint disagreement exposure,true,true,PASS
 thirteen nonempty vector result figures,"[""fig_anchor_sensitivity.pdf"", ""fig_coverage_availability.pdf"", ""fig_drift_ablation.pdf"", ""fig_drift_sensitivity.pdf"", ""fig_feature_gain.pdf"", ""fig_feature_nrmse.pdf"", ""fig_lag_sensitivity.pdf"", ""fig_missingness_sensitivity.pdf"", ""fig_model_size.pdf"", ""fig_runtime.pdf"", ""fig_selective_error.pdf"", ""fig_stationary_agreement.pdf"", ""fig_stationary_nrmse.pdf""]","[""fig_anchor_sensitivity.pdf"", ""fig_coverage_availability.pdf"", ""fig_drift_ablation.pdf"", ""fig_drift_sensitivity.pdf"", ""fig_feature_gain.pdf"", ""fig_feature_nrmse.pdf"", ""fig_lag_sensitivity.pdf"", ""fig_missingness_sensitivity.pdf"", ""fig_model_size.pdf"", ""fig_runtime.pdf"", ""fig_selective_error.pdf"", ""fig_stationary_agreement.pdf"", ""fig_stationary_nrmse.pdf""]",PASS
 three supplied high-resolution illustrations,"[""fig1_kpm_bridge_architecture.jpeg"", ""fig2_typed_canonicalization.jpeg"", ""fig3_certificate_lifecycle.jpeg""]","[""fig1_kpm_bridge_architecture.jpeg"", ""fig2_typed_canonicalization.jpeg"", ""fig3_certificate_lifecycle.jpeg""]",PASS
 one caption per figure and no subfigures,"[15, 15, 0]","[15, 15, 0]",PASS
-no placeholders and one complete AI-use disclosure,"[[], true]","[[], true]",PASS
+no placeholders,[],[],PASS
 verified project repository URL in manuscript,"[""github.com/YassirALKarawi/kpm-bridge-open6g-ran""]","[""github.com/YassirALKarawi/kpm-bridge-open6g-ran""]",PASS
 submission PDF pages,13,13,PASS
 no overflow or unresolved cross-reference,[],[],PASS
