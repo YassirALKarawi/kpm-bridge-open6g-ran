@@ -18,12 +18,13 @@ from audit_references import entries, field
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "reproducibility" / "outputs"
 MANUSCRIPT = ROOT / "manuscript" / "main.tex"
+RESULT_MACROS = ROOT / "manuscript" / "generated" / "results_macros.tex"
 PROJECT_TITLE = (
     "KPM-Bridge: An Uncertainty-Aware Cross-Implementation Telemetry Fabric "
     "for Portable AI xApps in Open 6G RAN"
 )
 PROJECT_REPOSITORY = "https://github.com/YassirALKarawi/kpm-bridge-open6g-ran"
-SOFTWARE_VERSION = "1.0.1"
+SOFTWARE_VERSION = "1.0.2"
 
 
 class Audit:
@@ -65,13 +66,11 @@ def tex_abstract_word_count(tex: str) -> int:
     if not abstract:
         return 0
     text = abstract.group(1)
-    text = re.sub(
-        r"\\(?:DatasetRows|StableNrmse|StableAgreement|NrmseGainBest|AgreementGainBest|"
-        r"StableCoverage|StableSelectiveError|StableAcceptance|DriftDetection|DriftDelay|"
-        r"DriftErrorReduction|DriftExposure|NoDriftExposure|DriftExposureReduction)",
-        "VALUE",
-        text,
-    )
+    macro_source = RESULT_MACROS.read_text(encoding="utf-8")
+    macro_names = re.findall(r"\\newcommand\{\\([^}]+)\}", macro_source)
+    if macro_names:
+        macro_pattern = r"\\(?:" + "|".join(map(re.escape, macro_names)) + r")\b"
+        text = re.sub(macro_pattern, "VALUE", text)
     text = re.sub(r"\\[A-Za-z]+", " ", text)
     text = re.sub(r"[$\\{}~=]", " ", text)
     return len(re.findall(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*", text))
@@ -484,7 +483,7 @@ def main() -> None:
     )
     illustration_paths = [ROOT / "manuscript" / "figures" / name for name in expected_illustrations]
     valid_illustrations = sorted(path.name for path in illustration_paths if path.exists() and path.stat().st_size >= 100_000)
-    audit.equal("three supplied high-resolution illustrations", valid_illustrations, expected_illustrations)
+    audit.equal("three supplied publication illustrations", valid_illustrations, expected_illustrations)
     figure_blocks = re.findall(r"\\begin\{figure\*?\}.*?\\end\{figure\*?\}", tex, flags=re.S)
     figure_count = len(figure_blocks)
     caption_count = sum(len(re.findall(r"\\caption\{", block)) for block in figure_blocks)

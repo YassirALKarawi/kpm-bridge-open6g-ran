@@ -3,7 +3,7 @@
 All notable software, evidence, and reproducibility-package changes are
 documented here.
 
-## Unreleased final JSAC audit — 2026-07-13
+## 1.0.2 — 2026-07-23
 
 - Enforced disjoint fit, calibration, monitor-selection, and test partitions.
 - Added executable semantic-plan and fixed-width certificate tests, bringing
@@ -14,6 +14,13 @@ documented here.
   13-page IEEEtran manuscript with 40/40 DOI records verified.
 - Narrowed the drift conclusion to the demonstrated exposure reduction through
   abstention and retained the high post-shift conditional disagreement.
+- Made the binary act-or-abstain policy, admission predicate, evaluation
+  variants, and nonportable reference results explicit in the manuscript.
+- Synchronized the 13-page manuscript PDF with the final reviewed source and
+  corrected the figure-provenance and validation records.
+- Strengthened continuous integration with byte-stable asset regeneration,
+  pinned-input verification, PDF compilation, DOI checks, and the full
+  fail-closed manuscript audit.
 
 ## 1.0.1 — 2026-07-13
 
